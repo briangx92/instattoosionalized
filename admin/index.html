@@ -431,7 +431,21 @@
         .crm-add{ display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
         .crm-add input, .crm-add select{ padding:9px 11px; border:1px solid #d9d4c7; border-radius:9px; font:inherit; }
         .crm-add button{ padding:9px 16px; border:none; border-radius:9px; background:#f4682a; color:#fff; font-weight:700; cursor:pointer; }
-        @media(max-width:700px){ .crm-table th:nth-child(5), .crm-table td:nth-child(5){ display:none; } }
+        @media(max-width:700px){
+          .crm-table{ border:none; background:transparent; overflow:visible; }
+          .crm-table thead{ display:none; }
+          .crm-table, .crm-table tbody, .crm-table tr, .crm-table td{ display:block; width:100%; }
+          .crm-table tr{ background:#fff; border:1px solid #e7e2d9; border-radius:12px; padding:10px 14px; margin-bottom:10px; }
+          .crm-table td{ border-bottom:none; padding:2px 0; }
+          .crm-table td:nth-child(1){ font-size:16px; font-weight:700; padding-bottom:4px; }
+          .crm-table td:nth-child(2)::before{ content:"Artist: "; color:#8a8578; }
+          .crm-table td:nth-child(3)::before{ content:"Piece: "; color:#8a8578; }
+          .crm-table td:nth-child(4)::before{ content:"Last visit: "; color:#8a8578; }
+          .crm-table td:nth-child(5)::before{ content:"Visits: "; color:#8a8578; }
+          .crm-table td:nth-child(6)::before{ content:"Phone: "; color:#8a8578; }
+          .crm-table td:nth-child(8){ padding-top:8px; }
+          .crm-bar span{ display:none; }
+        }
       </style>
       <div class="crm-stats">
         <div class="crm-stat"><b id="crm-total">0</b><span>Clients</span></div>
