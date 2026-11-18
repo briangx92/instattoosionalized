@@ -2166,7 +2166,7 @@ var DEFAULTS = {
     var root = document.createElement('div'); root.className = 'oa-pf';
     wrap.insertBefore(root, wrap.firstChild);
 
-    var view = 'portfolio', page = 0, sortMode = 'new', baPairs = [], baTarget = null, note = '', noteWarn = false, syncing = false;
+    var view = 'portfolio', page = 0, sortMode = 'new', baPairs = [], baTarget = null, note = '', noteWarn = false, syncing = false, armDelSec = false;
 
     function commit(){
       var st = loadStore(); st[slug] = model; saveStore(st);
@@ -2222,6 +2222,10 @@ var DEFAULTS = {
       h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">The working shelf. Tap On site to put a photo on the artist\u2019s page; it shows in Portfolio right away.</p>';
       h += barHTML();
       h += '<div class="oa-sechead"><input type="text" data-role="secname" value="' + esc(sec) + '"><span class="cnt">' + items.length + (items.length === 1 ? ' photo' : ' photos') + '</span></div>';
+      if (model.sections.length > 1) {
+        var tgt = model.sections.filter(function(x){ return x !== sec; })[0];
+        h += '<div style="margin-bottom:10px"><button class="btn" type="button" data-act="delsec">' + (armDelSec ? 'Tap again to confirm remove' : 'Remove section') + '</button>' + (armDelSec ? ' <span style="font-size:12.5px;color:#5c5c66">Photos and pairs in it move to ' + esc(tgt) + '. Nothing is deleted.</span>' : '') + '</div>';
+      }
       if (!items.length) h += '<div class="oa-empty">No photos in this section yet. Add some below.</div>';
       else h += '<div class="oa-pgrid" data-role="ggrid">' + items.map(function(s){
         return '<div class="oa-tile"><img src="' + esc(disp(s.src)) + '" alt=""><button class="oa-tsite' + (s.onSite ? ' on' : '') + '" type="button" data-site="' + s.id + '">' + (s.onSite ? 'On site' : '+ Site') + '</button><button class="oa-tx" type="button" data-del="' + s.id + '" aria-label="Delete photo">&times;</button><span class="oa-tcap">' + esc(nameOf(s)) + '</span></div>';
@@ -2269,7 +2273,7 @@ var DEFAULTS = {
       });
     }
 
-    function render(){ if (view === 'portfolio') renderPortfolio(); else if (view === 'gallery') renderGallery(); else renderBA(); }
+    function render(){ if (view !== 'gallery') armDelSec = false; if (view === 'portfolio') renderPortfolio(); else if (view === 'gallery') renderGallery(); else renderBA(); }
     function addFiles(sec, files){
       Array.prototype.forEach.call(files, function(f){
         readFile(f, function(src){ model.singles.push({ id: nid('s'), src: src, cap: '', sec: sec, onSite: false, ord: uid }); commit(); render(); });
@@ -2291,8 +2295,8 @@ var DEFAULTS = {
       if (act === 'ch-gallery') { view = 'gallery'; note = ''; render(); return; }
       if (act === 'ch-ba') { if (!baPairs.length) baPairs.push({ sec: model.sections[0], b: null, a: null }); view = 'ba'; note = ''; render(); return; }
       if (act === 'done') { view = 'portfolio'; note = ''; render(); return; }
-      if (act === 'prev') { if (page > 0) { page--; render(); } return; }
-      if (act === 'next') { if (page < model.sections.length - 1) { page++; render(); } return; }
+      if (act === 'prev') { if (page > 0) { page--; armDelSec = false; render(); } return; }
+      if (act === 'next') { if (page < model.sections.length - 1) { page++; armDelSec = false; render(); } return; }
       if (act === 'gupload') { var o = root.querySelector('[data-role="gupopts"]'); if (o) o.style.display = o.style.display === 'none' ? '' : 'none'; return; }
       if (act === 'g-cancel') { root.querySelector('[data-role="gupopts"]').style.display = 'none'; return; }
       if (act === 'g-photos') { root.querySelector('[data-role="gfile"]').click(); return; }
@@ -2302,6 +2306,19 @@ var DEFAULTS = {
         model.sections.push(name); page = model.sections.length - 1; commit(); render(); return;
       }
       if (act === 'addpair') { tryAddPair(); return; }
+      if (act === 'delsec') {
+        if (!armDelSec) { armDelSec = true; render(); return; }
+        var old = secName();
+        var target = model.sections.filter(function(x){ return x !== old; })[0];
+        model.singles.forEach(function(s){ if (s.sec === old) s.sec = target; });
+        model.pairs.forEach(function(p){ if (p.sec === old) p.sec = target; });
+        baPairs.forEach(function(p){ if (p.sec === old) p.sec = target; });
+        model.sections.splice(page, 1);
+        if (page >= model.sections.length) page = model.sections.length - 1;
+        armDelSec = false;
+        note = 'Section removed. Its photos and pairs moved to ' + target + '.'; noteWarn = false;
+        commit(); render(); return;
+      }
       if (t.hasAttribute('data-site')) {
         var s1 = model.singles.filter(function(x){ return x.id === t.getAttribute('data-site'); })[0];
         if (s1) { s1.onSite = !s1.onSite; commit(); render(); }
@@ -2409,6 +2426,7 @@ var DEFAULTS = {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan); else scan();
   new MutationObserver(function(){ scan(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-artist'] });
 })();
+</script>
 </script>
 
 </body>
