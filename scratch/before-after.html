@@ -140,7 +140,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   <input type="file" id="ap-gfile" accept="image/*" multiple class="hidden">
 </section>
 <section class="pane hidden" id="pane-ba">
-  <p class="sub" style="margin-top:0">Build a pair here: a before in one box, an after in the other, and pick the section it belongs to. When both are in, Finish sends it to Portfolio.</p>
+  <p class="sub" style="margin-top:0">Build a pair here: a before in one box, an after in the other, and pick the section it belongs to. A pair cannot be finished without both photos, and you cannot add a new pair until the one above has both. Finish sends it to Portfolio.</p>
   <div id="ap-balist"></div>
   <button class="btn light" type="button" id="ap-baadd">+ Add a pair</button>
   <p class="fin-note hidden" id="ap-banote"></p>
@@ -184,7 +184,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 
 <div class="ex" id="ex3">
 <h2>3 · A list of pairs</h2>
-<p class="sub">Each set is a row. Fill either side whenever the photo turns up, like a healed shot days later.</p>
+<p class="sub">Each set is a row. A pair is only saved once it has a before photo and an after photo, and you cannot add the next pair until the one above has both.</p>
 <div id="pairs"></div>
 <button class="btn light" id="addpair" type="button">+ Add a pair</button>
 <div class="status" data-status="3"></div>
@@ -262,7 +262,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     var kb = 'p' + pairN + 'b', ka = 'p' + pairN + 'a';
     row.innerHTML = '<div class="thumb" data-thumb="' + kb + '">+</div>' +
       '<div class="thumb" data-thumb="' + ka + '">+</div>' +
-      '<div style="flex:1"><input type="text" placeholder="Caption for this pair"></div>' +
+      '<div style="flex:1"><input type="text" placeholder="Caption for this pair"><div class="pairstate" style="font-size:12.5px;margin-top:5px;color:#b34a17">Not saved yet. A pair needs a before photo and an after photo.</div></div>' +
       '<button class="btn light" type="button">Remove</button>';
     row.querySelectorAll('[data-thumb]').forEach(function(th){
       th.addEventListener('click', function(){ target = th.getAttribute('data-thumb'); filein.click(); });
@@ -270,8 +270,31 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     row.querySelector('button').addEventListener('click', function(){ row.remove(); });
     document.getElementById('pairs').appendChild(row);
   }
-  document.getElementById('addpair').addEventListener('click', addPair);
-  addPair();
+  function pairComplete(row){
+    var ths = row.querySelectorAll('[data-thumb]');
+    return ths.length === 2 && ths[0].classList.contains('filled') && ths[1].classList.contains('filled');
+  }
+  function refreshStates(){
+    document.querySelectorAll('#pairs .pairrow').forEach(function(r){
+      var st = r.querySelector('.pairstate'); if (!st) return;
+      if (pairComplete(r)) { st.textContent = 'Saved. Both photos are in.'; st.style.color = '#3d7a52'; }
+      else { st.textContent = 'Not saved yet. A pair needs a before photo and an after photo.'; st.style.color = '#b34a17'; }
+    });
+  }
+  filein.addEventListener('change', function(){ setTimeout(refreshStates, 0); });
+  document.getElementById('addpair').addEventListener('click', function(){
+    var rows = document.querySelectorAll('#pairs .pairrow');
+    var last = rows[rows.length - 1];
+    if (last && !pairComplete(last)) {
+      status(3, 'That pair is not finished: it needs a before photo and an after photo before you can add another.');
+      last.style.borderColor = '#e0483e'; last.style.boxShadow = '0 0 0 2px rgba(224,72,62,.35)';
+      setTimeout(function(){ last.style.borderColor = ''; last.style.boxShadow = ''; }, 1600);
+      return;
+    }
+    status(3, '');
+    addPair(); refreshStates();
+  });
+  addPair(); refreshStates();
   // Example 4: steps
   var step = 1;
   document.getElementById('e4next').addEventListener('click', function(){
@@ -453,6 +476,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
         BA.splice(+btn.getAttribute('data-fin'), 1);
         var note = document.getElementById('ap-banote');
         note.textContent = 'Pair finished. It now lives in Portfolio, under ' + pair.sec + '.';
+        note.style.color = '';
         note.classList.remove('hidden');
         renderBA(); renderPortfolio();
       });
@@ -470,6 +494,15 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     this.value = '';
   });
   document.getElementById('ap-baadd').addEventListener('click', function(){
+    var last = BA[BA.length - 1];
+    var note = document.getElementById('ap-banote');
+    if (last && !(last.b && last.a)) {
+      note.textContent = 'That pair is not finished: it needs a before photo and an after photo before you can add another.';
+      note.style.color = '#b34a17';
+      note.classList.remove('hidden');
+      return;
+    }
+    note.classList.add('hidden');
     BA.push({ sec: secs[0], b: null, a: null }); renderBA();
   });
   /* ---------- Portfolio ---------- */
