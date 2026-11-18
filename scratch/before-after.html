@@ -41,9 +41,56 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
 
 <div class="ex" id="ex0" style="border-color:#f4682a;border-width:2px">
-<h2>Before and after, inside Artists &gt; artist name</h2>
-<p class="sub">This is where the feature lives in the portal: open Artists, pick the artist, and their before and after galleries are right there. Each artist keeps their own sets. Upload a photo and it just shows in its box, nothing else opens. A filled photo carries a + button: tap it to launch the preview, and captions live in there. Tick the circle on pairs to select several: one action bar then offers Preview selected (walks you through them one at a time in the same preview) or Delete selected, and every delete can be undone. Delete all sits in the gallery footer and asks first.</p>
+<h2>Before and after, inside the artist's own page</h2>
+<p class="sub">Your correction, built in: this is Lex's page in the portal, the same one from your screenshot. The Before and after section sits on this page, under Work photos, and holds this artist's sets only.</p>
+<div class="apage">
+  <div class="ahead"><span class="back">&larr; All artists</span><b>Alexis "lex"</b></div>
+  <p class="aline"><b>Alexis "lex"</b> &nbsp;Tattoo &middot; Shows on the site, on their own page, and in the request form</p>
+  <div class="grid2ap">
+    <div><label>Name</label><input type="text" value="Alexis &quot;lex&quot;"></div>
+    <div><label>What they do</label><input type="text" value="Tattoo"></div>
+  </div>
+  <div class="aprow">
+    <div class="mainphoto">MAIN<br>PHOTO</div>
+    <div class="socials"><label>Social links</label>
+      <div class="srow"><span>Instagram</span><input type="text" value="@lextattss"></div>
+      <div class="srow"><span>Facebook</span><input type="text" value="lextatts"></div>
+      <button class="btn light" type="button">Add a link</button>
+    </div>
+  </div>
+  <label>Work photos</label>
+  <div class="wgrid"><div class="tile"><span class="tx">x</span><span class="tcap">Hello Kitty Jason</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Snoopy pumpkin</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Ghostface knife</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Sun and moon</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Rose wreath</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Finger script</span></div></div>
+  <button class="btn light" type="button" style="margin-top:10px">Add photos</button>
+  <div class="basection">
+    <h3>Before and after</h3>
+    <p class="sub" style="margin:0">Lex's before and after sets. Upload a photo and it just shows in its box. A filled photo carries a + button: tap it to launch the preview, and captions live in there. Tick the circle on pairs to select several: one action bar then offers Preview selected or Delete selected, and every delete can be undone. Delete all sits in the gallery footer and asks first.</p>
+  </div>
+</div>
 <style>
+.apage{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-bottom:16px}
+.apage label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:14px 0 6px}
+.apage input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;background:#fff}
+.ahead{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.ahead .back{border:1px solid #d8d8d2;background:#fff;border-radius:9px;padding:7px 12px;font-size:13.5px;font-weight:600}
+.aline{font-size:13.5px;color:#5c5c66;margin:0}
+.grid2ap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.grid2ap{grid-template-columns:1fr}}
+.aprow{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
+.mainphoto{width:104px;height:124px;border-radius:10px;background:linear-gradient(135deg,#d9d4c7,#b9b2a2);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:700;letter-spacing:.07em;color:#5c5748;flex:none}
+.socials{flex:1;min-width:220px}
+.socials label{margin-top:0}
+.srow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.srow span{font-size:13px;color:#5c5c66;min-width:74px}
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+@media(max-width:640px){.wgrid{grid-template-columns:repeat(2,1fr)}}
+.tile{position:relative;border-radius:9px;min-height:86px;background:linear-gradient(135deg,#cfc9ba,#a89f8a);overflow:hidden}
+.tile .tx{position:absolute;top:5px;right:5px;width:19px;height:19px;border-radius:50%;background:rgba(20,20,20,.75);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center}
+.tile .tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);font-size:11.5px;padding:4px 7px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.basection{border-top:2px solid #17171a;margin-top:20px;padding-top:14px}
+.basection h3{font-family:Space Grotesk;font-size:19px;margin:0 0 5px}
+.aabout{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-top:16px}
+.aabout label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:0 0 6px}
+.aabout textarea{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;min-height:74px;background:#fff}
 .gal{border:1.5px solid #e7e2d9;border-radius:12px;padding:14px;margin-bottom:14px;background:#fff}
 .gal .ghead{display:flex;gap:10px;align-items:center;margin-bottom:12px}
 .gal .ghead input{flex:1}
@@ -86,8 +133,6 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .ednav{display:flex;gap:8px;align-items:center;margin-top:16px}
 .ednav .pos{flex:1;text-align:center;font-size:13px;color:#5c5c66;font-weight:600}
 </style>
-<div class="crumb">Artists &gt; <b id="crumbname">Lex</b> &gt; Before and after</div>
-<div class="viewtabs" id="artisttabs"><button type="button" data-artist="Lex" class="on">Lex</button><button type="button" data-artist="Liv">Liv</button><button type="button" data-artist="Diana">Diana</button></div>
 <div class="viewtabs" id="viewtabs"><button type="button" data-view="galleries" class="on">Galleries</button><button type="button" data-view="pairs">Pairs</button></div>
 <div id="galswrap">
 <div id="gals"></div>
@@ -100,6 +145,9 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <div id="flatpairs"></div>
 <button class="btn light" id="flataddpair" type="button">+ Add a pair</button>
 </div>
+<div class="aabout"><label>About them</label>
+<textarea>Hi, I'm lex! I'm a freshly new tattoo artist! I love all things horror and whimsical. I love to tattoo things like cartoon characters, spooky, and high contrast!</textarea>
+<p style="margin:12px 0 0"><button class="btn light" type="button">Remove artist</button> <span style="font-size:13px;color:#5c5c66">Removing an artist takes their page down at the next publish. Their photos are kept for 30 days in case they come back.</span></p></div>
 <input type="file" id="galfile" accept="image/*" class="hidden">
 <div class="edwrap hidden" id="edwrap"><div class="edcard" id="edcard"></div></div>
 </div>
