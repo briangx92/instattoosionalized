@@ -117,6 +117,13 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .choose button{border:1.5px solid #d8d8d2;background:#fdfcf9;border-radius:11px;padding:13px 14px;font:inherit;font-size:15px;font-weight:700;text-align:left;cursor:pointer;color:#191919}
 .choose button small{display:block;font-weight:400;font-size:12.5px;color:#5c5c66;margin-top:2px}
 .choose button:hover{border-color:#f4682a}
+.chlist{border:1.5px solid #e7e2d9;border-radius:11px;overflow:hidden;margin:0 0 6px;background:#fff}
+.chlist button{display:block;width:100%;background:#fff;border:none;border-bottom:1px solid #eee9dd;padding:12px 13px;font:inherit;font-size:14.5px;font-weight:600;text-align:left;cursor:pointer;color:#191919}
+.chlist button:last-child{border-bottom:none}
+.pgrid.roomy{gap:14px}
+.pgrid.roomy .ptile{border-radius:14px;min-height:110px}
+.fig{margin:0;min-width:0}
+.fig .fcap{font-size:12.5px;color:#3f3f46;padding:5px 2px 0;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 <div class="apage">
   <div class="ahead"><span class="back">&larr; All artists</span><b>Alexis "lex"</b></div>
@@ -160,10 +167,10 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 </section>
 <section class="pane" id="pane-portfolio">
   <div class="sheethead"><b>Portfolio</b><button class="btn" type="button" id="ap-upload">Upload</button></div>
-  <div class="choose hidden" id="ap-upchoose">
-    <button type="button" id="ap-up-gallery">Gallery photos<small>Single photos, sorted into sections. Put the keepers on the site.</small></button>
-    <button type="button" id="ap-up-ba">Before / after pair<small>Build a pair side by side. Finish it and it lands here.</small></button>
-    <button type="button" id="ap-up-cancel" style="font-weight:600;font-size:13.5px;padding:9px 14px">Cancel</button>
+  <div class="chlist hidden" id="ap-upchoose">
+    <button type="button" id="ap-up-gallery">Gallery photos</button>
+    <button type="button" id="ap-up-ba">Before / after pair</button>
+    <button type="button" id="ap-up-cancel">Cancel</button>
   </div>
   <p class="fin-note hidden" id="ap-pnote"></p>
   <p class="sub" style="margin-top:10px">This is what appears on the site. Captions change here, and only here. They save as you type.</p>
@@ -562,8 +569,8 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
         '<div class="caplab">After caption</div><input type="text" data-cap="' + it.ord + ':acap" value="' + esc(it.acap) + '" placeholder="No caption yet"></div>';
     });
     if (singles.length) {
-      html += '<div class="pgrid">' + singles.map(function(it){
-        return '<div class="ptile ' + (it.src ? '' : it.hue) + '">' + (it.src ? '<img src="' + it.src + '" alt="">' : '') + '<span class="tcap">' + esc(it.t) + '</span></div>';
+      html += '<div class="pgrid roomy">' + singles.map(function(it){
+        return '<figure class="fig"><div class="ptile ' + (it.src ? '' : it.hue) + '">' + (it.src ? '<img src="' + it.src + '" alt="">' : '') + '</div><figcaption class="fcap">' + esc(it.t) + '</figcaption></figure>';
       }).join('') + '</div>';
       singles.forEach(function(it){
         html += '<div class="pitem" style="margin-top:10px"><div style="font-weight:700;font-size:14px">' + esc(it.t) + '</div>' +
