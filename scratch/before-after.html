@@ -105,6 +105,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .ptile .tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);font-size:11.5px;padding:4px 7px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .empty{border:2px dashed #d8d8d2;border-radius:10px;padding:18px;text-align:center;color:#8a8578;font-size:13.5px;background:#faf8f3}
 .fin-note{font-size:13px;color:#3d7a52;font-weight:600;margin:8px 0 0}
+.upopts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .aabout{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-top:14px}
 .aabout label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:0 0 6px}
 .aabout textarea{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;min-height:74px;background:#fff}
@@ -136,13 +137,22 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     <span class="pager"><button type="button" id="ap-gprev">&larr; Prev</button><span id="ap-ginfo"></span><button type="button" id="ap-gnext">Next &rarr;</button></span>
   </div>
   <div id="ap-gsec"></div>
-  <button class="btn light" type="button" id="ap-gaddsec" style="margin-top:12px">+ Add a section</button>
+  <button class="btn" type="button" id="ap-gupload" style="margin-top:12px">Upload</button>
+  <div class="upopts hidden" id="ap-gupopts">
+    <button class="btn light" type="button" id="ap-gup-photos">Photos, into this section</button>
+    <button class="btn light" type="button" id="ap-gup-section">New section</button>
+    <button class="btn light" type="button" id="ap-gup-cancel">Cancel</button>
+  </div>
   <input type="file" id="ap-gfile" accept="image/*" multiple class="hidden">
 </section>
 <section class="pane hidden" id="pane-ba">
   <p class="sub" style="margin-top:0">Build a pair here: a before in one box, an after in the other, and pick the section it belongs to. A pair cannot be finished without both photos, and you cannot add a new pair until the one above has both. Finish sends it to Portfolio.</p>
   <div id="ap-balist"></div>
-  <button class="btn light" type="button" id="ap-baadd">+ Add a pair</button>
+  <button class="btn" type="button" id="ap-baupload">Upload</button>
+  <div class="upopts hidden" id="ap-baupopts">
+    <button class="btn light" type="button" id="ap-baup-pair">Before and after pair</button>
+    <button class="btn light" type="button" id="ap-baup-cancel">Cancel</button>
+  </div>
   <p class="fin-note hidden" id="ap-banote"></p>
   <input type="file" id="ap-bafile" accept="image/*" class="hidden">
 </section>
@@ -382,7 +392,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     var html = '<div class="sechead"><input type="text" id="ap-gsecname" value="' + esc(sec) + '"><span class="cnt">' + items.length + (items.length === 1 ? ' photo' : ' photos') + '</span></div>';
     if (!items.length) html += '<div class="empty">No photos in this section yet. Add some below.</div>';
     else html += '<div class="apgrid">' + items.map(function(it){ return tileHTML(it, true); }).join('') + '</div>';
-    html += '<div class="dropzone" id="ap-gdrop">Tap to add photos, or drop photo files here</div>';
+    html += '<p style="font-size:12.5px;color:#8a8578;margin:10px 0 0">Tip: you can also drop photo files anywhere in this section.</p>';
     var box = document.getElementById('ap-gsec');
     box.innerHTML = html;
     box.querySelectorAll('[data-x]').forEach(function(btn){
@@ -399,14 +409,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       BA.forEach(function(pr){ if (pr.sec === sec) pr.sec = nn; });
       secs[gPage] = nn; renderGallery(); renderPortfolio();
     });
-    var dz = document.getElementById('ap-gdrop');
-    dz.addEventListener('click', function(){ gTarget = sec; document.getElementById('ap-gfile').click(); });
-    dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('over'); });
-    dz.addEventListener('dragleave', function(){ dz.classList.remove('over'); });
-    dz.addEventListener('drop', function(e){
-      e.preventDefault(); dz.classList.remove('over');
-      addFiles(sec, e.dataTransfer.files); renderGallery();
-    });
+
   }
   function addFiles(sec, files){
     Array.prototype.forEach.call(files, function(f){
@@ -423,7 +426,15 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   document.getElementById('ap-gprev').addEventListener('click', function(){ if (gPage > 0) { gPage--; renderGallery(); } });
   document.getElementById('ap-gnext').addEventListener('click', function(){ if (gPage < secs.length - 1) { gPage++; renderGallery(); } });
   document.getElementById('ap-gsort').addEventListener('change', function(){ gSort = this.value; renderGallery(); });
-  document.getElementById('ap-gaddsec').addEventListener('click', function(){
+  var gsecBox = document.getElementById('ap-gsec');
+  gsecBox.addEventListener('dragover', function(e){ e.preventDefault(); });
+  gsecBox.addEventListener('drop', function(e){ e.preventDefault(); addFiles(secs[gPage], e.dataTransfer.files); renderGallery(); });
+  var gUp = document.getElementById('ap-gupopts');
+  document.getElementById('ap-gupload').addEventListener('click', function(){ gUp.classList.toggle('hidden'); });
+  document.getElementById('ap-gup-cancel').addEventListener('click', function(){ gUp.classList.add('hidden'); });
+  document.getElementById('ap-gup-photos').addEventListener('click', function(){ gUp.classList.add('hidden'); gTarget = secs[gPage]; document.getElementById('ap-gfile').click(); });
+  document.getElementById('ap-gup-section').addEventListener('click', function(){
+    gUp.classList.add('hidden');
     var name = 'New section'; var n = 2;
     while (secs.indexOf(name) >= 0) { name = 'New section ' + (n++); }
     secs.push(name); G[name] = []; if (!P[name]) P[name] = [];
@@ -493,7 +504,11 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     if (baTarget && this.files[0]) setBA(baTarget.i, baTarget.side, this.files[0]);
     this.value = '';
   });
-  document.getElementById('ap-baadd').addEventListener('click', function(){
+  var baUp = document.getElementById('ap-baupopts');
+  document.getElementById('ap-baupload').addEventListener('click', function(){ baUp.classList.toggle('hidden'); });
+  document.getElementById('ap-baup-cancel').addEventListener('click', function(){ baUp.classList.add('hidden'); });
+  document.getElementById('ap-baup-pair').addEventListener('click', function(){
+    baUp.classList.add('hidden');
     var last = BA[BA.length - 1];
     var note = document.getElementById('ap-banote');
     if (last && !(last.b && last.a)) {
