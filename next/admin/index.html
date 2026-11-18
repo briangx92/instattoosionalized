@@ -2429,6 +2429,37 @@ var DEFAULTS = {
 </script>
 </script>
 
+<script>
+/* Unsaved-changes guard (fork only): prompt before leaving a page with pending edits */
+(function(){
+  var dirty = false;
+  function inScope(el){
+    if (!el || !el.closest) return false;
+    if (el.closest('.oa-pf')) return false;                 /* portfolio module saves instantly */
+    if (el.closest('[data-panel="book"]')) return false;    /* bookings write live to the calendar */
+    return !!el.closest('[data-panel]');
+  }
+  document.addEventListener('input', function(e){ if (inScope(e.target)) dirty = true; }, true);
+  document.addEventListener('change', function(e){ if (inScope(e.target)) dirty = true; }, true);
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('button') : null;
+    if (b && /^save\b/i.test((b.textContent || '').trim())) setTimeout(function(){ dirty = false; }, 0);
+  }, true);
+  window.addEventListener('beforeunload', function(e){ if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  document.addEventListener('click', function(e){
+    if (!dirty) return;
+    var t = e.target;
+    var nav = t.closest ? (t.closest('[data-tab]') || t.closest('[data-goto]') || t.closest('#p-brand-home') || t.closest('#oa-artist-back') || t.closest('.artist-row')) : null;
+    if (!nav) return;
+    if (nav.hasAttribute && nav.hasAttribute('data-tab')) {
+      var cur = document.querySelector('[data-panel]:not(.hidden)');
+      if (cur && cur.getAttribute('data-panel') === nav.getAttribute('data-tab')) return;
+    }
+    if (!window.confirm('You have unsaved changes. Leave without saving?')) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+  }, true);
+  window.__oaDirty = function(){ return dirty; };
+})();
+</script>
 </body>
 
 </html>
