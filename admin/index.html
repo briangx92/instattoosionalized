@@ -1236,6 +1236,7 @@ var DEFAULTS = {
   function fmt(m){ var h = Math.floor(m/60), mm = m%60, ap = h >= 12 ? 'PM' : 'AM'; var h12 = h%12; if (h12 === 0) h12 = 12; return h12 + ':' + (mm < 10 ? '0' : '') + mm + ' ' + ap; }
   function dayList(d){
     if (remoteState[isoOf(d)] === 'live') return (remote[isoOf(d)] || []).slice();
+    if (remoteState[isoOf(d)] !== 'down') return [];
     var base = (offset === 0 ? SETS.today : SETS.other), key = dstr(d), out = [];
     ARTISTS.forEach(function(a){
       (base[a] || []).forEach(function(ap, i){
@@ -1258,6 +1259,13 @@ var DEFAULTS = {
       note.className = 'bk-closed';
       note.textContent = 'Closed. The shop is shut on Sundays and Mondays.';
       board.appendChild(note);
+      return;
+    }
+    if (remoteState[isoOf(d)] === 'loading') {
+      var lnote = document.createElement('div');
+      lnote.className = 'bk-closed';
+      lnote.textContent = 'Loading the calendar\u2026';
+      board.appendChild(lnote);
       return;
     }
     var corner = document.createElement('div'); board.appendChild(corner);
