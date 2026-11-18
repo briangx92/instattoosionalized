@@ -41,27 +41,49 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
 
 <div class="ex" id="ex0" style="border-color:#f4682a;border-width:2px">
-<h2>Your pick: 3, refined · Galleries of pairs</h2>
-<p class="sub">The list of pairs from example 3, with your two changes: an Add a gallery button (each gallery is a named set, say one per artist), and a caption under every photo. Tap a box or drop a photo file on it. When both sides of a pair are set, the split preview shows how it will look on the site.</p>
+<h2>Your pick: 3, refined again · Upload first, captions in the preview</h2>
+<p class="sub">Upload a photo and it just shows in its box, nothing else opens. A filled photo carries a + button: tap it to launch the preview, and captions live in there. Tick the circle on pairs to select several: one action bar then offers Preview selected (walks you through them one at a time in the same preview) or Delete selected, and every delete can be undone. Delete all sits in the gallery footer and asks first.</p>
 <style>
 .gal{border:1.5px solid #e7e2d9;border-radius:12px;padding:14px;margin-bottom:14px;background:#fff}
 .gal .ghead{display:flex;gap:10px;align-items:center;margin-bottom:12px}
 .gal .ghead input{flex:1}
-.prow2{border:1.5px solid #e7e2d9;border-radius:10px;padding:10px;margin-bottom:10px;background:#fdfcf9}
-.prow2 .cols{display:flex;gap:10px}
-.prow2 .cell{flex:1}
-.prow2 .cap{margin-top:7px}
-.prow2 .cap input{width:100%}
-.prow2 .rm{float:right}
-.gsplit{display:flex;border:2px solid #191919;border-radius:10px;overflow:hidden;min-height:120px;margin-top:10px;background:#eee}
-.gsplit .half{flex:1;position:relative;min-height:120px;background-size:cover;background-position:center}
-.gsplit .div{width:3px;background:#191919;flex:0 0 auto}
-.gsplit .tag{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px}
+.gal .gfoot{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
+.prow3{position:relative;border:1.5px solid #e7e2d9;border-radius:10px;padding:12px 10px 10px 40px;margin-bottom:10px;background:#fdfcf9}
+.prow3.sel{border-color:#f4682a;background:#fff8f3}
+.prow3 .cols{display:flex;gap:10px}
+.prow3 .cell{flex:1}
+.pbox{position:relative;width:100%;height:104px;border:2px dashed #b9b2a2;border-radius:8px;background:#faf8f3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.05em;color:#8a8578;cursor:pointer;overflow:hidden;background-size:cover;background-position:center}
+.pbox.filled{border-style:solid;border-color:#d8d2c4}
+.pbox .plus{position:absolute;right:7px;bottom:7px;width:30px;height:30px;border-radius:50%;background:#f4682a;color:#fff;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.3);border:2px solid #fff}
+.selbox{position:absolute;left:10px;top:12px;width:24px;height:24px;border-radius:50%;border:2px solid #b9b2a2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+.prow3.sel .selbox{background:#f4682a;border-color:#f4682a}
+.prow3 .meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.prow3 .capstate{font-size:12.5px;color:#8a8578}
+.prow3 .capstate.done{color:#15803d;font-weight:600}
+.edwrap.hidden{display:none!important}
+.edwrap{position:fixed;inset:0;background:rgba(15,15,20,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:14px}
+.edcard{background:#fff;border-radius:16px;padding:18px;width:520px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.edsplit{display:flex;border:2px solid #191919;border-radius:10px;overflow:hidden;min-height:190px;background:#eee}
+.edsplit .half{flex:1;position:relative;min-height:190px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#777;font-weight:700;letter-spacing:.07em;font-size:12.5px}
+.edsplit .div{width:3px;background:#191919;flex:0 0 auto}
+.edsplit .tag{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px}
+.edcard label{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:12px 0 5px}
+.edcard input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14.5px}
+.selbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#17171a;color:#fff;border-radius:11px;padding:9px 12px;margin-bottom:12px;font-size:13.5px}
+.selbar button{border:1px solid #4b4b55;background:transparent;color:#fff;border-radius:9px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.selbar button.danger{background:#b3261e;border-color:#b3261e}
+.selbar .n{font-weight:700}
+.btn.danger{color:#b3261e;border-color:#e3b3b0}
+.undobar{display:flex;gap:10px;align-items:center;background:#fff4ee;border:1px solid #f3cfb8;color:#7c3f16;border-radius:11px;padding:9px 12px;margin-bottom:12px;font-size:13.5px}
+.undobar button{margin-left:auto;border:1px solid #d8a37e;background:#fff;border-radius:9px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ednav{display:flex;gap:8px;align-items:center;margin-top:16px}
+.ednav .pos{flex:1;text-align:center;font-size:13px;color:#5c5c66;font-weight:600}
 </style>
 <div id="gals"></div>
 <button class="btn" id="addgal" type="button">+ Add a gallery</button>
 <div class="status" id="galstatus"></div>
 <input type="file" id="galfile" accept="image/*" class="hidden">
+<div class="edwrap hidden" id="edwrap"><div class="edcard" id="edcard"></div></div>
 </div>
 
 <div class="ex" id="ex1">
@@ -216,56 +238,142 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 
 <script>
 (function(){
-  var gals = document.getElementById('gals');
+  var galsEl = document.getElementById('gals');
   var filein = document.getElementById('galfile');
-  var target = null;
+  var pendingBox = null;
   filein.addEventListener('change', function(){
-    if (target && filein.files && filein.files[0]) setPhoto(target, URL.createObjectURL(filein.files[0]));
-    filein.value = '';
+    if (pendingBox && filein.files && filein.files[0]) pendingBox._set(URL.createObjectURL(filein.files[0]));
+    pendingBox = null; filein.value = '';
   });
-  function setPhoto(box, url){
-    box.style.backgroundImage = 'url(' + url + ')';
-    box.style.backgroundSize = 'cover'; box.style.backgroundPosition = 'center';
-    box.innerHTML = ''; box.setAttribute('data-url', url);
-    var prow = box.closest('.prow2'); refreshSplit(prow);
+  var editor = { list: [], idx: 0 };
+  function openEditor(pairs, startIdx){
+    editor.list = pairs; editor.idx = startIdx || 0;
+    document.getElementById('edwrap').classList.remove('hidden');
+    renderEditor();
   }
-  function refreshSplit(prow){
-    var b = prow.querySelector('[data-side="b"]'), a = prow.querySelector('[data-side="a"]');
-    var sp = prow.querySelector('.gsplit');
-    if (b.getAttribute('data-url') && a.getAttribute('data-url')) {
-      sp.classList.remove('hidden');
-      sp.querySelector('[data-sh="b"]').style.backgroundImage = 'url(' + b.getAttribute('data-url') + ')';
-      sp.querySelector('[data-sh="a"]').style.backgroundImage = 'url(' + a.getAttribute('data-url') + ')';
-    } else sp.classList.add('hidden');
+  function renderEditor(){
+    var pair = editor.list[editor.idx];
+    var card = document.getElementById('edcard');
+    var multi = editor.list.length > 1;
+    card.innerHTML = '<h3 style="font-family:Space Grotesk;margin:0 0 4px;font-size:18px">Preview and captions</h3>' +
+      '<p style="color:#5c5c66;font-size:13.5px;margin:0 0 12px">This is the split your visitors see. Captions sit under each photo on the site.</p>' +
+      '<div class="edsplit"><div class="half" data-eh="b"><span class="tag">BEFORE</span></div><div class="div"></div><div class="half" data-eh="a"><span class="tag">AFTER</span></div></div>' +
+      '<label>Caption for the before photo</label><input type="text" id="edcapb" placeholder="Fresh, day one">' +
+      '<label>Caption for the after photo</label><input type="text" id="edcapa" placeholder="Healed, six weeks later">' +
+      '<div class="ednav">' +
+      (multi ? '<button class="btn" type="button" id="edprev"' + (editor.idx === 0 ? ' disabled style="opacity:.4"' : '') + '>Back</button><span class="pos">Pair ' + (editor.idx + 1) + ' of ' + editor.list.length + '</span><button class="btn" type="button" id="ednext">' + (editor.idx === editor.list.length - 1 ? 'Done' : 'Next') + '</button>' : '<span class="pos"></span><button class="btn" type="button" id="eddone" style="background:#f4682a;color:#fff;border:1px solid #f4682a;border-radius:11px;padding:10px 16px;font-weight:600;cursor:pointer">Save captions</button>') +
+      '</div>';
+    var hb = card.querySelector('[data-eh="b"]'), ha = card.querySelector('[data-eh="a"]');
+    if (pair.bUrl) hb.style.backgroundImage = 'url(' + pair.bUrl + ')'; else hb.innerHTML = 'NO BEFORE<span class="tag">BEFORE</span>';
+    if (pair.aUrl) ha.style.backgroundImage = 'url(' + pair.aUrl + ')'; else ha.innerHTML = 'NO AFTER<span class="tag">AFTER</span>';
+    var cb = document.getElementById('edcapb'), ca = document.getElementById('edcapa');
+    cb.value = pair.bCap || ''; ca.value = pair.aCap || '';
+    function save(){ pair.bCap = cb.value; pair.aCap = ca.value; pair._refreshMeta(); }
+    var prev = document.getElementById('edprev'), next = document.getElementById('ednext'), done = document.getElementById('eddone');
+    if (prev) prev.addEventListener('click', function(){ save(); editor.idx--; renderEditor(); });
+    if (next) next.addEventListener('click', function(){ save(); if (editor.idx === editor.list.length - 1) closeEditor(); else { editor.idx++; renderEditor(); } });
+    if (done) done.addEventListener('click', function(){ save(); closeEditor(); });
   }
-  function pairRow(){
-    var row = document.createElement('div'); row.className = 'prow2';
-    row.innerHTML = '<button class="btn light rm" type="button" title="Remove pair">x</button>' +
-      '<div class="cols">' +
-      '<div class="cell"><div class="thumb" data-side="b" style="width:100%;height:104px;font-size:13px;font-weight:700;letter-spacing:.05em">+ BEFORE</div><div class="cap"><input type="text" placeholder="Caption for the before photo"></div></div>' +
-      '<div class="cell"><div class="thumb" data-side="a" style="width:100%;height:104px;font-size:13px;font-weight:700;letter-spacing:.05em">+ AFTER</div><div class="cap"><input type="text" placeholder="Caption for the after photo"></div></div>' +
-      '</div>' +
-      '<div class="gsplit hidden"><div class="half" data-sh="b"><span class="tag">BEFORE</span></div><div class="div"></div><div class="half" data-sh="a"><span class="tag">AFTER</span></div></div>';
-    row.querySelectorAll('.thumb').forEach(function(t){
-      t.addEventListener('click', function(){ target = t; filein.click(); });
-      t.addEventListener('dragover', function(e){ e.preventDefault(); });
-      t.addEventListener('drop', function(e){ e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files[0]) setPhoto(t, URL.createObjectURL(e.dataTransfer.files[0])); });
+  function closeEditor(){ document.getElementById('edwrap').classList.add('hidden'); }
+  document.getElementById('edwrap').addEventListener('click', function(e){ if (e.target === this) closeEditor(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeEditor(); });
+  function makePair(gal){
+    var pair = { bUrl: '', aUrl: '', bCap: '', aCap: '', selected: false };
+    var row = document.createElement('div'); row.className = 'prow3';
+    pair._row = row;
+    row.innerHTML = '<div class="selbox" title="Select this pair"></div>' +
+      '<div class="cols"><div class="cell"><div class="pbox" data-side="b">+ BEFORE</div></div>' +
+      '<div class="cell"><div class="pbox" data-side="a">+ AFTER</div></div></div>' +
+      '<div class="meta"><span class="capstate">No captions yet</span><button class="btn light" type="button" data-rm="1">Remove pair</button></div>';
+    pair._refreshMeta = function(){
+      var el = row.querySelector('.capstate');
+      if (pair.bCap || pair.aCap) { el.textContent = 'Captions saved'; el.classList.add('done'); }
+      else { el.textContent = 'No captions yet'; el.classList.remove('done'); }
+    };
+    pair._setSel = function(v){ pair.selected = v; row.classList.toggle('sel', v); };
+    row.querySelector('.selbox').addEventListener('click', function(){ pair._setSel(!pair.selected); gal._refreshSel(); });
+    row.querySelectorAll('.pbox').forEach(function(box){
+      var side = box.getAttribute('data-side');
+      box._set = function(url){
+        if (side === 'b') pair.bUrl = url; else pair.aUrl = url;
+        box.style.backgroundImage = 'url(' + url + ')';
+        box.classList.add('filled');
+        box.innerHTML = '<span class="plus" title="Preview and captions">+</span>';
+        box.querySelector('.plus').addEventListener('click', function(e){ e.stopPropagation(); openEditor([pair], 0); });
+      };
+      box.addEventListener('click', function(){ pendingBox = box; filein.click(); });
+      box.addEventListener('dragover', function(e){ e.preventDefault(); });
+      box.addEventListener('drop', function(e){ e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files[0]) box._set(URL.createObjectURL(e.dataTransfer.files[0])); });
     });
-    row.querySelector('.rm').addEventListener('click', function(){ row.remove(); });
-    return row;
+    row.querySelector('[data-rm]').addEventListener('click', function(){ gal._deletePairs([pair]); });
+    return pair;
   }
-  function gallery(name){
+  function makeGallery(name){
+    var gal = { pairs: [] };
     var g = document.createElement('div'); g.className = 'gal';
-    g.innerHTML = '<div class="ghead"><input type="text" value="' + name + '" aria-label="Gallery name"><button class="btn light" type="button" data-rmgal="1">Remove gallery</button></div><div class="pairs"></div><button class="btn light" type="button" data-addpair="1">+ Add a pair</button>';
-    var pairs = g.querySelector('.pairs');
-    pairs.appendChild(pairRow());
-    g.querySelector('[data-addpair]').addEventListener('click', function(){ pairs.appendChild(pairRow()); });
+    g.innerHTML = '<div class="ghead"><input type="text" value="' + name + '" aria-label="Gallery name"><button class="btn light" type="button" data-rmgal="1">Remove gallery</button></div>' +
+      '<div class="selbar hidden" data-selbar="1"></div><div class="undowrap"></div><div class="pairs"></div>' +
+      '<div class="gfoot"><button class="btn light" type="button" data-addpair="1">+ Add a pair</button><button class="btn danger" type="button" data-delall="1">Delete all pairs</button></div>';
+    var pairsEl = g.querySelector('.pairs');
+    var selbar = g.querySelector('[data-selbar]');
+    var undowrap = g.querySelector('.undowrap');
+    var undoTimer = null;
+    gal._refreshSel = function(){
+      var sel = gal.pairs.filter(function(x){ return x.selected; });
+      if (!sel.length) { selbar.classList.add('hidden'); selbar.innerHTML = ''; return; }
+      selbar.classList.remove('hidden');
+      selbar.innerHTML = '<span class="n">' + sel.length + ' selected</span>' +
+        '<button type="button" data-act="preview">Preview selected</button>' +
+        '<button type="button" data-act="delete" class="danger">Delete selected</button>' +
+        '<button type="button" data-act="all">Select all</button>' +
+        '<button type="button" data-act="clear">Clear</button>';
+      selbar.querySelector('[data-act="preview"]').addEventListener('click', function(){ openEditor(sel, 0); });
+      selbar.querySelector('[data-act="all"]').addEventListener('click', function(){ gal.pairs.forEach(function(x){ x._setSel(true); }); gal._refreshSel(); });
+      selbar.querySelector('[data-act="clear"]').addEventListener('click', function(){ gal.pairs.forEach(function(x){ x._setSel(false); }); gal._refreshSel(); });
+      selbar.querySelector('[data-act="delete"]').addEventListener('click', function(){
+        selbar.innerHTML = '<span class="n">Delete ' + sel.length + (sel.length === 1 ? ' pair?' : ' pairs?') + '</span>' +
+          '<button type="button" data-act="yes" class="danger">Yes, delete</button><button type="button" data-act="no">Cancel</button>';
+        selbar.querySelector('[data-act="yes"]').addEventListener('click', function(){ gal._deletePairs(sel); });
+        selbar.querySelector('[data-act="no"]').addEventListener('click', function(){ gal._refreshSel(); });
+      });
+    };
+    gal._deletePairs = function(list){
+      if (!list.length) return;
+      var removed = list.map(function(pr){ return { pair: pr, idx: gal.pairs.indexOf(pr) }; });
+      removed.sort(function(a, b){ return a.idx - b.idx; });
+      list.forEach(function(pr){ pr._row.remove(); });
+      gal.pairs = gal.pairs.filter(function(x){ return list.indexOf(x) === -1; });
+      gal._refreshSel();
+      undowrap.innerHTML = '<div class="undobar"><span>Deleted ' + list.length + (list.length === 1 ? ' pair.' : ' pairs.') + '</span><button type="button">Undo</button></div>';
+      undowrap.querySelector('button').addEventListener('click', function(){
+        removed.forEach(function(r){
+          gal.pairs.splice(Math.min(r.idx, gal.pairs.length), 0, r.pair);
+          var anchor = gal.pairs[r.idx + 1] ? gal.pairs[r.idx + 1]._row : null;
+          pairsEl.insertBefore(r.pair._row, anchor);
+          r.pair._setSel(false);
+        });
+        undowrap.innerHTML = ''; gal._refreshSel();
+      });
+      if (undoTimer) clearTimeout(undoTimer);
+      undoTimer = setTimeout(function(){ undowrap.innerHTML = ''; }, 9000);
+    };
+    function addPair(){ var pr = makePair(gal); gal.pairs.push(pr); pairsEl.appendChild(pr._row); }
+    addPair();
+    g.querySelector('[data-addpair]').addEventListener('click', addPair);
+    g.querySelector('[data-delall]').addEventListener('click', function(){
+      if (!gal.pairs.length) return;
+      selbar.classList.remove('hidden');
+      selbar.innerHTML = '<span class="n">Delete all ' + gal.pairs.length + ' pairs in this gallery?</span>' +
+        '<button type="button" data-act="yes" class="danger">Yes, delete all</button><button type="button" data-act="no">Cancel</button>';
+      selbar.querySelector('[data-act="yes"]').addEventListener('click', function(){ gal._deletePairs(gal.pairs.slice()); });
+      selbar.querySelector('[data-act="no"]').addEventListener('click', function(){ gal._refreshSel(); });
+    });
     g.querySelector('[data-rmgal]').addEventListener('click', function(){ g.remove(); });
     return g;
   }
-  gals.appendChild(gallery('Lex, healed work'));
+  galsEl.appendChild(makeGallery('Lex, healed work'));
   document.getElementById('addgal').addEventListener('click', function(){
-    gals.appendChild(gallery('New gallery'));
+    galsEl.appendChild(makeGallery('New gallery'));
     document.getElementById('galstatus').textContent = 'Gallery added. In the real portal each gallery shows on its artist page.';
   });
 })();
