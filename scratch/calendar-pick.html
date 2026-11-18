@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Popup calendar, 5 looks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:#f4f4f2;color:#17171a}
+h1,h2{font-family:'Space Grotesk',Inter,sans-serif;margin:0}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 80px}
+.mocknote{background:#fff4ee;border:1px solid #f3cfb8;color:#7c3f16;border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.5;margin-bottom:16px}
+.ex{background:#fff;border:1px solid #e4e4e0;border-radius:16px;padding:18px;margin-top:16px;box-shadow:0 8px 24px rgba(20,20,30,.05)}
+.ex h2{font-size:18px}
+.ex .sub{color:#5c5c66;font-size:13.5px;line-height:1.5;margin:4px 0 14px}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:10px 0 5px}
+input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14.5px;background:#fff}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:11px;border:1px solid #d8d8d2;background:#fff;color:#17171a;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn--accent{background:#f4682a;color:#fff;border-color:#f4682a}
+.datebtn{width:100%;text-align:left;justify-content:space-between}
+.cal{font-size:14px}
+.cal .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal .mhead b{font-family:'Space Grotesk';font-size:15.5px}
+.cal .nav{border:1px solid #d8d8d2;background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px}
+.cal table{width:100%;border-collapse:collapse}
+.cal th{font-size:11px;color:#8a8a93;font-weight:700;padding:4px 0}
+.cal td{padding:2px}
+.cal .d{width:100%;aspect-ratio:1;border:none;background:transparent;border-radius:9px;font:inherit;font-size:14px;cursor:pointer;padding:0}
+.cal .d:hover{background:#f0efe9}
+.cal .d.in{background:#ffe9dc;border-radius:0}
+.cal .d.endp{background:#f4682a;color:#fff;font-weight:700}
+.cal .d.off{color:#c6c6cd;cursor:default}
+.cal .picked{font-size:13px;color:#5c5c66;margin-top:10px;min-height:18px}
+.cal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.overlay{position:fixed;inset:0;background:rgba(15,15,20,.45);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:18px;width:340px;max-width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.modal.wide{width:640px}
+.twom{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:640px){.twom{grid-template-columns:1fr}}
+.sheetwrap{position:fixed;inset:0;background:rgba(15,15,20,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;border-radius:20px 20px 0 0;padding:18px 18px 0;width:480px;max-width:100%;max-height:88vh;overflow-y:auto}
+.sheet .cal .d{font-size:16px}
+.sheet .applybar{position:sticky;bottom:0;background:#fff;padding:12px 0 16px;display:flex;gap:8px}
+.sheet .applybar .btn{flex:1;justify-content:center}
+.inline{border:1px solid #e7e7e2;border-radius:14px;padding:14px;margin-top:10px;background:#fafafa}
+.presets{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.presets button{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.presets button:hover{border-color:#f4682a}
+.hidden{display:none!important}
+</style></head><body>
+<div class="wrap">
+  <div class="mocknote">Five looks for the popup calendar that picks 2 dates, shown where it will live: an announcement's start and end. In every one, tap the first date, then the second, then Apply. Sample forms, nothing saves.</div>
+  <h1 style="font-size:24px">Pick 2 dates: 5 looks</h1>
+  <div id="stage"></div>
+</div>
+<script>
+(function(){
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function iso(y, m, d){ return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+  function fmt(s){ if (!s) return ''; var p = s.split('-'); return MON[+p[1] - 1] + ' ' + (+p[2]); }
+  function rangeText(st){ if (!st.start) return 'No dates picked'; if (!st.end) return fmt(st.start) + ' to ...'; var n = Math.round((new Date(st.end) - new Date(st.start)) / 86400000) + 1; return fmt(st.start) + ' to ' + fmt(st.end) + ' (' + n + ' days)'; }
+  function monthHTML(st, y, m, big){
+    var first = new Date(y, m, 1).getDay();
+    var days = new Date(y, m + 1, 0).getDate();
+    var cells = '';
+    for (var i = 0; i < first; i++) cells += '<td></td>';
+    for (var d = 1; d <= days; d++) {
+      var s = iso(y, m, d);
+      var cls = 'd';
+      if (st.start && st.end && s > st.start && s < st.end) cls += ' in';
+      if (s === st.start || s === st.end) cls += ' endp';
+      cells += '<td><button type="button" class="' + cls + '" data-day="' + s + '">' + d + '</button></td>';
+      if ((first + d) % 7 === 0) cells += '</tr><tr>';
+    }
+    return '<div class="cal"><div class="mhead"><button type="button" class="nav" data-nav="-1">&lt;</button><b>' + MONTHS[m] + ' ' + y + '</b><button type="button" class="nav" data-nav="1">&gt;</button></div>' +
+      '<table><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr><tr>' + cells + '</tr></table></div>';
+  }
+  function makeCal(host, st, opts){
+    function render(){
+      if (opts.two) {
+        var y2 = st.vy, m2 = st.vm + 1; if (m2 > 11) { m2 = 0; y2++; }
+        host.innerHTML = '<div class="twom"><div data-m="0">' + monthHTML(st, st.vy, st.vm) + '</div><div data-m="1">' + monthHTML(st, y2, m2) + '</div></div><div class="picked">' + rangeText(st) + '</div>';
+      } else {
+        host.innerHTML = monthHTML(st, st.vy, st.vm) + '<div class="picked">' + rangeText(st) + '</div>';
+      }
+      host.querySelectorAll('[data-day]').forEach(function(b){ b.addEventListener('click', function(){ pick(b.getAttribute('data-day')); }); });
+      host.querySelectorAll('[data-nav]').forEach(function(b){ b.addEventListener('click', function(){
+        st.vm += +b.getAttribute('data-nav'); if (st.vm < 0) { st.vm = 11; st.vy--; } if (st.vm > 11) { st.vm = 0; st.vy++; } render();
+      }); });
+    }
+    function pick(s){
+      if (!st.start || (st.start && st.end)) { st.start = s; st.end = null; }
+      else if (s >= st.start) st.end = s; else { st.end = st.start; st.start = s; }
+      render(); if (opts.onPick) opts.onPick();
+    }
+    return { render: render };
+  }
+  function formBlock(n, title, blurb, extra){
+    return '<div class="ex"><h2>' + n + '</h2><p class="sub">' + blurb + '</p>' +
+      '<label>Announcement title</label><input type="text" value="' + title + '">' +
+      '<label>Dates</label><button class="btn datebtn" type="button" data-open="' + n + '"><span data-label="' + n + '">Pick dates</span><span>▾</span></button>' + extra + '</div>';
+  }
+  var stage = document.getElementById('stage');
+  stage.innerHTML =
+    formBlock('1', 'Guest artist in town', 'Classic popup. One month in a centered card, the picked range shaded, Apply and Cancel at the bottom.',
+      '<div class="overlay hidden" data-ov="1"><div class="modal"><div data-cal="1"></div><div class="cal"><div class="foot"><button class="btn" type="button" data-cancel="1">Cancel</button><button class="btn btn--accent" type="button" data-apply="1">Apply dates</button></div></div></div></div>') +
+    formBlock('2', 'Walk-ins all weekend', 'Two months side by side in one wide popup, so a range that crosses a month end is one tap each, no flipping pages. Stacks on a phone.',
+      '<div class="overlay hidden" data-ov="2"><div class="modal wide"><div data-cal="2"></div><div class="cal"><div class="foot"><button class="btn" type="button" data-cancel="2">Cancel</button><button class="btn btn--accent" type="button" data-apply="2">Apply dates</button></div></div></div></div>') +
+    formBlock('3', 'Flash day Saturday', 'Bottom sheet. Slides up from the bottom of the screen with big day squares, the way phone apps do it. Best thumb reach.',
+      '<div class="sheetwrap hidden" data-ov="3"><div class="sheet"><div data-cal="3"></div><div class="applybar"><button class="btn" type="button" data-cancel="3">Cancel</button><button class="btn btn--accent" type="button" data-apply="3">Apply dates</button></div></div></div>') +
+    formBlock('4', 'Holiday hours change', 'No popup at all. The calendar opens right under the field, inside the form, and closes when you apply. Nothing floats over the page.',
+      '<div class="inline hidden" data-ov="4"><div data-cal="4"></div><div class="cal"><div class="foot"><button class="btn" type="button" data-cancel="4">Close</button><button class="btn btn--accent" type="button" data-apply="4">Apply dates</button></div></div></div>') +
+    formBlock('5', 'Guest artist in town', 'Popup with quick picks on top: This weekend, Next 7 days, and a guest spot week fill both dates in one tap. The calendar is there when the quick picks do not fit.',
+      '<div class="overlay hidden" data-ov="5"><div class="modal"><div class="presets"><button type="button" data-preset="weekend">This weekend</button><button type="button" data-preset="week">Next 7 days</button><button type="button" data-preset="guest">Guest spot, Dec 3-8</button><button type="button" data-preset="clear">Clear</button></div><div data-cal="5"></div><div class="cal"><div class="foot"><button class="btn" type="button" data-cancel="5">Cancel</button><button class="btn btn--accent" type="button" data-apply="5">Apply dates</button></div></div></div></div>');
+  ['1','2','3','4','5'].forEach(function(n){
+    var st = { vy: 2026, vm: 10, start: null, end: null };
+    var host = stage.querySelector('[data-cal="' + n + '"]');
+    var cal = makeCal(host, st, { two: n === '2' });
+    cal.render();
+    var ov = stage.querySelector('[data-ov="' + n + '"]');
+    stage.querySelector('[data-open="' + n + '"]').addEventListener('click', function(){ ov.classList.remove('hidden'); });
+    stage.querySelector('[data-cancel="' + n + '"]').addEventListener('click', function(){ ov.classList.add('hidden'); });
+    stage.querySelector('[data-apply="' + n + '"]').addEventListener('click', function(){
+      var lab = stage.querySelector('[data-label="' + n + '"]');
+      lab.textContent = (st.start && st.end) ? fmt(st.start) + ' to ' + fmt(st.end) : (st.start ? fmt(st.start) + ' (pick an end date)' : 'Pick dates');
+      ov.classList.add('hidden');
+    });
+    if (n === '5') ov.querySelectorAll('[data-preset]').forEach(function(b){ b.addEventListener('click', function(){
+      var p = b.getAttribute('data-preset');
+      if (p === 'weekend') { st.start = '2026-11-21'; st.end = '2026-11-22'; }
+      if (p === 'week') { st.start = '2026-11-19'; st.end = '2026-11-25'; }
+      if (p === 'guest') { st.start = '2026-12-03'; st.end = '2026-12-08'; st.vy = 2026; st.vm = 11; }
+      if (p === 'clear') { st.start = null; st.end = null; }
+      cal.render();
+    }); });
+  });
+})();
+</script>
+</body></html>

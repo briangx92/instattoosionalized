@@ -54,6 +54,20 @@ textarea{min-height:64px;resize:vertical}
 .kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #f0f0ec;font-size:14px}
 .kv:first-of-type{border-top:none}
 .kv span{color:#71717a}
+
+.calpop{position:fixed;inset:0;background:rgba(15,15,20,.45);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.calpop .modal{background:#fff;border-radius:16px;padding:18px;width:340px;max-width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.calpop .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.calpop .mhead b{font-family:'Space Grotesk';font-size:15.5px}
+.calpop .nav{border:1px solid #d8d8d2;background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:15px}
+.calpop table{width:100%;border-collapse:collapse}
+.calpop th{font-size:11px;color:#8a8a93;font-weight:700;padding:4px 0}
+.calpop td{padding:2px}
+.calpop .d{width:100%;aspect-ratio:1;border:none;background:transparent;border-radius:9px;font:inherit;font-size:14px;cursor:pointer;padding:0}
+.calpop .d.in{background:#ffe9dc;border-radius:0}
+.calpop .d.endp{background:#f4682a;color:#fff;font-weight:700}
+.calpop .picked{font-size:13px;color:#5c5c66;margin-top:10px;min-height:18px}
+.calpop .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 </style></head><body>
 <div class="wrap">
   <div class="mocknote">Five takes on the portal's Edit site section, using Copilot's three ideas: availability as a status (Available, Limited, Booked Until, Not Accepting) instead of a "booked out from" box, announcements with a title, dates, and priority instead of one scrolling message, and the section renamed in shop owner language. Sample data, nothing saves.</div>
@@ -87,6 +101,14 @@ textarea{min-height:64px;resize:vertical}
     '<label>Priority</label><select data-ann="prio"><option>Normal</option><option>High, show first</option></select>' +
     '<p style="margin-top:12px"><button class="btn btn--accent" type="button" data-addann="' + idp + '">Add announcement</button></p>';
   }
+  function annRangeForm(idp){
+    return '<label>Title</label><input type="text" data-ann="title" placeholder="Guest artist in town">' +
+    '<label>Message</label><input type="text" data-ann="msg" placeholder="Guest artist in town Dec 3-8, books open now">' +
+    '<label>Dates it shows</label><button class="btn" type="button" data-range="' + idp + '" style="width:100%;justify-content:space-between"><span data-rangelabel="' + idp + '">Pick the 2 dates</span><span>\u25be</span></button>' +
+    '<input type="hidden" data-ann="start"><input type="hidden" data-ann="end">' +
+    '<label>Priority</label><select data-ann="prio"><option>Normal</option><option>High, show first</option></select>' +
+    '<p style="margin-top:12px"><button class="btn btn--accent" type="button" data-addann="' + idp + '">Add announcement</button></p>';
+  }
   function annList(idp){
     return '<div data-annlist="' + idp + '"><div class="ann"><b>Walk-ins welcome</b><span class="prio">HIGH</span><div class="m">Walk-ins all weekend, first come first served.</div><div class="w">Shows Nov 21 to Nov 23</div></div></div>';
   }
@@ -111,7 +133,7 @@ textarea{min-height:64px;resize:vertical}
     '<div class="card"><h3>Shop details</h3>' + detailsBlock() + '</div></div></div></div>';
   V[4] = '<div class="panel"><h2>Storefront</h2><p class="sub">Pick a job. Each tab holds one thing, so nothing crowds a phone screen.</p>' +
     '<div class="subtabs" id="v4tabs"><button data-t="ann" class="on" type="button">Announcements</button><button data-t="av" type="button">Availability</button><button data-t="det" type="button">Shop details</button></div>' +
-    '<div data-v4="ann"><div class="card">' + annList('v4') + annForm('v4') + '</div></div>' +
+    '<div data-v4="ann"><div class="card">' + annList('v4') + annRangeForm('v4') + '</div></div>' +
     '<div data-v4="av" class="hidden"><div class="card"><h3>Artist availability</h3><p class="d">Booked Until takes the artist\'s days off the request form.</p>' + avBlock('v4') + '</div></div>' +
     '<div data-v4="det" class="hidden"><div class="card">' + detailsBlock() + '</div></div></div>';
   V[5] = '<div class="panel"><h2>Storefront</h2><p class="sub">The top is your homepage as visitors see it. Change anything below and the preview follows.</p>' +
@@ -183,6 +205,56 @@ textarea{min-height:64px;resize:vertical}
     });
   });
   show('1');
+})();
+</script>
+
+<div class="calpop hidden" id="calpop"><div class="modal"><div id="calhost"></div>
+<div class="foot"><button class="btn" type="button" id="calcancel">Cancel</button><button class="btn btn--accent" type="button" id="calapply">Apply dates</button></div></div></div>
+<script>
+(function(){
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var st = { vy: 2026, vm: 10, start: null, end: null }, ctx = null;
+  function iso(y, m, d){ return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+  function fmt(s){ if (!s) return ''; var p = s.split('-'); return MON[+p[1] - 1] + ' ' + (+p[2]); }
+  function render(){
+    var host = document.getElementById('calhost');
+    var first = new Date(st.vy, st.vm, 1).getDay(), days = new Date(st.vy, st.vm + 1, 0).getDate(), cells = '';
+    for (var i = 0; i < first; i++) cells += '<td></td>';
+    for (var d = 1; d <= days; d++) {
+      var s = iso(st.vy, st.vm, d), cls = 'd';
+      if (st.start && st.end && s > st.start && s < st.end) cls += ' in';
+      if (s === st.start || s === st.end) cls += ' endp';
+      cells += '<td><button type="button" class="' + cls + '" data-day="' + s + '">' + d + '</button></td>';
+      if ((first + d) % 7 === 0) cells += '</tr><tr>';
+    }
+    var picked = !st.start ? 'Tap the first date' : (!st.end ? fmt(st.start) + ' to ...' : fmt(st.start) + ' to ' + fmt(st.end));
+    host.innerHTML = '<div class="mhead"><button type="button" class="nav" data-nav="-1">&lt;</button><b>' + MONTHS[st.vm] + ' ' + st.vy + '</b><button type="button" class="nav" data-nav="1">&gt;</button></div>' +
+      '<table><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr><tr>' + cells + '</tr></table><div class="picked">' + picked + '</div>';
+    host.querySelectorAll('[data-day]').forEach(function(b){ b.addEventListener('click', function(){
+      var s = b.getAttribute('data-day');
+      if (!st.start || (st.start && st.end)) { st.start = s; st.end = null; }
+      else if (s >= st.start) st.end = s; else { st.end = st.start; st.start = s; }
+      render();
+    }); });
+    host.querySelectorAll('[data-nav]').forEach(function(b){ b.addEventListener('click', function(){
+      st.vm += +b.getAttribute('data-nav'); if (st.vm < 0) { st.vm = 11; st.vy--; } if (st.vm > 11) { st.vm = 0; st.vy++; } render();
+    }); });
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-range]');
+    if (t) { ctx = t; st.start = null; st.end = null; render(); document.getElementById('calpop').classList.remove('hidden'); }
+  });
+  document.getElementById('calcancel').addEventListener('click', function(){ document.getElementById('calpop').classList.add('hidden'); });
+  document.getElementById('calapply').addEventListener('click', function(){
+    if (ctx && st.start && st.end) {
+      var card = ctx.closest('.card');
+      card.querySelector('[data-ann="start"]').value = st.start;
+      card.querySelector('[data-ann="end"]').value = st.end;
+      ctx.querySelector('[data-rangelabel]').textContent = fmt(st.start) + ' to ' + fmt(st.end);
+    }
+    document.getElementById('calpop').classList.add('hidden');
+  });
 })();
 </script>
 </body></html>

@@ -40,6 +40,30 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <h1>Before and after uploads, 5 ways</h1>
 <p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
 
+<div class="ex" id="ex0" style="border-color:#f4682a;border-width:2px">
+<h2>Your pick: 3, refined · Galleries of pairs</h2>
+<p class="sub">The list of pairs from example 3, with your two changes: an Add a gallery button (each gallery is a named set, say one per artist), and a caption under every photo. Tap a box or drop a photo file on it. When both sides of a pair are set, the split preview shows how it will look on the site.</p>
+<style>
+.gal{border:1.5px solid #e7e2d9;border-radius:12px;padding:14px;margin-bottom:14px;background:#fff}
+.gal .ghead{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.gal .ghead input{flex:1}
+.prow2{border:1.5px solid #e7e2d9;border-radius:10px;padding:10px;margin-bottom:10px;background:#fdfcf9}
+.prow2 .cols{display:flex;gap:10px}
+.prow2 .cell{flex:1}
+.prow2 .cap{margin-top:7px}
+.prow2 .cap input{width:100%}
+.prow2 .rm{float:right}
+.gsplit{display:flex;border:2px solid #191919;border-radius:10px;overflow:hidden;min-height:120px;margin-top:10px;background:#eee}
+.gsplit .half{flex:1;position:relative;min-height:120px;background-size:cover;background-position:center}
+.gsplit .div{width:3px;background:#191919;flex:0 0 auto}
+.gsplit .tag{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px}
+</style>
+<div id="gals"></div>
+<button class="btn" id="addgal" type="button">+ Add a gallery</button>
+<div class="status" id="galstatus"></div>
+<input type="file" id="galfile" accept="image/*" class="hidden">
+</div>
+
 <div class="ex" id="ex1">
 <h2>1 · Two boxes</h2>
 <p class="sub">One box for the before photo, one for the after. The split preview builds itself underneath.</p>
@@ -187,6 +211,63 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     if (b && a) { sp.classList.remove('hidden'); setImg('e5b', b.url); setImg('e5a', a.url); }
     else sp.classList.add('hidden');
   }
+})();
+</script>
+
+<script>
+(function(){
+  var gals = document.getElementById('gals');
+  var filein = document.getElementById('galfile');
+  var target = null;
+  filein.addEventListener('change', function(){
+    if (target && filein.files && filein.files[0]) setPhoto(target, URL.createObjectURL(filein.files[0]));
+    filein.value = '';
+  });
+  function setPhoto(box, url){
+    box.style.backgroundImage = 'url(' + url + ')';
+    box.style.backgroundSize = 'cover'; box.style.backgroundPosition = 'center';
+    box.innerHTML = ''; box.setAttribute('data-url', url);
+    var prow = box.closest('.prow2'); refreshSplit(prow);
+  }
+  function refreshSplit(prow){
+    var b = prow.querySelector('[data-side="b"]'), a = prow.querySelector('[data-side="a"]');
+    var sp = prow.querySelector('.gsplit');
+    if (b.getAttribute('data-url') && a.getAttribute('data-url')) {
+      sp.classList.remove('hidden');
+      sp.querySelector('[data-sh="b"]').style.backgroundImage = 'url(' + b.getAttribute('data-url') + ')';
+      sp.querySelector('[data-sh="a"]').style.backgroundImage = 'url(' + a.getAttribute('data-url') + ')';
+    } else sp.classList.add('hidden');
+  }
+  function pairRow(){
+    var row = document.createElement('div'); row.className = 'prow2';
+    row.innerHTML = '<button class="btn light rm" type="button" title="Remove pair">x</button>' +
+      '<div class="cols">' +
+      '<div class="cell"><div class="thumb" data-side="b" style="width:100%;height:104px;font-size:13px;font-weight:700;letter-spacing:.05em">+ BEFORE</div><div class="cap"><input type="text" placeholder="Caption for the before photo"></div></div>' +
+      '<div class="cell"><div class="thumb" data-side="a" style="width:100%;height:104px;font-size:13px;font-weight:700;letter-spacing:.05em">+ AFTER</div><div class="cap"><input type="text" placeholder="Caption for the after photo"></div></div>' +
+      '</div>' +
+      '<div class="gsplit hidden"><div class="half" data-sh="b"><span class="tag">BEFORE</span></div><div class="div"></div><div class="half" data-sh="a"><span class="tag">AFTER</span></div></div>';
+    row.querySelectorAll('.thumb').forEach(function(t){
+      t.addEventListener('click', function(){ target = t; filein.click(); });
+      t.addEventListener('dragover', function(e){ e.preventDefault(); });
+      t.addEventListener('drop', function(e){ e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files[0]) setPhoto(t, URL.createObjectURL(e.dataTransfer.files[0])); });
+    });
+    row.querySelector('.rm').addEventListener('click', function(){ row.remove(); });
+    return row;
+  }
+  function gallery(name){
+    var g = document.createElement('div'); g.className = 'gal';
+    g.innerHTML = '<div class="ghead"><input type="text" value="' + name + '" aria-label="Gallery name"><button class="btn light" type="button" data-rmgal="1">Remove gallery</button></div><div class="pairs"></div><button class="btn light" type="button" data-addpair="1">+ Add a pair</button>';
+    var pairs = g.querySelector('.pairs');
+    pairs.appendChild(pairRow());
+    g.querySelector('[data-addpair]').addEventListener('click', function(){ pairs.appendChild(pairRow()); });
+    g.querySelector('[data-rmgal]').addEventListener('click', function(){ g.remove(); });
+    return g;
+  }
+  gals.appendChild(gallery('Lex, healed work'));
+  document.getElementById('addgal').addEventListener('click', function(){
+    gals.appendChild(gallery('New gallery'));
+    document.getElementById('galstatus').textContent = 'Gallery added. In the real portal each gallery shows on its artist page.';
+  });
 })();
 </script>
 </body></html>
