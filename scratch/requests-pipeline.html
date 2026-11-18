@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Requests pipeline, scratch mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:#f4f4f2;color:#17171a}
+h1,h2,h3{font-family:'Space Grotesk',Inter,sans-serif;margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 70px}
+.mocknote{background:#fff4ee;border:1px solid #f3cfb8;color:#7c3f16;border-radius:12px;padding:10px 14px;font-size:13.5px;margin-bottom:16px;line-height:1.5}
+.head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.head h1{font-size:28px}
+.counts{color:#5c5c66;font-size:14px;margin-top:5px}
+.counts b{color:#17171a}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:11px;border:1px solid #d8d8d2;background:#fff;color:#17171a;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn--accent{background:#f4682a;color:#fff;border-color:#f4682a;margin-left:auto}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0 14px}
+.chip{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}
+.chip.on{background:#17171a;color:#fff;border-color:#17171a}
+.filters input{flex:1;min-width:150px;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14px;background:#fff}
+.board{display:grid;grid-template-columns:repeat(6,minmax(185px,1fr));gap:10px;align-items:start;overflow-x:auto;padding-bottom:8px}
+.col{background:#ececea;border:1px solid #e0e0da;border-radius:14px;padding:10px;min-height:120px}
+.col.over{outline:2px dashed #f4682a;outline-offset:-4px}
+.col h3{font-size:13px;letter-spacing:.04em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px}
+.col h3 .n{background:#17171a;color:#fff;border-radius:999px;font-size:11.5px;padding:1px 8px;font-family:Inter}
+.rcard{background:#fff;border:1px solid #e4e4e0;border-radius:13px;padding:12px;margin-bottom:9px;cursor:grab;box-shadow:0 3px 10px rgba(20,20,30,.05)}
+.rcard:active{cursor:grabbing}
+.rcard .st{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a}
+.rcard .dot{width:8px;height:8px;border-radius:50%;background:#f4682a;flex:none}
+.rcard .dot.c{background:#2563eb}.rcard .dot.s{background:#7c3aed}.rcard .dot.d{background:#d97706}.rcard .dot.b{background:#15803d}.rcard .dot.x{background:#a1a1aa}
+.rcard h4{margin:7px 0 4px;font-size:15.5px}
+.rcard .meta{font-size:13px;color:#3f3f46;line-height:1.45}
+.rcard .idea{font-size:13px;color:#5c5c66;font-style:italic;margin-top:5px;line-height:1.4}
+.rcard .when{font-size:12px;color:#8a8a93;margin-top:7px}
+.rcard .hv{display:inline-block;background:#fff4ee;color:#c24e12;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;margin-top:7px}
+.rcard .rev{margin-top:9px;width:100%;border:1px solid #d8d8d2;background:#fafafa;border-radius:9px;padding:7px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.empty{font-size:12.5px;color:#8a8a93;text-align:center;padding:10px 4px}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(15,15,20,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);background:#fff;z-index:41;box-shadow:-18px 0 50px rgba(0,0,0,.25);padding:22px;overflow-y:auto}
+.drawer h2{font-size:21px}
+.drawer .x{position:absolute;top:14px;right:14px;border:1px solid #d8d8d2;background:#fff;border-radius:9px;width:36px;height:36px;font-size:16px;cursor:pointer}
+.summary{background:#fafafa;border:1px solid #e7e7e2;border-radius:12px;padding:13px;font-size:14px;line-height:1.55;margin:14px 0}
+.frow{display:grid;grid-template-columns:110px 1fr;gap:8px;padding:7px 0;border-top:1px solid #f0f0ec;font-size:14px}
+.frow b{color:#71717a;font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}
+.acts .btn{justify-content:center}
+.acts .wide{grid-column:1/-1}
+.drawer select{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:11px;font:inherit;font-size:14px;background:#fff}
+.tl{margin-top:6px}
+.tl .ev{display:flex;gap:10px;padding:8px 0;border-top:1px solid #f0f0ec;font-size:13.5px}
+.tl .ev span{color:#8a8a93;white-space:nowrap}
+.hidden{display:none!important}
+@media(max-width:820px){
+  .board{grid-template-columns:1fr;overflow:visible}
+  .btn--accent{margin-left:0}
+}
+</style></head><body>
+<div class="wrap">
+  <div class="mocknote">Scratch mock with sample requests, built from the Copilot set you sent. Drag cards between columns on a computer, or open a card and change its status. Nothing here saves or touches the real portal.</div>
+  <div class="head">
+    <div><h1>Requests</h1><div class="counts" id="counts"></div></div>
+    <button class="btn btn--accent" id="addreq" type="button">+ New Request</button>
+  </div>
+  <div class="filters" id="filters">
+    <button class="chip on" data-f="all" type="button">All</button>
+    <button class="chip" data-f="tattoo" type="button">Tattoo</button>
+    <button class="chip" data-f="piercing" type="button">Piercing</button>
+    <button class="chip" data-f="new" type="button">New</button>
+    <button class="chip" data-f="week" type="button">This Week</button>
+    <button class="chip" data-f="hv" type="button">High Value</button>
+    <input type="text" id="q" placeholder="Search name or idea...">
+  </div>
+  <div class="board" id="board"></div>
+</div>
+<div class="scrim hidden" id="scrim"></div>
+<aside class="drawer hidden" id="drawer" aria-label="Request details"></aside>
+<script>
+(function(){
+  var STATUSES = [
+    { id: 'new', label: 'New', dot: '' },
+    { id: 'contacted', label: 'Contacted', dot: 'c' },
+    { id: 'consult', label: 'Consultation Scheduled', dot: 's' },
+    { id: 'deposit', label: 'Awaiting Deposit', dot: 'd' },
+    { id: 'booked', label: 'Booked', dot: 'b' },
+    { id: 'closed', label: 'Closed', dot: 'x' }
+  ];
+  var HV_WORDS = ['sleeve', 'back piece', 'coverup', 'cover-up', 'cover up', 'large'];
+  var reqs = [
+    { id: 1, name: 'Sarah Thompson', phone: '(555) 555-5555', type: 'Tattoo', size: 'Medium (4-6 inches)', place: 'Forearm', date: 'Flexible', idea: 'Japanese style dragon', notes: 'Would like black and grey. Open to suggestions, may expand into a sleeve later.', status: 'new', when: 'Submitted today, 9:21 AM', week: true, tl: [['Request submitted', 'Today 9:21 AM']] },
+    { id: 2, name: 'John Smith', phone: '(555) 555-0142', type: 'Piercing', size: '', place: 'Nose', date: 'Sat Nov 21', idea: 'Nostril piercing, gold ring', notes: '', status: 'new', when: 'Submitted yesterday', week: true, tl: [['Request submitted', 'Yesterday']] },
+    { id: 3, name: 'Mike Torres', phone: '(555) 555-0117', type: 'Tattoo', size: 'Large', place: 'Full sleeve', date: 'Flexible', idea: 'Full sleeve, black and grey realism', notes: 'First session consult first.', status: 'contacted', when: 'Submitted 2 days ago', week: true, tl: [['Request submitted', 'Mon 9:02 AM'], ['Text sent', 'Mon 9:45 AM']] },
+    { id: 4, name: 'Katie Nguyen', phone: '(555) 555-0199', type: 'Tattoo', size: 'Large', place: 'Shoulder blade', date: 'Flexible', idea: 'Cover up of an old name tattoo', notes: 'Wants to see design ideas at the consult.', status: 'consult', when: 'Consult Thu 3:00 PM', week: true, tl: [['Request submitted', 'Sun'], ['Call made', 'Mon'], ['Consultation scheduled', 'Thu 3:00 PM']] },
+    { id: 5, name: 'Alex Rivera', phone: '(555) 555-0123', type: 'Tattoo', size: 'Medium (4-6 inches)', place: 'Calf', date: 'Fri Nov 27', idea: 'Geometric wolf', notes: '', status: 'deposit', when: 'Quoted $250, waiting on $40 deposit', week: false, tl: [['Request submitted', 'Last week'], ['Consultation done', 'Tue'], ['Quote sent', 'Tue']] },
+    { id: 6, name: 'Jessica Lane', phone: '(555) 555-0176', type: 'Piercing', size: '', place: 'Helix', date: 'Tue Nov 24', idea: 'Double helix', notes: '', status: 'contacted', when: 'Submitted 3 days ago', week: true, tl: [['Request submitted', 'Sun'], ['Instagram DM sent', 'Sun']] },
+    { id: 7, name: 'Brandon Cole', phone: '(555) 555-0108', type: 'Tattoo', size: 'Small (under 2 inches)', place: 'Wrist', date: 'Flexible', idea: 'Small mountain outline', notes: '', status: 'new', when: 'Submitted today, 8:03 AM', week: true, tl: [['Request submitted', 'Today 8:03 AM']] },
+    { id: 8, name: 'Emily Brooks', phone: '(555) 555-0161', type: 'Tattoo', size: 'Large', place: 'Back piece', date: 'Flexible', idea: 'Back piece, floral and birds', notes: 'Multi-session project.', status: 'booked', when: 'Deposit paid, first session Dec 3', week: false, tl: [['Request submitted', 'Oct 30'], ['Booked', 'Nov 12']] },
+    { id: 9, name: 'Dan Wright', phone: '(555) 555-0130', type: 'Tattoo', size: 'Medium (4-6 inches)', place: 'Bicep', date: 'Flexible', idea: 'Compass rose', notes: 'Never answered after the quote.', status: 'closed', reason: 'No Response', when: 'Closed Nov 10', week: false, tl: [['Request submitted', 'Oct 22'], ['Closed, no response', 'Nov 10']] }
+  ];
+  var filter = 'all', query = '';
+  function isHV(r){ var t = (r.size + ' ' + r.place + ' ' + r.idea).toLowerCase(); return HV_WORDS.some(function(w){ return t.indexOf(w) !== -1; }); }
+  function stLabel(id){ var s = STATUSES.filter(function(x){ return x.id === id; })[0]; return s ? s.label : id; }
+  function stDot(id){ var s = STATUSES.filter(function(x){ return x.id === id; })[0]; return s ? s.dot : ''; }
+  function summary(r){
+    var parts = [];
+    parts.push(r.name + ' wants ' + (r.type === 'Piercing' ? 'a piercing' : 'a tattoo'));
+    if (r.idea) parts.push('idea: ' + r.idea.toLowerCase());
+    if (r.size) parts.push(r.size.toLowerCase());
+    if (r.place) parts.push('on the ' + r.place.toLowerCase());
+    var s = parts.join(', ') + '. ';
+    s += (r.date === 'Flexible') ? 'Scheduling is flexible.' : 'Preferred date: ' + r.date + '.';
+    if (isHV(r)) s += ' Flagged high value.';
+    return s;
+  }
+  function passes(r){
+    if (filter === 'tattoo' && r.type !== 'Tattoo') return false;
+    if (filter === 'piercing' && r.type !== 'Piercing') return false;
+    if (filter === 'new' && r.status !== 'new') return false;
+    if (filter === 'week' && !r.week) return false;
+    if (filter === 'hv' && !isHV(r)) return false;
+    if (query && (r.name + ' ' + r.idea + ' ' + r.place).toLowerCase().indexOf(query) === -1) return false;
+    return true;
+  }
+  function render(){
+    var counts = document.getElementById('counts');
+    function n(id){ return reqs.filter(function(r){ return r.status === id; }).length; }
+    counts.innerHTML = 'New: <b>' + n('new') + '</b> &middot; Contacted: <b>' + n('contacted') + '</b> &middot; Consults: <b>' + n('consult') + '</b> &middot; Awaiting deposit: <b>' + n('deposit') + '</b> &middot; Booked: <b>' + n('booked') + '</b>';
+    var board = document.getElementById('board'); board.innerHTML = '';
+    STATUSES.forEach(function(st){
+      var col = document.createElement('div'); col.className = 'col'; col.setAttribute('data-col', st.id);
+      var items = reqs.filter(function(r){ return r.status === st.id && passes(r); });
+      col.innerHTML = '<h3>' + st.label + '<span class="n">' + reqs.filter(function(r){ return r.status === st.id; }).length + '</span></h3>';
+      if (!items.length) col.innerHTML += '<div class="empty">Nothing here</div>';
+      items.forEach(function(r){
+        var c = document.createElement('div'); c.className = 'rcard'; c.draggable = true; c.setAttribute('data-id', r.id);
+        c.innerHTML = '<div class="st"><span class="dot ' + stDot(r.status) + '"></span>' + stLabel(r.status) + '</div>' +
+          '<h4>' + r.name + '</h4>' +
+          '<div class="meta">' + r.type + (r.size ? '<br>' + r.size : '') + (r.place ? '<br>' + r.place : '') + '</div>' +
+          (r.idea ? '<div class="idea">' + r.idea + '</div>' : '') +
+          '<div class="when">' + r.when + '</div>' +
+          (isHV(r) ? '<span class="hv">High Value</span>' : '') +
+          '<button class="rev" type="button">Review</button>';
+        c.querySelector('.rev').addEventListener('click', function(ev){ ev.stopPropagation(); openDrawer(r); });
+        c.addEventListener('click', function(){ openDrawer(r); });
+        c.addEventListener('dragstart', function(ev){ ev.dataTransfer.setData('text/plain', String(r.id)); });
+        col.appendChild(c);
+      });
+      col.addEventListener('dragover', function(ev){ ev.preventDefault(); col.classList.add('over'); });
+      col.addEventListener('dragleave', function(){ col.classList.remove('over'); });
+      col.addEventListener('drop', function(ev){
+        ev.preventDefault(); col.classList.remove('over');
+        var id = +ev.dataTransfer.getData('text/plain');
+        var r = reqs.filter(function(x){ return x.id === id; })[0];
+        if (r && r.status !== st.id) { r.status = st.id; r.tl.push(['Moved to ' + st.label, 'Just now']); render(); }
+      });
+      board.appendChild(col);
+    });
+  }
+  var current = null;
+  function openDrawer(r){
+    current = r;
+    var d = document.getElementById('drawer');
+    var rows = [['Phone', r.phone], ['Type', r.type]];
+    if (r.size) rows.push(['Size', r.size]);
+    if (r.place) rows.push(['Placement', r.place]);
+    rows.push(['Preferred date', r.date]);
+    if (r.idea) rows.push(['Idea', r.idea]);
+    if (r.notes) rows.push(['Anything else', r.notes]);
+    if (r.status === 'closed' && r.reason) rows.push(['Closed reason', r.reason]);
+    d.innerHTML = '<button class="x" type="button" id="dx" aria-label="Close">X</button>' +
+      '<h2>' + r.name + '</h2>' +
+      '<div class="st" style="display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin-top:4px"><span class="dot ' + stDot(r.status) + '" style="width:8px;height:8px;border-radius:50%;background:#f4682a;display:inline-block"></span>' + stLabel(r.status) + (isHV(r) ? ' &middot; <span style="color:#c24e12">High Value</span>' : '') + '</div>' +
+      '<div class="summary">' + summary(r) + '</div>' +
+      rows.map(function(x){ return '<div class="frow"><b>' + x[0] + '</b><div>' + x[1] + '</div></div>'; }).join('') +
+      '<p style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:18px 0 7px">Move to</p>' +
+      '<select id="dstatus">' + STATUSES.map(function(s){ return '<option value="' + s.id + '"' + (s.id === r.status ? ' selected' : '') + '>' + s.label + '</option>'; }).join('') + '</select>' +
+      '<div id="dclosewrap" class="hidden" style="margin-top:9px"><select id="dreason"><option>No Response</option><option>Price Concern</option><option>Outside Artist Scope</option><option>Duplicate Request</option><option>Client Cancelled</option></select></div>' +
+      '<div class="acts">' +
+      '<a class="btn" href="tel:' + r.phone.replace(/[^0-9+]/g, '') + '">Contact Client</a>' +
+      '<button class="btn" type="button" id="dconsult">Schedule Consultation</button>' +
+      '<button class="btn" type="button" id="ddeposit">Request Deposit</button>' +
+      '<button class="btn" type="button" id="dbook">Mark Booked</button>' +
+      '<button class="btn wide" type="button" id="dclose">Close Request</button>' +
+      '</div>' +
+      '<h3 style="font-size:15px;margin-top:6px">Activity</h3><div class="tl">' +
+      r.tl.map(function(ev){ return '<div class="ev"><div style="flex:1">' + ev[0] + '</div><span>' + ev[1] + '</span></div>'; }).join('') + '</div>';
+    document.getElementById('scrim').classList.remove('hidden');
+    d.classList.remove('hidden');
+    document.getElementById('dx').addEventListener('click', closeDrawer);
+    var sel = document.getElementById('dstatus');
+    sel.addEventListener('change', function(){
+      document.getElementById('dclosewrap').classList.toggle('hidden', sel.value !== 'closed');
+      if (sel.value !== r.status) {
+        r.status = sel.value;
+        if (sel.value === 'closed') r.reason = document.getElementById('dreason').value;
+        r.tl.push(['Moved to ' + stLabel(sel.value), 'Just now']);
+        render(); openDrawer(r);
+      }
+    });
+    document.getElementById('dreason').addEventListener('change', function(){ r.reason = this.value; });
+    document.getElementById('dconsult').addEventListener('click', function(){ move(r, 'consult', 'Consultation scheduled'); });
+    document.getElementById('ddeposit').addEventListener('click', function(){ move(r, 'deposit', 'Deposit requested ($40 holds the spot)'); });
+    document.getElementById('dbook').addEventListener('click', function(){ move(r, 'booked', 'Marked booked'); });
+    document.getElementById('dclose').addEventListener('click', function(){
+      sel.value = 'closed'; document.getElementById('dclosewrap').classList.remove('hidden');
+      r.status = 'closed'; r.reason = document.getElementById('dreason').value;
+      r.tl.push(['Closed, ' + r.reason, 'Just now']); render(); openDrawer(r);
+    });
+  }
+  function move(r, st, note){ r.status = st; r.tl.push([note, 'Just now']); render(); openDrawer(r); }
+  function closeDrawer(){ document.getElementById('scrim').classList.add('hidden'); document.getElementById('drawer').classList.add('hidden'); current = null; }
+  document.getElementById('scrim').addEventListener('click', closeDrawer);
+  document.querySelectorAll('#filters .chip').forEach(function(ch){
+    ch.addEventListener('click', function(){
+      document.querySelectorAll('#filters .chip').forEach(function(x){ x.classList.toggle('on', x === ch); });
+      filter = ch.getAttribute('data-f'); render();
+    });
+  });
+  document.getElementById('q').addEventListener('input', function(){ query = this.value.toLowerCase(); render(); });
+  document.getElementById('addreq').addEventListener('click', function(){
+    var names = ['Sam K.', 'Priya Shah', 'Tom Becker', 'Ally Ford'];
+    var nm = names[Math.floor(Math.random() * names.length)];
+    reqs.unshift({ id: Date.now(), name: nm, phone: '(555) 555-0100', type: 'Tattoo', size: 'Medium (4-6 inches)', place: 'Upper arm', date: 'Flexible', idea: 'Walk-in idea from the form', notes: '', status: 'new', when: 'Submitted just now', week: true, tl: [['Request submitted', 'Just now']] });
+    render();
+  });
+  render();
+})();
+</script>
+</body></html>
