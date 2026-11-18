@@ -41,8 +41,8 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
 
 <div class="ex" id="ex0" style="border-color:#f4682a;border-width:2px">
-<h2>The artist page, with Gallery, Before/After, and Portfolio tabs</h2>
-<p class="sub">Built from your answers. The artist page stays exactly as it is, and the tabs sit under it. Gallery is the workspace: upload a single photo, a bunch at once, or build in a named section. Before/After is where pairs get built. Finish a pair and it moves to Portfolio. Portfolio is what appears on the site, and it is the only place captions change. Sections are the pages: flip through them with the pager, and sort the photos inside a section.</p>
+<h2>The artist page: Portfolio only, with one Upload button</h2>
+<p class="sub">Your simpler layout. The artist page stays exactly as it is. Under it there is one list, the Portfolio, which is what appears on the site and the only place captions change. The Upload button offers two jobs: Gallery photos, or a Before / after pair. Each opens its own workspace, and Done brings you back to the Portfolio, where finished work already shows. Sections are still the pages inside Portfolio: flip with the pager, sort inside a section.</p>
 <style>
 .apage{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-bottom:14px}
 .apage label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:14px 0 6px}
@@ -109,6 +109,14 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .aabout{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-top:14px}
 .aabout label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:0 0 6px}
 .aabout textarea{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;min-height:74px;background:#fff}
+.sheethead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sheethead b{font-size:16px}
+.aptile .tsite{position:absolute;top:5px;left:5px;border:0;border-radius:999px;padding:3px 9px;font-size:11px;font-weight:700;background:rgba(255,255,255,.92);color:#3f3f46;cursor:pointer;z-index:2}
+.aptile .tsite.on{background:#2e6b3e;color:#fff}
+.choose{display:grid;gap:9px;margin:0 0 6px}
+.choose button{border:1.5px solid #d8d8d2;background:#fdfcf9;border-radius:11px;padding:13px 14px;font:inherit;font-size:15px;font-weight:700;text-align:left;cursor:pointer;color:#191919}
+.choose button small{display:block;font-weight:400;font-size:12.5px;color:#5c5c66;margin-top:2px}
+.choose button:hover{border-color:#f4682a}
 </style>
 <div class="apage">
   <div class="ahead"><span class="back">&larr; All artists</span><b>Alexis "lex"</b></div>
@@ -126,12 +134,9 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     </div>
   </div>
 </div>
-<div class="ptabs">
-  <button class="ptab on" type="button" data-pt="gallery">Gallery</button>
-  <button class="ptab" type="button" data-pt="ba">Before/After</button>
-  <button class="ptab" type="button" data-pt="portfolio">Portfolio</button>
-</div>
-<section class="pane" id="pane-gallery">
+<section class="pane hidden" id="pane-gallery">
+  <div class="sheethead"><b>Gallery</b><button class="btn light" type="button" id="ap-gdone">Done</button></div>
+  <p class="sub" style="margin-top:0">The working shelf. Sort photos into sections, and tap On site to put a photo on the artist's page. It shows in Portfolio right away.</p>
   <div class="bar">
     <label style="font-size:13px;color:#5c5c66">Sort <select id="ap-gsort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">A to Z</option></select></label>
     <span class="pager"><button type="button" id="ap-gprev">&larr; Prev</button><span id="ap-ginfo"></span><button type="button" id="ap-gnext">Next &rarr;</button></span>
@@ -146,18 +151,22 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   <input type="file" id="ap-gfile" accept="image/*" multiple class="hidden">
 </section>
 <section class="pane hidden" id="pane-ba">
-  <p class="sub" style="margin-top:0">Build a pair here: a before in one box, an after in the other, and pick the section it belongs to. A pair cannot be finished without both photos, and you cannot add a new pair until the one above has both. Finish sends it to Portfolio.</p>
+  <div class="sheethead"><b>Before / After</b><button class="btn light" type="button" id="ap-badone">Done</button></div>
+  <p class="sub" style="margin-top:0">Build a pair here: a before in one box, an after in the other, and pick the section it belongs to. A pair cannot be finished without both photos, and you cannot add a new pair until the one above has both. Finish sends it to Portfolio and brings you back there.</p>
   <div id="ap-balist"></div>
-  <button class="btn" type="button" id="ap-baupload">Upload</button>
-  <div class="upopts hidden" id="ap-baupopts">
-    <button class="btn light" type="button" id="ap-baup-pair">Before and after pair</button>
-    <button class="btn light" type="button" id="ap-baup-cancel">Cancel</button>
-  </div>
+  <button class="btn" type="button" id="ap-baupload">Add another pair</button>
   <p class="fin-note hidden" id="ap-banote"></p>
   <input type="file" id="ap-bafile" accept="image/*" class="hidden">
 </section>
-<section class="pane hidden" id="pane-portfolio">
-  <p class="sub" style="margin-top:0">This is what appears on the site. Captions change here, and only here. They save as you type.</p>
+<section class="pane" id="pane-portfolio">
+  <div class="sheethead"><b>Portfolio</b><button class="btn" type="button" id="ap-upload">Upload</button></div>
+  <div class="choose hidden" id="ap-upchoose">
+    <button type="button" id="ap-up-gallery">Gallery photos<small>Single photos, sorted into sections. Put the keepers on the site.</small></button>
+    <button type="button" id="ap-up-ba">Before / after pair<small>Build a pair side by side. Finish it and it lands here.</small></button>
+    <button type="button" id="ap-up-cancel" style="font-weight:600;font-size:13.5px;padding:9px 14px">Cancel</button>
+  </div>
+  <p class="fin-note hidden" id="ap-pnote"></p>
+  <p class="sub" style="margin-top:10px">This is what appears on the site. Captions change here, and only here. They save as you type.</p>
   <div class="bar">
     <label style="font-size:13px;color:#5c5c66">Sort <select id="ap-psort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">A to Z</option></select></label>
     <span class="pager"><button type="button" id="ap-pprev">&larr; Prev</button><span id="ap-pinfo"></span><button type="button" id="ap-pnext">Next &rarr;</button></span>
@@ -376,9 +385,11 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     if (mode === 'az') a.sort(function(x, y){ return (x.t || x.bt || '').localeCompare(y.t || y.bt || ''); });
     return a;
   }
-  function tileHTML(item, withX){
+  function onSite(sec, ord){ return (P[sec] || []).some(function(it){ return it.ord === ord; }); }
+  function tileHTML(item, withX, sec){
     var inner = item.src ? '<img src="' + item.src + '" alt="">' : '';
-    return '<div class="aptile ' + (item.src ? '' : item.hue) + '">' + inner +
+    var site = sec ? '<button class="tsite' + (onSite(sec, item.ord) ? ' on' : '') + '" type="button" data-site="' + item.ord + '">' + (onSite(sec, item.ord) ? 'On site' : '+ Site') + '</button>' : '';
+    return '<div class="aptile ' + (item.src ? '' : item.hue) + '">' + inner + site +
       (withX ? '<button class="tx" type="button" data-x="' + item.ord + '">x</button>' : '') +
       '<span class="tcap">' + esc(item.t) + '</span></div>';
   }
@@ -391,7 +402,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     var items = sorted(G[sec] || [], gSort);
     var html = '<div class="sechead"><input type="text" id="ap-gsecname" value="' + esc(sec) + '"><span class="cnt">' + items.length + (items.length === 1 ? ' photo' : ' photos') + '</span></div>';
     if (!items.length) html += '<div class="empty">No photos in this section yet. Add some below.</div>';
-    else html += '<div class="apgrid">' + items.map(function(it){ return tileHTML(it, true); }).join('') + '</div>';
+    else html += '<div class="apgrid">' + items.map(function(it){ return tileHTML(it, true, sec); }).join('') + '</div>';
     html += '<p style="font-size:12.5px;color:#8a8578;margin:10px 0 0">Tip: you can also drop photo files anywhere in this section.</p>';
     var box = document.getElementById('ap-gsec');
     box.innerHTML = html;
@@ -399,7 +410,19 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       btn.addEventListener('click', function(){
         var o = +btn.getAttribute('data-x');
         G[sec] = G[sec].filter(function(it){ return it.ord !== o; });
-        renderGallery();
+        if (P[sec]) P[sec] = P[sec].filter(function(it){ return it.ord !== o; });
+        renderGallery(); renderPortfolio();
+      });
+    });
+    box.querySelectorAll('[data-site]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var o = +btn.getAttribute('data-site');
+        var item = (G[sec] || []).filter(function(it){ return it.ord === o; })[0];
+        if (!item) return;
+        P[sec] = P[sec] || [];
+        if (onSite(sec, o)) P[sec] = P[sec].filter(function(it){ return it.ord !== o; });
+        else P[sec].push({ type: 'single', t: item.t, hue: item.hue, src: item.src, cap: '', ord: item.ord });
+        renderGallery(); renderPortfolio();
       });
     });
     document.getElementById('ap-gsecname').addEventListener('change', function(){
@@ -485,11 +508,12 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
           bsrc: pair.b.src, asrc: pair.a.src, bcap: '', acap: '', ord: ++ord
         });
         BA.splice(+btn.getAttribute('data-fin'), 1);
-        var note = document.getElementById('ap-banote');
-        note.textContent = 'Pair finished. It now lives in Portfolio, under ' + pair.sec + '.';
+        pPage = secs.indexOf(pair.sec); if (pPage < 0) pPage = 0;
+        renderBA(); renderPortfolio(); showView('portfolio');
+        var note = document.getElementById('ap-pnote');
+        note.textContent = 'Pair finished. It is in Portfolio now, under ' + pair.sec + '. Set its captions here.';
         note.style.color = '';
         note.classList.remove('hidden');
-        renderBA(); renderPortfolio();
       });
     });
     list.querySelectorAll('[data-rm]').forEach(function(btn){
@@ -504,22 +528,20 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     if (baTarget && this.files[0]) setBA(baTarget.i, baTarget.side, this.files[0]);
     this.value = '';
   });
-  var baUp = document.getElementById('ap-baupopts');
-  document.getElementById('ap-baupload').addEventListener('click', function(){ baUp.classList.toggle('hidden'); });
-  document.getElementById('ap-baup-cancel').addEventListener('click', function(){ baUp.classList.add('hidden'); });
-  document.getElementById('ap-baup-pair').addEventListener('click', function(){
-    baUp.classList.add('hidden');
+  function tryAddPair(){
     var last = BA[BA.length - 1];
     var note = document.getElementById('ap-banote');
     if (last && !(last.b && last.a)) {
       note.textContent = 'That pair is not finished: it needs a before photo and an after photo before you can add another.';
       note.style.color = '#b34a17';
       note.classList.remove('hidden');
-      return;
+      return false;
     }
     note.classList.add('hidden');
     BA.push({ sec: secs[0], b: null, a: null }); renderBA();
-  });
+    return true;
+  }
+  document.getElementById('ap-baupload').addEventListener('click', tryAddPair);
   /* ---------- Portfolio ---------- */
   function halfHTML(src, hue, tag){
     return '<div class="half ' + (src ? '' : hue) + '">' + (src ? '<img src="' + src + '" alt="">' : '') + '<span class="tag">' + tag + '</span></div>';
@@ -559,16 +581,23 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   document.getElementById('ap-pprev').addEventListener('click', function(){ if (pPage > 0) { pPage--; renderPortfolio(); } });
   document.getElementById('ap-pnext').addEventListener('click', function(){ if (pPage < secs.length - 1) { pPage++; renderPortfolio(); } });
   document.getElementById('ap-psort').addEventListener('change', function(){ pSort = this.value; renderPortfolio(); });
-  /* ---------- Tabs ---------- */
-  document.querySelectorAll('#ex0 .ptab').forEach(function(tab){
-    tab.addEventListener('click', function(){
-      document.querySelectorAll('#ex0 .ptab').forEach(function(t){ t.classList.remove('on'); });
-      tab.classList.add('on');
-      ['gallery', 'ba', 'portfolio'].forEach(function(k){
-        document.getElementById('pane-' + k).classList.toggle('hidden', tab.getAttribute('data-pt') !== k);
-      });
+  /* ---------- One surface: Portfolio, with Upload ---------- */
+  function showView(name){
+    ['gallery', 'ba', 'portfolio'].forEach(function(k){
+      document.getElementById('pane-' + k).classList.toggle('hidden', k !== name);
     });
+    document.getElementById('ap-upchoose').classList.add('hidden');
+  }
+  var choose = document.getElementById('ap-upchoose');
+  document.getElementById('ap-upload').addEventListener('click', function(){ choose.classList.toggle('hidden'); });
+  document.getElementById('ap-up-cancel').addEventListener('click', function(){ choose.classList.add('hidden'); });
+  document.getElementById('ap-up-gallery').addEventListener('click', function(){ showView('gallery'); });
+  document.getElementById('ap-up-ba').addEventListener('click', function(){
+    if (!BA.length) { BA.push({ sec: secs[0], b: null, a: null }); renderBA(); }
+    showView('ba');
   });
+  document.getElementById('ap-gdone').addEventListener('click', function(){ showView('portfolio'); });
+  document.getElementById('ap-badone').addEventListener('click', function(){ showView('portfolio'); });
   renderGallery(); renderBA(); renderPortfolio();
 })();
 
