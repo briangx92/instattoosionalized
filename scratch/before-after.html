@@ -69,6 +69,10 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .edsplit .tag{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px}
 .edcard label{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:12px 0 5px}
 .edcard input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14.5px}
+.viewtabs{display:flex;gap:8px;margin-bottom:14px}
+.viewtabs button{flex:1;border:1.5px solid #d8d8d2;background:#fff;border-radius:11px;padding:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.viewtabs button.on{background:#17171a;color:#fff;border-color:#17171a}
+.grouplabel{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8578;margin:12px 0 7px}
 .selbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#17171a;color:#fff;border-radius:11px;padding:9px 12px;margin-bottom:12px;font-size:13.5px}
 .selbar button{border:1px solid #4b4b55;background:transparent;color:#fff;border-radius:9px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .selbar button.danger{background:#b3261e;border-color:#b3261e}
@@ -79,9 +83,18 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .ednav{display:flex;gap:8px;align-items:center;margin-top:16px}
 .ednav .pos{flex:1;text-align:center;font-size:13px;color:#5c5c66;font-weight:600}
 </style>
+<div class="viewtabs" id="viewtabs"><button type="button" data-view="galleries" class="on">Galleries</button><button type="button" data-view="pairs">Pairs</button></div>
+<div id="galswrap">
 <div id="gals"></div>
 <button class="btn" id="addgal" type="button">+ Add a gallery</button>
 <div class="status" id="galstatus"></div>
+</div>
+<div id="pairview" class="hidden">
+<p class="sub" style="margin-top:0">Every pair from every gallery in one flat list, each labeled with its gallery. Selection, preview, and bulk delete work across galleries here.</p>
+<div class="selbar hidden" data-pairselbar="1"></div><div class="undowrap" data-pairundo="1"></div>
+<div id="flatpairs"></div>
+<button class="btn light" id="flataddpair" type="button">+ Add a pair</button>
+</div>
 <input type="file" id="galfile" accept="image/*" class="hidden">
 <div class="edwrap hidden" id="edwrap"><div class="edcard" id="edcard"></div></div>
 </div>
@@ -241,6 +254,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   var galsEl = document.getElementById('gals');
   var filein = document.getElementById('galfile');
   var pendingBox = null;
+  var GALS = [];
   filein.addEventListener('change', function(){
     if (pendingBox && filein.files && filein.files[0]) pendingBox._set(URL.createObjectURL(filein.files[0]));
     pendingBox = null; filein.value = '';
@@ -277,8 +291,52 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   function closeEditor(){ document.getElementById('edwrap').classList.add('hidden'); }
   document.getElementById('edwrap').addEventListener('click', function(e){ if (e.target === this) closeEditor(); });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeEditor(); });
+  function allPairs(){ var out = []; GALS.forEach(function(g){ g.pairs.forEach(function(pr){ out.push(pr); }); }); return out; }
+  function refreshBars(){
+    GALS.forEach(function(g){ if (g._refreshSel) g._refreshSel(); });
+    refreshPairBar();
+  }
+  function wireSelbar(bar, getSel, onDelete){
+    var sel = getSel();
+    if (!sel.length) { bar.classList.add('hidden'); bar.innerHTML = ''; return; }
+    bar.classList.remove('hidden');
+    bar.innerHTML = '<span class="n">' + sel.length + ' selected</span>' +
+      '<button type="button" data-act="preview">Preview selected</button>' +
+      '<button type="button" data-act="delete" class="danger">Delete selected</button>' +
+      '<button type="button" data-act="all">Select all</button>' +
+      '<button type="button" data-act="clear">Clear</button>';
+    bar.querySelector('[data-act="preview"]').addEventListener('click', function(){ openEditor(sel, 0); });
+    bar.querySelector('[data-act="all"]').addEventListener('click', function(){ getScope().forEach(function(x){ x._setSel(true); }); refreshBars(); });
+    bar.querySelector('[data-act="clear"]').addEventListener('click', function(){ getScope().forEach(function(x){ x._setSel(false); }); refreshBars(); });
+    bar.querySelector('[data-act="delete"]').addEventListener('click', function(){
+      bar.innerHTML = '<span class="n">Delete ' + sel.length + (sel.length === 1 ? ' pair?' : ' pairs?') + '</span>' +
+        '<button type="button" data-act="yes" class="danger">Yes, delete</button><button type="button" data-act="no">Cancel</button>';
+      bar.querySelector('[data-act="yes"]').addEventListener('click', function(){ onDelete(sel); });
+      bar.querySelector('[data-act="no"]').addEventListener('click', function(){ refreshBars(); });
+    });
+    function getScope(){ return bar._scope ? bar._scope() : getSel(); }
+  }
+  function deletePairs(list, undowrap){
+    if (!list.length) return;
+    var removed = list.map(function(pr){ return { pair: pr, gal: pr._gal, idx: pr._gal.pairs.indexOf(pr) }; });
+    removed.sort(function(a, b){ return a.idx - b.idx; });
+    list.forEach(function(pr){ pr._row.remove(); });
+    removed.forEach(function(r){ r.gal.pairs = r.gal.pairs.filter(function(x){ return x !== r.pair; }); });
+    refreshBars();
+    undowrap.innerHTML = '<div class="undobar"><span>Deleted ' + list.length + (list.length === 1 ? ' pair.' : ' pairs.') + '</span><button type="button">Undo</button></div>';
+    undowrap.querySelector('button').addEventListener('click', function(){
+      removed.forEach(function(r){
+        r.gal.pairs.splice(Math.min(r.idx, r.gal.pairs.length), 0, r.pair);
+        r.pair._setSel(false);
+      });
+      undowrap.innerHTML = '';
+      relayout();
+      refreshBars();
+    });
+    setTimeout(function(){ if (undowrap.querySelector('.undobar')) undowrap.innerHTML = ''; }, 9000);
+  }
   function makePair(gal){
-    var pair = { bUrl: '', aUrl: '', bCap: '', aCap: '', selected: false };
+    var pair = { bUrl: '', aUrl: '', bCap: '', aCap: '', selected: false, _gal: gal };
     var row = document.createElement('div'); row.className = 'prow3';
     pair._row = row;
     row.innerHTML = '<div class="selbox" title="Select this pair"></div>' +
@@ -291,7 +349,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       else { el.textContent = 'No captions yet'; el.classList.remove('done'); }
     };
     pair._setSel = function(v){ pair.selected = v; row.classList.toggle('sel', v); };
-    row.querySelector('.selbox').addEventListener('click', function(){ pair._setSel(!pair.selected); gal._refreshSel(); });
+    row.querySelector('.selbox').addEventListener('click', function(){ pair._setSel(!pair.selected); refreshBars(); });
     row.querySelectorAll('.pbox').forEach(function(box){
       var side = box.getAttribute('data-side');
       box._set = function(url){
@@ -305,59 +363,24 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       box.addEventListener('dragover', function(e){ e.preventDefault(); });
       box.addEventListener('drop', function(e){ e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files[0]) box._set(URL.createObjectURL(e.dataTransfer.files[0])); });
     });
-    row.querySelector('[data-rm]').addEventListener('click', function(){ gal._deletePairs([pair]); });
+    row.querySelector('[data-rm]').addEventListener('click', function(){
+      deletePairs([pair], document.getElementById('pairview').classList.contains('hidden') ? gal._undowrap : document.querySelector('[data-pairundo]'));
+    });
     return pair;
   }
   function makeGallery(name){
-    var gal = { pairs: [] };
+    var gal = { name: name, pairs: [] };
     var g = document.createElement('div'); g.className = 'gal';
     g.innerHTML = '<div class="ghead"><input type="text" value="' + name + '" aria-label="Gallery name"><button class="btn light" type="button" data-rmgal="1">Remove gallery</button></div>' +
       '<div class="selbar hidden" data-selbar="1"></div><div class="undowrap"></div><div class="pairs"></div>' +
       '<div class="gfoot"><button class="btn light" type="button" data-addpair="1">+ Add a pair</button><button class="btn danger" type="button" data-delall="1">Delete all pairs</button></div>';
-    var pairsEl = g.querySelector('.pairs');
+    gal._el = g; gal._pairsEl = g.querySelector('.pairs'); gal._undowrap = g.querySelector('.undowrap');
     var selbar = g.querySelector('[data-selbar]');
-    var undowrap = g.querySelector('.undowrap');
-    var undoTimer = null;
-    gal._refreshSel = function(){
-      var sel = gal.pairs.filter(function(x){ return x.selected; });
-      if (!sel.length) { selbar.classList.add('hidden'); selbar.innerHTML = ''; return; }
-      selbar.classList.remove('hidden');
-      selbar.innerHTML = '<span class="n">' + sel.length + ' selected</span>' +
-        '<button type="button" data-act="preview">Preview selected</button>' +
-        '<button type="button" data-act="delete" class="danger">Delete selected</button>' +
-        '<button type="button" data-act="all">Select all</button>' +
-        '<button type="button" data-act="clear">Clear</button>';
-      selbar.querySelector('[data-act="preview"]').addEventListener('click', function(){ openEditor(sel, 0); });
-      selbar.querySelector('[data-act="all"]').addEventListener('click', function(){ gal.pairs.forEach(function(x){ x._setSel(true); }); gal._refreshSel(); });
-      selbar.querySelector('[data-act="clear"]').addEventListener('click', function(){ gal.pairs.forEach(function(x){ x._setSel(false); }); gal._refreshSel(); });
-      selbar.querySelector('[data-act="delete"]').addEventListener('click', function(){
-        selbar.innerHTML = '<span class="n">Delete ' + sel.length + (sel.length === 1 ? ' pair?' : ' pairs?') + '</span>' +
-          '<button type="button" data-act="yes" class="danger">Yes, delete</button><button type="button" data-act="no">Cancel</button>';
-        selbar.querySelector('[data-act="yes"]').addEventListener('click', function(){ gal._deletePairs(sel); });
-        selbar.querySelector('[data-act="no"]').addEventListener('click', function(){ gal._refreshSel(); });
-      });
-    };
-    gal._deletePairs = function(list){
-      if (!list.length) return;
-      var removed = list.map(function(pr){ return { pair: pr, idx: gal.pairs.indexOf(pr) }; });
-      removed.sort(function(a, b){ return a.idx - b.idx; });
-      list.forEach(function(pr){ pr._row.remove(); });
-      gal.pairs = gal.pairs.filter(function(x){ return list.indexOf(x) === -1; });
-      gal._refreshSel();
-      undowrap.innerHTML = '<div class="undobar"><span>Deleted ' + list.length + (list.length === 1 ? ' pair.' : ' pairs.') + '</span><button type="button">Undo</button></div>';
-      undowrap.querySelector('button').addEventListener('click', function(){
-        removed.forEach(function(r){
-          gal.pairs.splice(Math.min(r.idx, gal.pairs.length), 0, r.pair);
-          var anchor = gal.pairs[r.idx + 1] ? gal.pairs[r.idx + 1]._row : null;
-          pairsEl.insertBefore(r.pair._row, anchor);
-          r.pair._setSel(false);
-        });
-        undowrap.innerHTML = ''; gal._refreshSel();
-      });
-      if (undoTimer) clearTimeout(undoTimer);
-      undoTimer = setTimeout(function(){ undowrap.innerHTML = ''; }, 9000);
-    };
-    function addPair(){ var pr = makePair(gal); gal.pairs.push(pr); pairsEl.appendChild(pr._row); }
+    selbar._scope = function(){ return gal.pairs; };
+    gal._refreshSel = function(){ wireSelbar(selbar, function(){ return gal.pairs.filter(function(x){ return x.selected; }); }, function(sel){ deletePairs(sel, gal._undowrap); }); };
+    g.querySelector('.ghead input').addEventListener('input', function(){ gal.name = this.value; });
+    function addPair(){ var pr = makePair(gal); gal.pairs.push(pr); gal._pairsEl.appendChild(pr._row); }
+    gal._addPair = addPair;
     addPair();
     g.querySelector('[data-addpair]').addEventListener('click', addPair);
     g.querySelector('[data-delall]').addEventListener('click', function(){
@@ -365,15 +388,53 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       selbar.classList.remove('hidden');
       selbar.innerHTML = '<span class="n">Delete all ' + gal.pairs.length + ' pairs in this gallery?</span>' +
         '<button type="button" data-act="yes" class="danger">Yes, delete all</button><button type="button" data-act="no">Cancel</button>';
-      selbar.querySelector('[data-act="yes"]').addEventListener('click', function(){ gal._deletePairs(gal.pairs.slice()); });
+      selbar.querySelector('[data-act="yes"]').addEventListener('click', function(){ deletePairs(gal.pairs.slice(), gal._undowrap); });
       selbar.querySelector('[data-act="no"]').addEventListener('click', function(){ gal._refreshSel(); });
     });
-    g.querySelector('[data-rmgal]').addEventListener('click', function(){ g.remove(); });
-    return g;
+    g.querySelector('[data-rmgal]').addEventListener('click', function(){
+      GALS = GALS.filter(function(x){ return x !== gal; });
+      g.remove();
+    });
+    GALS.push(gal);
+    galsEl.appendChild(g);
+    return gal;
   }
-  galsEl.appendChild(makeGallery('Lex, healed work'));
+  var pairBar = document.querySelector('[data-pairselbar]');
+  pairBar._scope = function(){ return allPairs(); };
+  function refreshPairBar(){
+    wireSelbar(pairBar, function(){ return allPairs().filter(function(x){ return x.selected; }); }, function(sel){ deletePairs(sel, document.querySelector('[data-pairundo]')); });
+  }
+  function relayout(){
+    var pv = document.getElementById('pairview');
+    if (pv.classList.contains('hidden')) {
+      GALS.forEach(function(g){ g.pairs.forEach(function(pr){ g._pairsEl.appendChild(pr._row); }); });
+    } else {
+      var flat = document.getElementById('flatpairs');
+      flat.innerHTML = '';
+      GALS.forEach(function(g){
+        var lab = document.createElement('div'); lab.className = 'grouplabel'; lab.textContent = g.name || 'Gallery';
+        flat.appendChild(lab);
+        g.pairs.forEach(function(pr){ flat.appendChild(pr._row); });
+      });
+    }
+  }
+  document.querySelectorAll('#viewtabs button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#viewtabs button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      var pairsMode = b.getAttribute('data-view') === 'pairs';
+      document.getElementById('galswrap').classList.toggle('hidden', pairsMode);
+      document.getElementById('pairview').classList.toggle('hidden', !pairsMode);
+      relayout(); refreshBars();
+    });
+  });
+  document.getElementById('flataddpair').addEventListener('click', function(){
+    if (!GALS.length) makeGallery('New gallery');
+    var g = GALS[GALS.length - 1];
+    g._addPair(); relayout();
+  });
+  makeGallery('Lex, healed work');
   document.getElementById('addgal').addEventListener('click', function(){
-    galsEl.appendChild(makeGallery('New gallery'));
+    makeGallery('New gallery');
     document.getElementById('galstatus').textContent = 'Gallery added. In the real portal each gallery shows on its artist page.';
   });
 })();
