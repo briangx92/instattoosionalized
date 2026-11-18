@@ -41,8 +41,74 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
 
 <div class="ex" id="ex0" style="border-color:#f4682a;border-width:2px">
-<h2>Before and after, inside the artist's own page</h2>
-<p class="sub">Your correction, built in: this is Lex's page in the portal, the same one from your screenshot. The Before and after section sits on this page, under Work photos, and holds this artist's sets only.</p>
+<h2>The artist page, with Gallery, Before/After, and Portfolio tabs</h2>
+<p class="sub">Built from your answers. The artist page stays exactly as it is, and the tabs sit under it. Gallery is the workspace: upload a single photo, a bunch at once, or build in a named section. Before/After is where pairs get built. Finish a pair and it moves to Portfolio. Portfolio is what appears on the site, and it is the only place captions change. Sections are the pages: flip through them with the pager, and sort the photos inside a section.</p>
+<style>
+.apage{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-bottom:14px}
+.apage label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:14px 0 6px}
+.apage input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;background:#fff}
+.ahead{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+.ahead .back{border:1px solid #d8d8d2;background:#fff;border-radius:9px;padding:7px 12px;font-size:13.5px;font-weight:600}
+.aline{font-size:13.5px;color:#5c5c66;margin:0}
+.grid2ap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.grid2ap{grid-template-columns:1fr}}
+.aprow{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
+.mainphoto{width:104px;height:124px;border-radius:10px;background:linear-gradient(135deg,#d9d4c7,#b9b2a2);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:700;letter-spacing:.07em;color:#5c5748;flex:none}
+.socials{flex:1;min-width:220px}
+.socials label{margin-top:0}
+.srow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.srow span{font-size:13px;color:#5c5c66;min-width:74px}
+.ptabs{display:flex;gap:8px;margin:4px 0 14px;flex-wrap:wrap}
+.ptab{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:9px 18px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;color:#3f3f46}
+.ptab.on{background:#17171a;color:#fff;border-color:#17171a}
+.pane{border:1px solid #e7e2d9;border-radius:12px;padding:14px;background:#fff}
+.bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.bar select{border:1px solid #d8d8d2;border-radius:8px;padding:7px 9px;font:inherit;font-size:13.5px;background:#fff}
+.pager{display:flex;gap:8px;align-items:center;font-size:13px;color:#5c5c66}
+.pager button{border:1px solid #d8d8d2;background:#fff;border-radius:8px;padding:7px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.pager button:disabled{opacity:.4;cursor:default}
+.sechead{display:flex;gap:9px;align-items:center;margin-bottom:10px}
+.sechead input{flex:1;border:1px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:16px;font-weight:700;background:#faf8f3}
+.sechead .cnt{font-size:12.5px;color:#8a8578;white-space:nowrap}
+.apgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+@media(max-width:640px){.apgrid{grid-template-columns:repeat(2,1fr)}}
+.aptile{position:relative;border-radius:9px;min-height:92px;overflow:hidden}
+.aptile img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+.aptile .tx{position:absolute;top:5px;right:5px;width:19px;height:19px;border-radius:50%;background:rgba(20,20,20,.75);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;z-index:2}
+.aptile .tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);font-size:11.5px;padding:4px 7px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g1{background:linear-gradient(135deg,#e8b4a0,#c96f4a)}.g2{background:linear-gradient(135deg,#a8c3a0,#5d7a52)}.g3{background:linear-gradient(135deg,#a0b8d8,#4a6a96)}.g4{background:linear-gradient(135deg,#d8c9a0,#a68a4a)}.g5{background:linear-gradient(135deg,#c3a6d8,#6a4a96)}.g6{background:linear-gradient(135deg,#a0d8d0,#3d7a72)}
+.dropzone{border:2px dashed #b9b2a2;border-radius:10px;padding:12px;margin-top:10px;text-align:center;font-size:13px;color:#8a8578;background:#faf8f3}
+.dropzone.over{border-color:#f4682a;background:#fff4ec;color:#b34a17}
+.bapair{border:1.5px solid #e7e2d9;border-radius:10px;padding:12px 10px 10px;margin-bottom:10px;background:#fdfcf9}
+.bapair .cols{display:flex;gap:10px}
+.bapair .cell{flex:1}
+.babox{position:relative;width:100%;height:104px;border:2px dashed #b9b2a2;border-radius:8px;background:#faf8f3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.05em;color:#8a8578;cursor:pointer;overflow:hidden;text-align:center}
+.babox.filled{border-style:solid;border-color:#d8d8d2;color:#fff}
+.babox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.babox .blab{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);color:#3f3f46;font-size:11px;font-weight:600;letter-spacing:0;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.babox.over{border-color:#f4682a}
+.bameta{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.bameta select{border:1px solid #d8d8d2;border-radius:8px;padding:7px 9px;font:inherit;font-size:13.5px;background:#fff}
+.bastatus{font-size:12.5px;color:#8a8578}
+.pitem{border:1px solid #e7e2d9;border-radius:10px;padding:10px;margin-bottom:10px;background:#fdfcf9}
+.pitem .caplab{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:8px 0 4px}
+.pitem input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;background:#fff}
+.psplit{display:flex;border-radius:9px;overflow:hidden;min-height:120px}
+.psplit .half{flex:1;position:relative;min-height:120px}
+.psplit .half img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.psplit .tag{position:absolute;top:6px;left:6px;background:rgba(20,20,20,.72);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:6px;z-index:2}
+.psplit .mid{width:2px;background:#fff;flex:none}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+@media(max-width:640px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+.ptile{position:relative;border-radius:9px;min-height:92px;overflow:hidden}
+.ptile img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+.ptile .tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);font-size:11.5px;padding:4px 7px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{border:2px dashed #d8d8d2;border-radius:10px;padding:18px;text-align:center;color:#8a8578;font-size:13.5px;background:#faf8f3}
+.fin-note{font-size:13px;color:#3d7a52;font-weight:600;margin:8px 0 0}
+.aabout{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-top:14px}
+.aabout label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:0 0 6px}
+.aabout textarea{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;min-height:74px;background:#fff}
+</style>
 <div class="apage">
   <div class="ahead"><span class="back">&larr; All artists</span><b>Alexis "lex"</b></div>
   <p class="aline"><b>Alexis "lex"</b> &nbsp;Tattoo &middot; Shows on the site, on their own page, and in the request form</p>
@@ -58,100 +124,40 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       <button class="btn light" type="button">Add a link</button>
     </div>
   </div>
-  <label>Work photos</label>
-  <div class="wgrid"><div class="tile"><span class="tx">x</span><span class="tcap">Hello Kitty Jason</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Snoopy pumpkin</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Ghostface knife</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Sun and moon</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Rose wreath</span></div><div class="tile"><span class="tx">x</span><span class="tcap">Finger script</span></div></div>
-  <button class="btn light" type="button" style="margin-top:10px">Add photos</button>
-  <div class="basection">
-    <h3>Before and after</h3>
-    <p class="sub" style="margin:0">Lex's before and after sets. Upload a photo and it just shows in its box. A filled photo carries a + button: tap it to launch the preview, and captions live in there. Tick the circle on pairs to select several: one action bar then offers Preview selected or Delete selected, and every delete can be undone. Delete all sits in the gallery footer and asks first.</p>
+</div>
+<div class="ptabs">
+  <button class="ptab on" type="button" data-pt="gallery">Gallery</button>
+  <button class="ptab" type="button" data-pt="ba">Before/After</button>
+  <button class="ptab" type="button" data-pt="portfolio">Portfolio</button>
+</div>
+<section class="pane" id="pane-gallery">
+  <div class="bar">
+    <label style="font-size:13px;color:#5c5c66">Sort <select id="ap-gsort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">A to Z</option></select></label>
+    <span class="pager"><button type="button" id="ap-gprev">&larr; Prev</button><span id="ap-ginfo"></span><button type="button" id="ap-gnext">Next &rarr;</button></span>
   </div>
-</div>
-<style>
-.apage{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-bottom:16px}
-.apage label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:14px 0 6px}
-.apage input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;background:#fff}
-.ahead{display:flex;gap:12px;align-items:center;margin-bottom:8px}
-.ahead .back{border:1px solid #d8d8d2;background:#fff;border-radius:9px;padding:7px 12px;font-size:13.5px;font-weight:600}
-.aline{font-size:13.5px;color:#5c5c66;margin:0}
-.grid2ap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:640px){.grid2ap{grid-template-columns:1fr}}
-.aprow{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
-.mainphoto{width:104px;height:124px;border-radius:10px;background:linear-gradient(135deg,#d9d4c7,#b9b2a2);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:700;letter-spacing:.07em;color:#5c5748;flex:none}
-.socials{flex:1;min-width:220px}
-.socials label{margin-top:0}
-.srow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.srow span{font-size:13px;color:#5c5c66;min-width:74px}
-.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-@media(max-width:640px){.wgrid{grid-template-columns:repeat(2,1fr)}}
-.tile{position:relative;border-radius:9px;min-height:86px;background:linear-gradient(135deg,#cfc9ba,#a89f8a);overflow:hidden}
-.tile .tx{position:absolute;top:5px;right:5px;width:19px;height:19px;border-radius:50%;background:rgba(20,20,20,.75);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center}
-.tile .tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);font-size:11.5px;padding:4px 7px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.basection{border-top:2px solid #17171a;margin-top:20px;padding-top:14px}
-.basection h3{font-family:Space Grotesk;font-size:19px;margin:0 0 5px}
-.aabout{border:1px solid #e7e2d9;border-radius:12px;padding:16px;background:#fdfcf9;margin-top:16px}
-.aabout label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#71717a;margin:0 0 6px}
-.aabout textarea{width:100%;border:1px solid #d8d8d2;border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;min-height:74px;background:#fff}
-.gal{border:1.5px solid #e7e2d9;border-radius:12px;padding:14px;margin-bottom:14px;background:#fff}
-.gal .ghead{display:flex;gap:10px;align-items:center;margin-bottom:12px}
-.gal .ghead input{flex:1}
-.gal .gfoot{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
-.prow3{position:relative;border:1.5px solid #e7e2d9;border-radius:10px;padding:12px 10px 10px 40px;margin-bottom:10px;background:#fdfcf9}
-.prow3.sel{border-color:#f4682a;background:#fff8f3}
-.prow3 .cols{display:flex;gap:10px}
-.prow3 .cell{flex:1}
-.pbox{position:relative;width:100%;height:104px;border:2px dashed #b9b2a2;border-radius:8px;background:#faf8f3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.05em;color:#8a8578;cursor:pointer;overflow:hidden;background-size:cover;background-position:center}
-.pbox.filled{border-style:solid;border-color:#d8d2c4}
-.pbox .plus{position:absolute;right:7px;bottom:7px;width:30px;height:30px;border-radius:50%;background:#f4682a;color:#fff;font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.3);border:2px solid #fff}
-.selbox{position:absolute;left:10px;top:12px;width:24px;height:24px;border-radius:50%;border:2px solid #b9b2a2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
-.prow3.sel .selbox{background:#f4682a;border-color:#f4682a}
-.prow3 .meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.prow3 .capstate{font-size:12.5px;color:#8a8578}
-.prow3 .capstate.done{color:#15803d;font-weight:600}
-.edwrap.hidden{display:none!important}
-.edwrap{position:fixed;inset:0;background:rgba(15,15,20,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:14px}
-.edcard{background:#fff;border-radius:16px;padding:18px;width:520px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3)}
-.edsplit{display:flex;border:2px solid #191919;border-radius:10px;overflow:hidden;min-height:190px;background:#eee}
-.edsplit .half{flex:1;position:relative;min-height:190px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#777;font-weight:700;letter-spacing:.07em;font-size:12.5px}
-.edsplit .div{width:3px;background:#191919;flex:0 0 auto}
-.edsplit .tag{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px}
-.edcard label{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:12px 0 5px}
-.edcard input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14.5px}
-.crumb{font-size:13.5px;color:#5c5c66;margin-bottom:9px}
-.crumb b{color:#17171a}
-#artisttabs button{flex:0 1 auto;padding:8px 18px}
-.viewtabs{display:flex;gap:8px;margin-bottom:14px}
-.viewtabs button{flex:1;border:1.5px solid #d8d8d2;background:#fff;border-radius:11px;padding:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
-.viewtabs button.on{background:#17171a;color:#fff;border-color:#17171a}
-.grouplabel{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8a8578;margin:12px 0 7px}
-.selbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#17171a;color:#fff;border-radius:11px;padding:9px 12px;margin-bottom:12px;font-size:13.5px}
-.selbar button{border:1px solid #4b4b55;background:transparent;color:#fff;border-radius:9px;padding:6px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
-.selbar button.danger{background:#b3261e;border-color:#b3261e}
-.selbar .n{font-weight:700}
-.btn.danger{color:#b3261e;border-color:#e3b3b0}
-.undobar{display:flex;gap:10px;align-items:center;background:#fff4ee;border:1px solid #f3cfb8;color:#7c3f16;border-radius:11px;padding:9px 12px;margin-bottom:12px;font-size:13.5px}
-.undobar button{margin-left:auto;border:1px solid #d8a37e;background:#fff;border-radius:9px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
-.ednav{display:flex;gap:8px;align-items:center;margin-top:16px}
-.ednav .pos{flex:1;text-align:center;font-size:13px;color:#5c5c66;font-weight:600}
-</style>
-<div class="viewtabs" id="viewtabs"><button type="button" data-view="galleries" class="on">Galleries</button><button type="button" data-view="pairs">Pairs</button></div>
-<div id="galswrap">
-<div id="gals"></div>
-<button class="btn" id="addgal" type="button">+ Add a gallery</button>
-<div class="status" id="galstatus"></div>
-</div>
-<div id="pairview" class="hidden">
-<p class="sub" style="margin-top:0">Every pair from every gallery in one flat list, each labeled with its gallery. Selection, preview, and bulk delete work across galleries here.</p>
-<div class="selbar hidden" data-pairselbar="1"></div><div class="undowrap" data-pairundo="1"></div>
-<div id="flatpairs"></div>
-<button class="btn light" id="flataddpair" type="button">+ Add a pair</button>
-</div>
+  <div id="ap-gsec"></div>
+  <button class="btn light" type="button" id="ap-gaddsec" style="margin-top:12px">+ Add a section</button>
+  <input type="file" id="ap-gfile" accept="image/*" multiple class="hidden">
+</section>
+<section class="pane hidden" id="pane-ba">
+  <p class="sub" style="margin-top:0">Build a pair here: a before in one box, an after in the other, and pick the section it belongs to. When both are in, Finish sends it to Portfolio.</p>
+  <div id="ap-balist"></div>
+  <button class="btn light" type="button" id="ap-baadd">+ Add a pair</button>
+  <p class="fin-note hidden" id="ap-banote"></p>
+  <input type="file" id="ap-bafile" accept="image/*" class="hidden">
+</section>
+<section class="pane hidden" id="pane-portfolio">
+  <p class="sub" style="margin-top:0">This is what appears on the site. Captions change here, and only here. They save as you type.</p>
+  <div class="bar">
+    <label style="font-size:13px;color:#5c5c66">Sort <select id="ap-psort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="az">A to Z</option></select></label>
+    <span class="pager"><button type="button" id="ap-pprev">&larr; Prev</button><span id="ap-pinfo"></span><button type="button" id="ap-pnext">Next &rarr;</button></span>
+  </div>
+  <div id="ap-psec"></div>
+</section>
 <div class="aabout"><label>About them</label>
 <textarea>Hi, I'm lex! I'm a freshly new tattoo artist! I love all things horror and whimsical. I love to tattoo things like cartoon characters, spooky, and high contrast!</textarea>
 <p style="margin:12px 0 0"><button class="btn light" type="button">Remove artist</button> <span style="font-size:13px;color:#5c5c66">Removing an artist takes their page down at the next publish. Their photos are kept for 30 days in case they come back.</span></p></div>
-<input type="file" id="galfile" accept="image/*" class="hidden">
-<div class="edwrap hidden" id="edwrap"><div class="edcard" id="edcard"></div></div>
 </div>
-
 <div class="ex" id="ex1">
 <h2>1 · Two boxes</h2>
 <p class="sub">One box for the before photo, one for the after. The split preview builds itself underneath.</p>
@@ -304,207 +310,219 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 
 <script>
 (function(){
-  var galsEl = document.getElementById('gals');
-  var filein = document.getElementById('galfile');
-  var pendingBox = null;
-  var ARTISTS = { 'Lex': [], 'Liv': [], 'Diana': [] };
-  var CUR = 'Lex';
-  var GALS = ARTISTS[CUR];
-  filein.addEventListener('change', function(){
-    if (pendingBox && filein.files && filein.files[0]) pendingBox._set(URL.createObjectURL(filein.files[0]));
-    pendingBox = null; filein.value = '';
-  });
-  var editor = { list: [], idx: 0 };
-  function openEditor(pairs, startIdx){
-    editor.list = pairs; editor.idx = startIdx || 0;
-    document.getElementById('edwrap').classList.remove('hidden');
-    renderEditor();
+  var ord = 100;
+  function ph(t, hue){ return { t: t, hue: hue, src: null, ord: ++ord }; }
+  var secs = ['Healed work', 'Fresh work', 'Flash designs'];
+  var G = {
+    'Healed work': [ph('Rose, healed', 'g1'), ph('Script lettering', 'g2'), ph('Daisy stem', 'g3'), ph('Paw print', 'g4')],
+    'Fresh work': [ph('Ghostface knife', 'g5'), ph('Snoopy pumpkin', 'g6'), ph('Hello Kitty Jason', 'g1')],
+    'Flash designs': [ph('Friday flash sheet', 'g2'), ph('Tiny symbols', 'g3')]
+  };
+  var P = {
+    'Healed work': [
+      { type: 'single', t: 'Rose, healed', hue: 'g1', src: null, cap: 'Rose on the forearm, fully healed.', ord: 11 },
+      { type: 'pair', bt: 'Fine line, day one', at: 'Fine line, healed', bh: 'g5', ah: 'g2', bsrc: null, asrc: null, bcap: '', acap: '', ord: 12 }
+    ],
+    'Fresh work': [
+      { type: 'single', t: 'Ghostface knife', hue: 'g5', src: null, cap: '', ord: 13 }
+    ],
+    'Flash designs': []
+  };
+  var BA = [
+    { sec: 'Healed work', b: { t: 'Coverup, before', hue: 'g6', src: null }, a: null },
+    { sec: 'Fresh work', b: { t: 'Sleeve, session one', hue: 'g3', src: null }, a: { t: 'Sleeve, session three', hue: 'g4', src: null } }
+  ];
+  var gPage = 0, pPage = 0, gSort = 'new', pSort = 'new';
+  var gTarget = null, baTarget = null;
+  var HUES = ['g1','g2','g3','g4','g5','g6'];
+  function esc(s){ return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+  function sorted(arr, mode){
+    var a = arr.slice();
+    if (mode === 'new') a.sort(function(x, y){ return y.ord - x.ord; });
+    if (mode === 'old') a.sort(function(x, y){ return x.ord - y.ord; });
+    if (mode === 'az') a.sort(function(x, y){ return (x.t || x.bt || '').localeCompare(y.t || y.bt || ''); });
+    return a;
   }
-  function renderEditor(){
-    var pair = editor.list[editor.idx];
-    var card = document.getElementById('edcard');
-    var multi = editor.list.length > 1;
-    card.innerHTML = '<h3 style="font-family:Space Grotesk;margin:0 0 4px;font-size:18px">Preview and captions</h3>' +
-      '<p style="color:#5c5c66;font-size:13.5px;margin:0 0 12px">This is the split your visitors see. Captions sit under each photo on the site.</p>' +
-      '<div class="edsplit"><div class="half" data-eh="b"><span class="tag">BEFORE</span></div><div class="div"></div><div class="half" data-eh="a"><span class="tag">AFTER</span></div></div>' +
-      '<label>Caption for the before photo</label><input type="text" id="edcapb" placeholder="Fresh, day one">' +
-      '<label>Caption for the after photo</label><input type="text" id="edcapa" placeholder="Healed, six weeks later">' +
-      '<div class="ednav">' +
-      (multi ? '<button class="btn" type="button" id="edprev"' + (editor.idx === 0 ? ' disabled style="opacity:.4"' : '') + '>Back</button><span class="pos">Pair ' + (editor.idx + 1) + ' of ' + editor.list.length + '</span><button class="btn" type="button" id="ednext">' + (editor.idx === editor.list.length - 1 ? 'Done' : 'Next') + '</button>' : '<span class="pos"></span><button class="btn" type="button" id="eddone" style="background:#f4682a;color:#fff;border:1px solid #f4682a;border-radius:11px;padding:10px 16px;font-weight:600;cursor:pointer">Save captions</button>') +
-      '</div>';
-    var hb = card.querySelector('[data-eh="b"]'), ha = card.querySelector('[data-eh="a"]');
-    if (pair.bUrl) hb.style.backgroundImage = 'url(' + pair.bUrl + ')'; else hb.innerHTML = 'NO BEFORE<span class="tag">BEFORE</span>';
-    if (pair.aUrl) ha.style.backgroundImage = 'url(' + pair.aUrl + ')'; else ha.innerHTML = 'NO AFTER<span class="tag">AFTER</span>';
-    var cb = document.getElementById('edcapb'), ca = document.getElementById('edcapa');
-    cb.value = pair.bCap || ''; ca.value = pair.aCap || '';
-    function save(){ pair.bCap = cb.value; pair.aCap = ca.value; pair._refreshMeta(); }
-    var prev = document.getElementById('edprev'), next = document.getElementById('ednext'), done = document.getElementById('eddone');
-    if (prev) prev.addEventListener('click', function(){ save(); editor.idx--; renderEditor(); });
-    if (next) next.addEventListener('click', function(){ save(); if (editor.idx === editor.list.length - 1) closeEditor(); else { editor.idx++; renderEditor(); } });
-    if (done) done.addEventListener('click', function(){ save(); closeEditor(); });
+  function tileHTML(item, withX){
+    var inner = item.src ? '<img src="' + item.src + '" alt="">' : '';
+    return '<div class="aptile ' + (item.src ? '' : item.hue) + '">' + inner +
+      (withX ? '<button class="tx" type="button" data-x="' + item.ord + '">x</button>' : '') +
+      '<span class="tcap">' + esc(item.t) + '</span></div>';
   }
-  function closeEditor(){ document.getElementById('edwrap').classList.add('hidden'); }
-  document.getElementById('edwrap').addEventListener('click', function(e){ if (e.target === this) closeEditor(); });
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeEditor(); });
-  function allPairs(){ var out = []; GALS.forEach(function(g){ g.pairs.forEach(function(pr){ out.push(pr); }); }); return out; }
-  function refreshBars(){
-    GALS.forEach(function(g){ if (g._refreshSel) g._refreshSel(); });
-    refreshPairBar();
-  }
-  function wireSelbar(bar, getSel, onDelete){
-    var sel = getSel();
-    if (!sel.length) { bar.classList.add('hidden'); bar.innerHTML = ''; return; }
-    bar.classList.remove('hidden');
-    bar.innerHTML = '<span class="n">' + sel.length + ' selected</span>' +
-      '<button type="button" data-act="preview">Preview selected</button>' +
-      '<button type="button" data-act="delete" class="danger">Delete selected</button>' +
-      '<button type="button" data-act="all">Select all</button>' +
-      '<button type="button" data-act="clear">Clear</button>';
-    bar.querySelector('[data-act="preview"]').addEventListener('click', function(){ openEditor(sel, 0); });
-    bar.querySelector('[data-act="all"]').addEventListener('click', function(){ getScope().forEach(function(x){ x._setSel(true); }); refreshBars(); });
-    bar.querySelector('[data-act="clear"]').addEventListener('click', function(){ getScope().forEach(function(x){ x._setSel(false); }); refreshBars(); });
-    bar.querySelector('[data-act="delete"]').addEventListener('click', function(){
-      bar.innerHTML = '<span class="n">Delete ' + sel.length + (sel.length === 1 ? ' pair?' : ' pairs?') + '</span>' +
-        '<button type="button" data-act="yes" class="danger">Yes, delete</button><button type="button" data-act="no">Cancel</button>';
-      bar.querySelector('[data-act="yes"]').addEventListener('click', function(){ onDelete(sel); });
-      bar.querySelector('[data-act="no"]').addEventListener('click', function(){ refreshBars(); });
-    });
-    function getScope(){ return bar._scope ? bar._scope() : getSel(); }
-  }
-  function deletePairs(list, undowrap){
-    if (!list.length) return;
-    var removed = list.map(function(pr){ return { pair: pr, gal: pr._gal, idx: pr._gal.pairs.indexOf(pr) }; });
-    removed.sort(function(a, b){ return a.idx - b.idx; });
-    list.forEach(function(pr){ pr._row.remove(); });
-    removed.forEach(function(r){ r.gal.pairs = r.gal.pairs.filter(function(x){ return x !== r.pair; }); });
-    refreshBars();
-    undowrap.innerHTML = '<div class="undobar"><span>Deleted ' + list.length + (list.length === 1 ? ' pair.' : ' pairs.') + '</span><button type="button">Undo</button></div>';
-    undowrap.querySelector('button').addEventListener('click', function(){
-      removed.forEach(function(r){
-        r.gal.pairs.splice(Math.min(r.idx, r.gal.pairs.length), 0, r.pair);
-        r.pair._setSel(false);
+  /* ---------- Gallery ---------- */
+  function renderGallery(){
+    var sec = secs[gPage];
+    document.getElementById('ap-ginfo').textContent = 'Section ' + (gPage + 1) + ' of ' + secs.length + ' · ' + sec;
+    document.getElementById('ap-gprev').disabled = gPage === 0;
+    document.getElementById('ap-gnext').disabled = gPage === secs.length - 1;
+    var items = sorted(G[sec] || [], gSort);
+    var html = '<div class="sechead"><input type="text" id="ap-gsecname" value="' + esc(sec) + '"><span class="cnt">' + items.length + (items.length === 1 ? ' photo' : ' photos') + '</span></div>';
+    if (!items.length) html += '<div class="empty">No photos in this section yet. Add some below.</div>';
+    else html += '<div class="apgrid">' + items.map(function(it){ return tileHTML(it, true); }).join('') + '</div>';
+    html += '<div class="dropzone" id="ap-gdrop">Tap to add photos, or drop photo files here</div>';
+    var box = document.getElementById('ap-gsec');
+    box.innerHTML = html;
+    box.querySelectorAll('[data-x]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var o = +btn.getAttribute('data-x');
+        G[sec] = G[sec].filter(function(it){ return it.ord !== o; });
+        renderGallery();
       });
-      undowrap.innerHTML = '';
-      relayout();
-      refreshBars();
     });
-    setTimeout(function(){ if (undowrap.querySelector('.undobar')) undowrap.innerHTML = ''; }, 9000);
+    document.getElementById('ap-gsecname').addEventListener('change', function(){
+      var nn = this.value.trim(); if (!nn || nn === sec) { renderGallery(); return; }
+      G[nn] = G[sec]; delete G[sec];
+      if (P[sec]) { P[nn] = P[sec]; delete P[sec]; } else if (!P[nn]) P[nn] = [];
+      BA.forEach(function(pr){ if (pr.sec === sec) pr.sec = nn; });
+      secs[gPage] = nn; renderGallery(); renderPortfolio();
+    });
+    var dz = document.getElementById('ap-gdrop');
+    dz.addEventListener('click', function(){ gTarget = sec; document.getElementById('ap-gfile').click(); });
+    dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('over'); });
+    dz.addEventListener('dragleave', function(){ dz.classList.remove('over'); });
+    dz.addEventListener('drop', function(e){
+      e.preventDefault(); dz.classList.remove('over');
+      addFiles(sec, e.dataTransfer.files); renderGallery();
+    });
   }
-  function makePair(gal){
-    var pair = { bUrl: '', aUrl: '', bCap: '', aCap: '', selected: false, _gal: gal };
-    var row = document.createElement('div'); row.className = 'prow3';
-    pair._row = row;
-    row.innerHTML = '<div class="selbox" title="Select this pair"></div>' +
-      '<div class="cols"><div class="cell"><div class="pbox" data-side="b">+ BEFORE</div></div>' +
-      '<div class="cell"><div class="pbox" data-side="a">+ AFTER</div></div></div>' +
-      '<div class="meta"><span class="capstate">No captions yet</span><button class="btn light" type="button" data-rm="1">Remove pair</button></div>';
-    pair._refreshMeta = function(){
-      var el = row.querySelector('.capstate');
-      if (pair.bCap || pair.aCap) { el.textContent = 'Captions saved'; el.classList.add('done'); }
-      else { el.textContent = 'No captions yet'; el.classList.remove('done'); }
-    };
-    pair._setSel = function(v){ pair.selected = v; row.classList.toggle('sel', v); };
-    row.querySelector('.selbox').addEventListener('click', function(){ pair._setSel(!pair.selected); refreshBars(); });
-    row.querySelectorAll('.pbox').forEach(function(box){
-      var side = box.getAttribute('data-side');
-      box._set = function(url){
-        if (side === 'b') pair.bUrl = url; else pair.aUrl = url;
-        box.style.backgroundImage = 'url(' + url + ')';
-        box.classList.add('filled');
-        box.innerHTML = '<span class="plus" title="Preview and captions">+</span>';
-        box.querySelector('.plus').addEventListener('click', function(e){ e.stopPropagation(); openEditor([pair], 0); });
-      };
-      box.addEventListener('click', function(){ pendingBox = box; filein.click(); });
-      box.addEventListener('dragover', function(e){ e.preventDefault(); });
-      box.addEventListener('drop', function(e){ e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files[0]) box._set(URL.createObjectURL(e.dataTransfer.files[0])); });
+  function addFiles(sec, files){
+    Array.prototype.forEach.call(files, function(f){
+      if (!f.type || f.type.indexOf('image/') !== 0) return;
+      var it = ph(f.name.replace(/\.[^.]+$/, ''), HUES[Math.floor(Math.random() * HUES.length)]);
+      it.src = URL.createObjectURL(f);
+      (G[sec] = G[sec] || []).push(it);
     });
-    row.querySelector('[data-rm]').addEventListener('click', function(){
-      deletePairs([pair], document.getElementById('pairview').classList.contains('hidden') ? gal._undowrap : document.querySelector('[data-pairundo]'));
-    });
-    return pair;
   }
-  function makeGallery(name){
-    var gal = { name: name, pairs: [] };
-    var g = document.createElement('div'); g.className = 'gal';
-    g.innerHTML = '<div class="ghead"><input type="text" value="' + name + '" aria-label="Gallery name"><button class="btn light" type="button" data-rmgal="1">Remove gallery</button></div>' +
-      '<div class="selbar hidden" data-selbar="1"></div><div class="undowrap"></div><div class="pairs"></div>' +
-      '<div class="gfoot"><button class="btn light" type="button" data-addpair="1">+ Add a pair</button><button class="btn danger" type="button" data-delall="1">Delete all pairs</button></div>';
-    gal._el = g; gal._pairsEl = g.querySelector('.pairs'); gal._undowrap = g.querySelector('.undowrap');
-    var selbar = g.querySelector('[data-selbar]');
-    selbar._scope = function(){ return gal.pairs; };
-    gal._refreshSel = function(){ wireSelbar(selbar, function(){ return gal.pairs.filter(function(x){ return x.selected; }); }, function(sel){ deletePairs(sel, gal._undowrap); }); };
-    g.querySelector('.ghead input').addEventListener('input', function(){ gal.name = this.value; });
-    function addPair(){ var pr = makePair(gal); gal.pairs.push(pr); gal._pairsEl.appendChild(pr._row); }
-    gal._addPair = addPair;
-    addPair();
-    g.querySelector('[data-addpair]').addEventListener('click', addPair);
-    g.querySelector('[data-delall]').addEventListener('click', function(){
-      if (!gal.pairs.length) return;
-      selbar.classList.remove('hidden');
-      selbar.innerHTML = '<span class="n">Delete all ' + gal.pairs.length + ' pairs in this gallery?</span>' +
-        '<button type="button" data-act="yes" class="danger">Yes, delete all</button><button type="button" data-act="no">Cancel</button>';
-      selbar.querySelector('[data-act="yes"]').addEventListener('click', function(){ deletePairs(gal.pairs.slice(), gal._undowrap); });
-      selbar.querySelector('[data-act="no"]').addEventListener('click', function(){ gal._refreshSel(); });
-    });
-    g.querySelector('[data-rmgal]').addEventListener('click', function(){
-      var gi = GALS.indexOf(gal); if (gi >= 0) GALS.splice(gi, 1);
-      g.remove();
-    });
-    GALS.push(gal);
-    galsEl.appendChild(g);
-    return gal;
+  document.getElementById('ap-gfile').addEventListener('change', function(){
+    if (gTarget) addFiles(gTarget, this.files);
+    this.value = ''; renderGallery();
+  });
+  document.getElementById('ap-gprev').addEventListener('click', function(){ if (gPage > 0) { gPage--; renderGallery(); } });
+  document.getElementById('ap-gnext').addEventListener('click', function(){ if (gPage < secs.length - 1) { gPage++; renderGallery(); } });
+  document.getElementById('ap-gsort').addEventListener('change', function(){ gSort = this.value; renderGallery(); });
+  document.getElementById('ap-gaddsec').addEventListener('click', function(){
+    var name = 'New section'; var n = 2;
+    while (secs.indexOf(name) >= 0) { name = 'New section ' + (n++); }
+    secs.push(name); G[name] = []; if (!P[name]) P[name] = [];
+    gPage = secs.length - 1; renderGallery();
+  });
+  /* ---------- Before/After ---------- */
+  function boxHTML(pair, side){
+    var v = pair[side];
+    var lab = side === 'b' ? 'BEFORE' : 'AFTER';
+    if (!v) return '<div class="babox" data-side="' + side + '">' + lab + '<br>+ add</div>';
+    var inner = v.src ? '<img src="' + v.src + '" alt="">' : '';
+    return '<div class="babox filled ' + (v.src ? '' : v.hue) + '" data-side="' + side + '">' + inner + '<span class="blab">' + lab + ' · ' + esc(v.t) + '</span></div>';
   }
-  var pairBar = document.querySelector('[data-pairselbar]');
-  pairBar._scope = function(){ return allPairs(); };
-  function refreshPairBar(){
-    wireSelbar(pairBar, function(){ return allPairs().filter(function(x){ return x.selected; }); }, function(sel){ deletePairs(sel, document.querySelector('[data-pairundo]')); });
+  function renderBA(){
+    var list = document.getElementById('ap-balist');
+    if (!BA.length) { list.innerHTML = '<div class="empty">No pairs being built. Add one below.</div>'; return; }
+    list.innerHTML = BA.map(function(pair, i){
+      var ready = pair.b && pair.a;
+      var status = ready ? 'Ready to finish.' : (pair.b ? 'Add the after photo.' : (pair.a ? 'Add the before photo.' : 'Add both photos.'));
+      var opts = secs.map(function(s){ return '<option' + (s === pair.sec ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('');
+      return '<div class="bapair" data-i="' + i + '"><div class="cols">' +
+        '<div class="cell">' + boxHTML(pair, 'b') + '</div>' +
+        '<div class="cell">' + boxHTML(pair, 'a') + '</div></div>' +
+        '<div class="bameta"><label style="font-size:13px;color:#5c5c66">Section <select data-sec="' + i + '">' + opts + '</select></label>' +
+        '<span class="bastatus">' + status + '</span>' +
+        '<button class="btn" type="button" data-fin="' + i + '"' + (ready ? '' : ' disabled style="opacity:.45"') + '>Finish, send to Portfolio</button>' +
+        '<button class="btn light" type="button" data-rm="' + i + '">Remove pair</button></div></div>';
+    }).join('');
+    list.querySelectorAll('.babox').forEach(function(box){
+      var pairEl = box.closest('.bapair'); var i = +pairEl.getAttribute('data-i'); var side = box.getAttribute('data-side');
+      box.addEventListener('click', function(){ baTarget = { i: i, side: side }; document.getElementById('ap-bafile').click(); });
+      box.addEventListener('dragover', function(e){ e.preventDefault(); box.classList.add('over'); });
+      box.addEventListener('dragleave', function(){ box.classList.remove('over'); });
+      box.addEventListener('drop', function(e){
+        e.preventDefault(); box.classList.remove('over');
+        var f = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f && f.type && f.type.indexOf('image/') === 0) setBA(i, side, f);
+      });
+    });
+    list.querySelectorAll('[data-sec]').forEach(function(sel){
+      sel.addEventListener('change', function(){ BA[+sel.getAttribute('data-sec')].sec = sel.value; });
+    });
+    list.querySelectorAll('[data-fin]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var pair = BA[+btn.getAttribute('data-fin')];
+        (P[pair.sec] = P[pair.sec] || []).push({
+          type: 'pair', bt: pair.b.t, at: pair.a.t, bh: pair.b.hue, ah: pair.a.hue,
+          bsrc: pair.b.src, asrc: pair.a.src, bcap: '', acap: '', ord: ++ord
+        });
+        BA.splice(+btn.getAttribute('data-fin'), 1);
+        var note = document.getElementById('ap-banote');
+        note.textContent = 'Pair finished. It now lives in Portfolio, under ' + pair.sec + '.';
+        note.classList.remove('hidden');
+        renderBA(); renderPortfolio();
+      });
+    });
+    list.querySelectorAll('[data-rm]').forEach(function(btn){
+      btn.addEventListener('click', function(){ BA.splice(+btn.getAttribute('data-rm'), 1); renderBA(); });
+    });
   }
-  function relayout(){
-    var pv = document.getElementById('pairview');
-    if (pv.classList.contains('hidden')) {
-      GALS.forEach(function(g){ g.pairs.forEach(function(pr){ g._pairsEl.appendChild(pr._row); }); });
-    } else {
-      var flat = document.getElementById('flatpairs');
-      flat.innerHTML = '';
-      GALS.forEach(function(g){
-        var lab = document.createElement('div'); lab.className = 'grouplabel'; lab.textContent = g.name || 'Gallery';
-        flat.appendChild(lab);
-        g.pairs.forEach(function(pr){ flat.appendChild(pr._row); });
+  function setBA(i, side, f){
+    BA[i][side] = { t: f.name.replace(/\.[^.]+$/, ''), hue: HUES[Math.floor(Math.random() * HUES.length)], src: URL.createObjectURL(f) };
+    renderBA();
+  }
+  document.getElementById('ap-bafile').addEventListener('change', function(){
+    if (baTarget && this.files[0]) setBA(baTarget.i, baTarget.side, this.files[0]);
+    this.value = '';
+  });
+  document.getElementById('ap-baadd').addEventListener('click', function(){
+    BA.push({ sec: secs[0], b: null, a: null }); renderBA();
+  });
+  /* ---------- Portfolio ---------- */
+  function halfHTML(src, hue, tag){
+    return '<div class="half ' + (src ? '' : hue) + '">' + (src ? '<img src="' + src + '" alt="">' : '') + '<span class="tag">' + tag + '</span></div>';
+  }
+  function renderPortfolio(){
+    var sec = secs[pPage];
+    document.getElementById('ap-pinfo').textContent = 'Section ' + (pPage + 1) + ' of ' + secs.length + ' · ' + sec;
+    document.getElementById('ap-pprev').disabled = pPage === 0;
+    document.getElementById('ap-pnext').disabled = pPage === secs.length - 1;
+    var items = sorted(P[sec] || [], pSort);
+    var box = document.getElementById('ap-psec');
+    if (!items.length) { box.innerHTML = '<div class="empty">Nothing published in this section yet. Finished pairs and photos you send here will show on the site.</div>'; return; }
+    var html = '', singles = [];
+    items.forEach(function(it){
+      if (it.type === 'single') { singles.push(it); return; }
+      html += '<div class="pitem"><div class="psplit">' + halfHTML(it.bsrc, it.bh, 'BEFORE') + '<div class="mid"></div>' + halfHTML(it.asrc, it.ah, 'AFTER') + '</div>' +
+        '<div class="caplab">Before caption</div><input type="text" data-cap="' + it.ord + ':bcap" value="' + esc(it.bcap) + '" placeholder="No caption yet">' +
+        '<div class="caplab">After caption</div><input type="text" data-cap="' + it.ord + ':acap" value="' + esc(it.acap) + '" placeholder="No caption yet"></div>';
+    });
+    if (singles.length) {
+      html += '<div class="pgrid">' + singles.map(function(it){
+        return '<div class="ptile ' + (it.src ? '' : it.hue) + '">' + (it.src ? '<img src="' + it.src + '" alt="">' : '') + '<span class="tcap">' + esc(it.t) + '</span></div>';
+      }).join('') + '</div>';
+      singles.forEach(function(it){
+        html += '<div class="pitem" style="margin-top:10px"><div style="font-weight:700;font-size:14px">' + esc(it.t) + '</div>' +
+          '<div class="caplab">Caption</div><input type="text" data-cap="' + it.ord + ':cap" value="' + esc(it.cap) + '" placeholder="No caption yet"></div>';
       });
     }
+    box.innerHTML = html;
+    box.querySelectorAll('[data-cap]').forEach(function(inp){
+      inp.addEventListener('input', function(){
+        var parts = inp.getAttribute('data-cap').split(':'); var o = +parts[0], field = parts[1];
+        (P[sec] || []).forEach(function(it){ if (it.ord === o) it[field] = inp.value; });
+      });
+    });
   }
-  document.querySelectorAll('#viewtabs button').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.querySelectorAll('#viewtabs button').forEach(function(x){ x.classList.toggle('on', x === b); });
-      var pairsMode = b.getAttribute('data-view') === 'pairs';
-      document.getElementById('galswrap').classList.toggle('hidden', pairsMode);
-      document.getElementById('pairview').classList.toggle('hidden', !pairsMode);
-      relayout(); refreshBars();
+  document.getElementById('ap-pprev').addEventListener('click', function(){ if (pPage > 0) { pPage--; renderPortfolio(); } });
+  document.getElementById('ap-pnext').addEventListener('click', function(){ if (pPage < secs.length - 1) { pPage++; renderPortfolio(); } });
+  document.getElementById('ap-psort').addEventListener('change', function(){ pSort = this.value; renderPortfolio(); });
+  /* ---------- Tabs ---------- */
+  document.querySelectorAll('#ex0 .ptab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('#ex0 .ptab').forEach(function(t){ t.classList.remove('on'); });
+      tab.classList.add('on');
+      ['gallery', 'ba', 'portfolio'].forEach(function(k){
+        document.getElementById('pane-' + k).classList.toggle('hidden', tab.getAttribute('data-pt') !== k);
+      });
     });
   });
-  document.getElementById('flataddpair').addEventListener('click', function(){
-    if (!GALS.length) makeGallery('New gallery');
-    var g = GALS[GALS.length - 1];
-    g._addPair(); relayout();
-  });
-  function switchArtist(name){
-    if (name === CUR) return;
-    CUR = name; GALS = ARTISTS[CUR];
-    galsEl.innerHTML = '';
-    if (!GALS.length) makeGallery(name + ', healed work');
-    GALS.forEach(function(g){ galsEl.appendChild(g._el); });
-    document.querySelectorAll('#artisttabs button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-artist') === name); });
-    document.getElementById('crumbname').textContent = name;
-    relayout(); refreshBars();
-  }
-  document.querySelectorAll('#artisttabs button').forEach(function(b){
-    b.addEventListener('click', function(){ switchArtist(b.getAttribute('data-artist')); });
-  });
-  makeGallery('Lex, healed work');
-  document.getElementById('addgal').addEventListener('click', function(){
-    makeGallery('New gallery');
-    document.getElementById('galstatus').textContent = 'Gallery added. In the real portal each gallery shows on its artist page.';
-  });
+  renderGallery(); renderBA(); renderPortfolio();
 })();
+
 </script>
 </body></html>
