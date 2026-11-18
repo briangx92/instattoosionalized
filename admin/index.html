@@ -226,6 +226,39 @@
     #p-login{background:#e7e6e2}
   }
 </style>
+
+<style>
+  .brandbtn{display:flex;gap:11px;align-items:center;background:none;border:0;color:inherit;text-align:left;padding:0;cursor:pointer;flex:1;min-width:0;font:inherit}
+  .brandbtn>div{min-width:0}
+  html.dark body{background:#131316;color:#f4f4f5}
+  html.dark .sub,html.dark .card p,html.dark .login-card p,html.dark .section p,html.dark .stat .s,html.dark .listrow small,html.dark .thumbs figcaption,html.dark .req span,html.dark .bk-hint,html.dark .demofoot,html.dark .fineprint{color:#a1a1aa}
+  html.dark .card,html.dark .panel,html.dark .stat,html.dark .login-card,html.dark .pfig{background:#1d1d21;border-color:#2e2e34;box-shadow:none}
+  html.dark input[type=email],html.dark input[type=text],html.dark input[type=tel],html.dark input[type=time],html.dark input[type=password],html.dark textarea,html.dark select{background:#17171a;color:#f4f4f5;border-color:#3a3a41}
+  html.dark .btn{background:#1d1d21;color:#f4f4f5;border-color:#3a3a41}
+  html.dark .btn--primary{background:#f4f4f5;color:#111113;border-color:#f4f4f5}
+  html.dark .btn--accent{background:#f4682a;color:#fff;border-color:#f4682a}
+  html.dark .note{background:#1d1d21;border-color:#2e2e34;color:#d4d4d8}
+  html.dark .section{border-top-color:#2a2a2f}
+  html.dark .req{border-top-color:#26262b}
+  html.dark .hrow,html.dark .listrow{background:#1d1d21;border-color:#2e2e34}
+  html.dark .bk-navbtn{background:#1d1d21;border-color:#3a3a41;color:#f4f4f5}
+  html.dark .bk-col{background:repeating-linear-gradient(to bottom,#1d1d21 0,#1d1d21 69px,#2c2c31 69px,#2c2c31 70px);border-color:#2e2e34}
+  html.dark .bk-closed{background:#1d1d21;border-color:#3a3a41;color:#a1a1aa}
+  html.dark .bk-now{border-top-color:#f4f4f5}
+  html.dark .crm-scroll{background:#1d1d21;border-color:#2e2e34}
+  html.dark .crm-table{background:#1d1d21;border-color:#2e2e34}
+  html.dark .crm-table th,html.dark .crm-table td{border-bottom-color:#2a2a2f;color:#f4f4f5}
+  html.dark .crm-table th{color:#a1a1aa}
+  html.dark .pactions button{background:#1d1d21;border-color:#3a3a41;color:#f4f4f5}
+  html.dark .pactions button:last-child{background:#1d1d21}
+  html.dark .bar{background:#2c2c31}
+  html.dark [data-panel="artists"] .artist-row{background:#1d1d21;border-color:#2e2e34;color:#f4f4f5}
+  html.dark .rm{background:#1d1d21}
+  html.dark .login-brand{background:#111113;color:#f4f4f5}
+  html.dark .login-brand p{color:#a1a1aa}
+  @media(max-width:900px){ html.dark .login-brand{background:transparent;color:#f4f4f5} html.dark #p-login{background:#131316} }
+</style>
+<script>try { if (localStorage.getItem('oa-theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}</script>
 </head>
 <body>
 
@@ -294,7 +327,7 @@
 
 <div id="p-app" class="hidden">
   <aside class="side">
-    <div class="shop"><img class="mark" src="instattoosionalized-logo.jpg" alt="Instattoosionalized logo"><div><strong>Instattoosionalized</strong><span id="p-who">Owner page</span></div><button type="button" class="menu-btn" id="p-menu-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button></div>
+    <div class="shop"><button type="button" class="brandbtn" id="p-brand-home" aria-label="Go to the portal home page"><img class="mark" src="instattoosionalized-logo.jpg" alt="Instattoosionalized logo"><div><strong>Instattoosionalized</strong><span id="p-who">Owner page</span></div></button><button type="button" class="menu-btn" id="p-menu-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button></div>
     <nav aria-label="Owner page">
       <button type="button" data-tab="home" aria-selected="true"><span class="dot"></span>Home</button>
       <button type="button" data-tab="requests" aria-selected="false"><span class="dot"></span>Requests</button>
@@ -309,6 +342,7 @@
       <button type="button" data-tab="reviews" aria-selected="false"><span class="dot"></span>Reviews</button>
     </nav>
     <div class="side-foot">
+      <button type="button" id="p-theme">Dark mode</button>
       <a class="js-site-link" href="https://briangx92.github.io/instattoosionalized/instattoosionalized-tattoos-and-piercings.html" target="_blank" rel="noopener">View live website</a>
       <button type="button" id="p-signout">Sign out</button>
     </div>
@@ -898,6 +932,20 @@ var DEFAULTS = {
   }
   $$('[data-tab]').forEach(function(b){ b.addEventListener('click', function(){ setTab(b.dataset.tab); }); });
   $$('[data-goto]').forEach(function(b){ b.addEventListener('click', function(ev){ ev.preventDefault(); setTab(b.dataset.goto); }); });
+
+  /* logo goes home */
+  var brandBtn = $('#p-brand-home');
+  if (brandBtn) brandBtn.addEventListener('click', function(){ setTab('home'); });
+
+  /* dark mode */
+  var themeBtn = $('#p-theme');
+  function paintThemeBtn(){ if (themeBtn) themeBtn.textContent = document.documentElement.classList.contains('dark') ? 'Light mode' : 'Dark mode'; }
+  if (themeBtn) themeBtn.addEventListener('click', function(){
+    var d = document.documentElement.classList.toggle('dark');
+    try { localStorage.setItem('oa-theme', d ? 'dark' : 'light'); } catch (e) {}
+    paintThemeBtn();
+  });
+  paintThemeBtn();
 
   function renderAll(){ renderHome(); populateEdit(); renderPhotos(); renderPeople(); }
   function renderHome(){
