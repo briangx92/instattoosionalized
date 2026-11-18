@@ -41,8 +41,8 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 <p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
 
 <div class="ex" id="ex0" style="border-color:#f4682a;border-width:2px">
-<h2>Your pick: 3, refined again · Upload first, captions in the preview</h2>
-<p class="sub">Upload a photo and it just shows in its box, nothing else opens. A filled photo carries a + button: tap it to launch the preview, and captions live in there. Tick the circle on pairs to select several: one action bar then offers Preview selected (walks you through them one at a time in the same preview) or Delete selected, and every delete can be undone. Delete all sits in the gallery footer and asks first.</p>
+<h2>Before and after, inside Artists &gt; artist name</h2>
+<p class="sub">This is where the feature lives in the portal: open Artists, pick the artist, and their before and after galleries are right there. Each artist keeps their own sets. Upload a photo and it just shows in its box, nothing else opens. A filled photo carries a + button: tap it to launch the preview, and captions live in there. Tick the circle on pairs to select several: one action bar then offers Preview selected (walks you through them one at a time in the same preview) or Delete selected, and every delete can be undone. Delete all sits in the gallery footer and asks first.</p>
 <style>
 .gal{border:1.5px solid #e7e2d9;border-radius:12px;padding:14px;margin-bottom:14px;background:#fff}
 .gal .ghead{display:flex;gap:10px;align-items:center;margin-bottom:12px}
@@ -69,6 +69,9 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .edsplit .tag{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:6px}
 .edcard label{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:12px 0 5px}
 .edcard input[type=text]{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14.5px}
+.crumb{font-size:13.5px;color:#5c5c66;margin-bottom:9px}
+.crumb b{color:#17171a}
+#artisttabs button{flex:0 1 auto;padding:8px 18px}
 .viewtabs{display:flex;gap:8px;margin-bottom:14px}
 .viewtabs button{flex:1;border:1.5px solid #d8d8d2;background:#fff;border-radius:11px;padding:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
 .viewtabs button.on{background:#17171a;color:#fff;border-color:#17171a}
@@ -83,6 +86,8 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
 .ednav{display:flex;gap:8px;align-items:center;margin-top:16px}
 .ednav .pos{flex:1;text-align:center;font-size:13px;color:#5c5c66;font-weight:600}
 </style>
+<div class="crumb">Artists &gt; <b id="crumbname">Lex</b> &gt; Before and after</div>
+<div class="viewtabs" id="artisttabs"><button type="button" data-artist="Lex" class="on">Lex</button><button type="button" data-artist="Liv">Liv</button><button type="button" data-artist="Diana">Diana</button></div>
 <div class="viewtabs" id="viewtabs"><button type="button" data-view="galleries" class="on">Galleries</button><button type="button" data-view="pairs">Pairs</button></div>
 <div id="galswrap">
 <div id="gals"></div>
@@ -254,7 +259,9 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
   var galsEl = document.getElementById('gals');
   var filein = document.getElementById('galfile');
   var pendingBox = null;
-  var GALS = [];
+  var ARTISTS = { 'Lex': [], 'Liv': [], 'Diana': [] };
+  var CUR = 'Lex';
+  var GALS = ARTISTS[CUR];
   filein.addEventListener('change', function(){
     if (pendingBox && filein.files && filein.files[0]) pendingBox._set(URL.createObjectURL(filein.files[0]));
     pendingBox = null; filein.value = '';
@@ -392,7 +399,7 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
       selbar.querySelector('[data-act="no"]').addEventListener('click', function(){ gal._refreshSel(); });
     });
     g.querySelector('[data-rmgal]').addEventListener('click', function(){
-      GALS = GALS.filter(function(x){ return x !== gal; });
+      var gi = GALS.indexOf(gal); if (gi >= 0) GALS.splice(gi, 1);
       g.remove();
     });
     GALS.push(gal);
@@ -431,6 +438,19 @@ input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding
     if (!GALS.length) makeGallery('New gallery');
     var g = GALS[GALS.length - 1];
     g._addPair(); relayout();
+  });
+  function switchArtist(name){
+    if (name === CUR) return;
+    CUR = name; GALS = ARTISTS[CUR];
+    galsEl.innerHTML = '';
+    if (!GALS.length) makeGallery(name + ', healed work');
+    GALS.forEach(function(g){ galsEl.appendChild(g._el); });
+    document.querySelectorAll('#artisttabs button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-artist') === name); });
+    document.getElementById('crumbname').textContent = name;
+    relayout(); refreshBars();
+  }
+  document.querySelectorAll('#artisttabs button').forEach(function(b){
+    b.addEventListener('click', function(){ switchArtist(b.getAttribute('data-artist')); });
   });
   makeGallery('Lex, healed work');
   document.getElementById('addgal').addEventListener('click', function(){
