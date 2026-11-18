@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design wizard: make the Portfolio block look nicer</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{margin:0;background:#f4f2ec;color:#191919}
+.wrap{max-width:780px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:22px;margin:6px 0 2px}
+.lede{color:#5c5c66;font-size:14.5px;line-height:1.5;margin:0 0 6px}
+.dots{display:flex;gap:6px;margin:12px 0 4px}
+.dots i{width:26px;height:5px;border-radius:3px;background:#ddd6c6;display:block}
+.dots i.on{background:#f4682a}
+.stepno{font-size:12.5px;color:#8a8578;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.step h2{font-size:19px;margin:4px 0 3px}
+.step .sub{color:#5c5c66;font-size:14px;line-height:1.5;margin:0 0 14px}
+.opt{border:2px solid #e3ded2;border-radius:14px;padding:14px;background:#fff;margin-bottom:12px;cursor:pointer}
+.opt.sel{border-color:#f4682a;background:#fff8f2}
+.opt .oname{font-weight:700;font-size:15.5px;margin:0 0 2px}
+.opt .odesc{font-size:13px;color:#5c5c66;margin:0 0 10px;line-height:1.45}
+.nav{display:flex;gap:10px;margin-top:16px}
+.btn{display:inline-block;background:#f4682a;color:#fff;border:none;border-radius:9px;padding:11px 20px;font:inherit;font-weight:700;cursor:pointer;font-size:15px}
+.btn.light{background:#fff;color:#191919;border:1.5px solid #191919}
+.btn:disabled{opacity:.4;cursor:default}
+.hidden{display:none}
+.g1{background:linear-gradient(135deg,#e8b4a0,#c96f4a)}.g2{background:linear-gradient(135deg,#a8c3a0,#5d7a52)}.g3{background:linear-gradient(135deg,#a0b8d8,#4a6a96)}.g4{background:linear-gradient(135deg,#d8c9a0,#a68a4a)}.g5{background:linear-gradient(135deg,#c3a6d8,#6a4a96)}.g6{background:linear-gradient(135deg,#a0d8d0,#3d7a72)}
+/* ---- mini portfolio panel + skins ---- */
+.mp{border:1px solid #e7e2d9;border-radius:12px;padding:13px;background:#fff;position:relative}
+.mp .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mp .mhead b{font-size:15px}
+.upbtn{background:#f4682a;color:#fff;border:none;border-radius:9px;padding:8px 15px;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
+.capin{width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:7px 9px;font:inherit;font-size:13px;background:#fff;margin-top:8px}
+.skin-bold{border:2.5px solid #191919;border-radius:10px;box-shadow:5px 5px 0 #191919}
+.skin-bold .upbtn{background:#191919;border-radius:6px}
+.skin-bold .capin{border:1.5px solid #191919;border-radius:6px}
+.skin-dark{background:#17171a;border-color:#17171a;color:#f4f2ec}
+.skin-dark .capin{background:#232329;border-color:#3a3a42;color:#f4f2ec}
+.skin-dark .mhead b{color:#fff}
+/* ---- grids ---- */
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+@media(max-width:640px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+.ptile{position:relative;border-radius:9px;min-height:74px;overflow:hidden}
+.ptile .tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);font-size:11px;padding:3px 6px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gr-edge{gap:2px}
+.gr-edge .ptile{border-radius:0;min-height:84px}
+.gr-edge .ptile .tcap{background:linear-gradient(transparent,rgba(0,0,0,.72));color:#fff;padding:14px 6px 4px}
+.gr-roomy{gap:14px}
+.gr-roomy .ptile{border-radius:14px;min-height:84px}
+.fig{margin:0}
+.fig .fcap{font-size:12px;color:#3f3f46;padding:5px 2px 0;line-height:1.35}
+.skin-dark .fig .fcap{color:#d8d8d2}
+/* ---- choosers ---- */
+.chcards{display:grid;gap:8px}
+.chcards button{border:1.5px solid #d8d8d2;background:#fdfcf9;border-radius:11px;padding:11px 12px;font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer;color:#191919}
+.chcards button small{display:block;font-weight:400;font-size:12px;color:#5c5c66;margin-top:1px}
+.chlist{border:1.5px solid #e7e2d9;border-radius:11px;overflow:hidden}
+.chlist button{display:block;width:100%;background:#fff;border:none;border-bottom:1px solid #eee9dd;padding:11px 12px;font:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer;color:#191919}
+.chlist button:last-child{border-bottom:none}
+.sheetwrap{position:relative;overflow:hidden;border-radius:12px}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:2px solid #e7e2d9;border-radius:16px 16px 0 0;padding:12px;box-shadow:0 -6px 18px rgba(0,0,0,.12)}
+.sheet .grab{width:38px;height:4px;border-radius:2px;background:#d8d8d2;margin:0 auto 10px}
+.sheet button{display:block;width:100%;background:#fdfcf9;border:1.5px solid #d8d8d2;border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;font-weight:700;text-align:left;margin-bottom:8px;cursor:pointer;color:#191919}
+.skin-dark .sheet{background:#232329;border-top-color:#3a3a42}
+.skin-dark .sheet button{background:#17171a;border-color:#3a3a42;color:#f4f2ec}
+/* ---- section navs ---- */
+.pager{display:flex;gap:8px;align-items:center;font-size:13px;color:#5c5c66}
+.pager button{border:1px solid #d8d8d2;background:#fff;border-radius:8px;padding:6px 10px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#3f3f46}
+.chip.on{background:#17171a;color:#fff;border-color:#17171a}
+select.secsel{border:1px solid #d8d8d2;border-radius:8px;padding:7px 9px;font:inherit;font-size:13.5px;background:#fff}
+.upbar{display:block;width:100%;background:#f4682a;color:#fff;border:none;border-radius:10px;padding:12px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px}
+.upfloat{position:absolute;right:12px;bottom:12px;width:52px;height:52px;border-radius:50%;background:#f4682a;color:#fff;border:none;font-size:26px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:3;line-height:1}
+.psplit{display:flex;border-radius:9px;overflow:hidden;min-height:96px;margin-bottom:10px}
+.psplit .half{flex:1;position:relative;min-height:96px}
+.psplit .tag{position:absolute;top:6px;left:6px;background:rgba(20,20,20,.72);color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:6px}
+.psplit .mid{width:2px;background:#fff;flex:none}
+.picks{background:#fff;border:1px solid #e3ded2;border-radius:12px;padding:14px;font-size:14.5px;line-height:1.7;margin-top:14px}
+</style></head><body>
+<div class="wrap">
+<h1>Make the Portfolio block look nicer</h1>
+<p class="lede">Five quick picks. Each one shows the real piece in each style, tap the one you like, then Next. At the end you see the whole block put together your way, plus a line to send me so I rebuild the real block in that style.</p>
+<div class="dots" id="dots"></div>
+<div id="stage"></div>
+<div class="nav">
+  <button class="btn light hidden" type="button" id="wback">Back</button>
+  <button class="btn" type="button" id="wnext" disabled>Next</button>
+</div>
+</div>
+<script>
+var LABELS = {
+  skin:   { clean: 'Clean and light', bold: 'Bold block', dark: 'Dark panel' },
+  upload: { top: 'Button at the top', bar: 'Big bar', float: 'Floating + button' },
+  chooser:{ cards: 'Two big cards', list: 'Simple list', sheet: 'Bottom sheet' },
+  grid:   { rounded: 'Rounded tiles', edge: 'Edge to edge', roomy: 'Roomy, caption below' },
+  sections:{ pager: 'Prev / Next pager', chips: 'Section chips', select: 'Dropdown' }
+};
+var PICKS = { skin: null, upload: null, chooser: null, grid: null, sections: null };
+var SECS = {
+  'Healed work': [['Rose, healed','g1'],['Script lettering','g2'],['Daisy stem','g3'],['Paw print','g4']],
+  'Fresh work': [['Ghostface knife','g5'],['Snoopy pumpkin','g6'],['Hello Kitty Jason','g1'],['Spider web elbow','g3']],
+  'Flash designs': [['Friday flash sheet','g2'],['Tiny symbols','g3'],['Moon phases','g5'],['Lucky 13','g4']]
+};
+function tilesHTML(kind, sec){
+  var items = SECS[sec];
+  if (kind === 'roomy') {
+    return '<div class="pgrid gr-roomy">' + items.map(function(it){
+      return '<figure class="fig"><div class="ptile ' + it[1] + '"></div><figcaption class="fcap">' + it[0] + '</figcaption></figure>';
+    }).join('') + '</div>';
+  }
+  return '<div class="pgrid' + (kind === 'edge' ? ' gr-edge' : '') + '">' + items.map(function(it){
+    return '<div class="ptile ' + it[1] + '"><span class="tcap">' + it[0] + '</span></div>';
+  }).join('') + '</div>';
+}
+function chooserHTML(kind){
+  if (kind === 'cards') return '<div class="chcards"><button type="button">Gallery photos<small>Single photos, sorted into sections</small></button><button type="button">Before / after pair<small>Build a pair side by side</small></button></div>';
+  if (kind === 'list') return '<div class="chlist"><button type="button">Gallery photos</button><button type="button">Before / after pair</button><button type="button">Cancel</button></div>';
+  return '';
+}
+function sheetHTML(){
+  return '<div class="sheet"><div class="grab"></div><button type="button">Gallery photos</button><button type="button">Before / after pair</button></div>';
+}
+function sectionsHTML(kind, sec){
+  var names = Object.keys(SECS);
+  if (kind === 'chips') return '<div class="chips">' + names.map(function(n){ return '<button type="button" class="chip' + (n === sec ? ' on' : '') + '" data-sec="' + n + '">' + n + '</button>'; }).join('') + '</div>';
+  if (kind === 'select') return '<label style="font-size:13px">Section <select class="secsel" id="secsel">' + names.map(function(n){ return '<option' + (n === sec ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></label>';
+  var i = names.indexOf(sec);
+  return '<span class="pager"><button type="button" data-pg="-1">&larr; Prev</button><span>Section ' + (i + 1) + ' of 3 · ' + sec + '</span><button type="button" data-pg="1">Next &rarr;</button></span>';
+}
+function uploadHTML(kind){
+  if (kind === 'bar') return '<button class="upbar" type="button" data-up="1">+ Upload</button>';
+  if (kind === 'float') return '<button class="upfloat" type="button" data-up="1">+</button>';
+  return '';
+}
+function headHTML(kind){
+  if (kind === 'top') return '<div class="mhead"><b>Portfolio</b><button class="upbtn" type="button" data-up="1">Upload</button></div>';
+  if (kind === 'bar') return '<div class="mhead"><b>Portfolio</b></div>';
+  return '<div class="mhead"><b>Portfolio</b><span style="font-size:12px;opacity:.65">tap + to add</span></div>';
+}
+function panelHTML(p, sec, interactive){
+  var cls = 'mp' + (p.skin === 'bold' ? ' skin-bold' : '') + (p.skin === 'dark' ? ' skin-dark' : '');
+  var inner = headHTML(p.upload) + uploadHTML(p.upload);
+  inner += '<div id="rchoose" class="hidden" style="margin-bottom:10px">' + chooserHTML(p.chooser) + '</div>';
+  inner += '<div style="margin-bottom:10px" id="rsecs">' + sectionsHTML(p.sections, sec) + '</div>';
+  inner += '<div class="psplit"><div class="half g5"><span class="tag">BEFORE</span></div><div class="mid"></div><div class="half g2"><span class="tag">AFTER</span></div></div>';
+  inner += '<div id="rgrid">' + tilesHTML(p.grid, sec) + '</div>';
+  inner += '<input class="capin" type="text" placeholder="Caption for the first photo">';
+  if (p.chooser === 'sheet') inner += '<div id="rsheet" class="hidden">' + sheetHTML() + '</div>';
+  return '<div class="' + cls + (p.chooser === 'sheet' ? ' sheetwrap' : '') + '" id="rpanel">' + inner + '</div>';
+}
+</script>
+<script>
+var BASE = { skin: 'clean', upload: 'top', chooser: 'cards', grid: 'rounded', sections: 'pager' };
+function optHTML(key, val, name, desc, preview){
+  return '<div class="opt" data-key="' + key + '" data-val="' + val + '"><p class="oname">' + name + '</p><p class="odesc">' + desc + '</p>' + preview + '</div>';
+}
+function withPick(key, val){ var p = Object.assign({}, BASE, PICKS); p[key] = val; Object.keys(PICKS).forEach(function(k){ if (PICKS[k]) p[k] = PICKS[k]; }); p[key] = val; return p; }
+var STEPS = [
+  { key: 'skin', title: 'The overall feel', sub: 'The skin the whole block wears. Same content in each, only the look changes.',
+    opts: [
+      ['clean', 'Clean and light', 'White panel, soft border, lots of air. Close to what you have now.', panelHTML(withPick('skin','clean'), 'Healed work')],
+      ['bold', 'Bold block', 'Thick black borders and a hard shadow. Punchy, tattoo-shop energy.', panelHTML(withPick('skin','bold'), 'Healed work')],
+      ['dark', 'Dark panel', 'The block goes dark with light text. Stands out on a light page.', panelHTML(withPick('skin','dark'), 'Healed work')]
+    ]},
+  { key: 'upload', title: 'The Upload button', sub: 'Where the one button that starts an upload lives.',
+    opts: [
+      ['top', 'Button at the top', 'Orange Upload button beside the Portfolio title. Easy to find, stays out of the way.', panelHTML(withPick('upload','top'), 'Healed work')],
+      ['bar', 'Big bar', 'A full-width bar under the title. Biggest possible tap target, nobody misses it.', panelHTML(withPick('upload','bar'), 'Healed work')],
+      ['float', 'Floating + button', 'A round + button parked in the corner of the block, always in reach while scrolling.', panelHTML(withPick('upload','float'), 'Healed work')]
+    ]},
+  { key: 'chooser', title: 'Picking what to upload', sub: 'What shows up right after Upload is tapped: gallery photos, or a before / after pair.',
+    opts: [
+      ['cards', 'Two big cards', 'Each choice is a big card with a line saying what it does. Clearest for the shop staff.', (function(){ var p = withPick('chooser','cards'); return '<div class="mp">' + headHTML('top') + chooserHTML('cards') + '</div>'; })()],
+      ['list', 'Simple list', 'A plain menu, one row per choice. Fast, no decoration.', (function(){ return '<div class="mp">' + headHTML('top') + chooserHTML('list') + '</div>'; })()],
+      ['sheet', 'Bottom sheet', 'The choices slide up from the bottom of the block, phone-app style.', (function(){ return '<div class="mp sheetwrap" style="min-height:230px">' + headHTML('top') + tilesHTML('rounded','Healed work') + sheetHTML() + '</div>'; })()]
+    ]},
+  { key: 'grid', title: 'The photo grid', sub: 'How the photos themselves sit in the Portfolio.',
+    opts: [
+      ['rounded', 'Rounded tiles', 'Rounded corners, small gaps, the name on a strip at the bottom. What you have now.', tilesHTML('rounded', 'Healed work')],
+      ['edge', 'Edge to edge', 'Photos touch, no gaps, name fades in at the bottom. Looks like Instagram.', tilesHTML('edge', 'Healed work')],
+      ['roomy', 'Roomy, caption below', 'Bigger spacing, rounder corners, the name sits under each photo in plain text.', tilesHTML('roomy', 'Healed work')]
+    ]},
+  { key: 'sections', title: 'Moving between sections', sub: 'Healed work, Fresh work, Flash designs. How you flip between them.',
+    opts: [
+      ['pager', 'Prev / Next pager', 'Arrows and a counter. One section at a time, like pages in a book.', '<div class="mp">' + sectionsHTML('pager', 'Healed work') + '</div>'],
+      ['chips', 'Section chips', 'Every section is a pill you can tap. You see all of them at once.', '<div class="mp">' + sectionsHTML('chips', 'Healed work') + '</div>'],
+      ['select', 'Dropdown', 'One tidy dropdown. Takes the least room on the page.', '<div class="mp">' + sectionsHTML('select', 'Healed work') + '</div>']
+    ]}
+];
+var step = 0, curSec = 'Healed work';
+var stage = document.getElementById('stage'), dots = document.getElementById('dots');
+var wnext = document.getElementById('wnext'), wback = document.getElementById('wback');
+function renderDots(){
+  dots.innerHTML = STEPS.map(function(s, i){ return '<i class="' + (i <= step ? 'on' : '') + '"></i>'; }).join('') + (step >= STEPS.length ? '<i class="on"></i>' : '<i></i>');
+}
+function renderStep(){
+  renderDots();
+  wback.classList.toggle('hidden', step === 0);
+  if (step >= STEPS.length) { renderResult(); return; }
+  var s = STEPS[step];
+  var html = '<section class="step"><p class="stepno">Step ' + (step + 1) + ' of ' + STEPS.length + '</p><h2>' + s.title + '</h2><p class="sub">' + s.sub + '</p>';
+  s.opts.forEach(function(o){ html += optHTML(s.key, o[0], o[1], o[2], o[3]); });
+  html += '</section>';
+  stage.innerHTML = html;
+  stage.querySelectorAll('.opt').forEach(function(el){
+    if (PICKS[s.key] === el.getAttribute('data-val')) el.classList.add('sel');
+    el.addEventListener('click', function(){
+      stage.querySelectorAll('.opt').forEach(function(x){ x.classList.remove('sel'); });
+      el.classList.add('sel');
+      PICKS[s.key] = el.getAttribute('data-val');
+      wnext.disabled = false;
+    });
+  });
+  wnext.textContent = step === STEPS.length - 1 ? 'See the result' : 'Next';
+  wnext.disabled = !PICKS[s.key];
+  window.scrollTo(0, 0);
+}
+function picksLine(){
+  return 'Wizard picks: Feel = ' + LABELS.skin[PICKS.skin] + ' / Upload = ' + LABELS.upload[PICKS.upload] + ' / Chooser = ' + LABELS.chooser[PICKS.chooser] + ' / Photos = ' + LABELS.grid[PICKS.grid] + ' / Sections = ' + LABELS.sections[PICKS.sections];
+}
+function renderResult(){
+  renderDots();
+  wback.classList.remove('hidden');
+  wnext.textContent = 'Start over'; wnext.disabled = false;
+  stage.innerHTML = '<section class="step"><p class="stepno">Your result</p><h2>The block, your way</h2><p class="sub">This is the Portfolio block with all five picks on it. The Upload button works, and the section control flips sections. When you are happy, copy the line under it and send it to me, and I will rebuild the real block in this style.</p>' +
+    panelHTML(PICKS, curSec, true) +
+    '<div class="picks" id="picksline">' + picksLine() + '</div>' +
+    '<div class="nav"><button class="btn" type="button" id="wcopy">Copy my picks</button></div><p class="sub" id="copied" style="margin-top:8px"></p></section>';
+  wireResult();
+  document.getElementById('wcopy').addEventListener('click', function(){
+    var t = picksLine();
+    function done(){ document.getElementById('copied').textContent = 'Copied. Paste it to me in the chat.'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, done); else done();
+  });
+  window.scrollTo(0, 0);
+}
+function wireResult(){
+  var panel = document.getElementById('rpanel');
+  if (!panel) return;
+  panel.querySelectorAll('[data-up]').forEach(function(b){
+    b.addEventListener('click', function(){
+      if (PICKS.chooser === 'sheet') document.getElementById('rsheet').classList.toggle('hidden');
+      else document.getElementById('rchoose').classList.toggle('hidden');
+    });
+  });
+  function setSec(name){
+    curSec = name;
+    document.getElementById('rgrid').innerHTML = tilesHTML(PICKS.grid, name);
+    document.getElementById('rsecs').innerHTML = sectionsHTML(PICKS.sections, name);
+    wireResult();
+  }
+  panel.querySelectorAll('[data-sec]').forEach(function(b){ b.addEventListener('click', function(){ setSec(b.getAttribute('data-sec')); }); });
+  var sel = document.getElementById('secsel');
+  if (sel) sel.addEventListener('change', function(){ setSec(sel.value); });
+  panel.querySelectorAll('[data-pg]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var names = Object.keys(SECS); var i = names.indexOf(curSec) + (+b.getAttribute('data-pg'));
+      if (i < 0) i = 0; if (i > names.length - 1) i = names.length - 1;
+      setSec(names[i]);
+    });
+  });
+}
+wnext.addEventListener('click', function(){
+  if (step >= STEPS.length) { Object.keys(PICKS).forEach(function(k){ PICKS[k] = null; }); step = 0; renderStep(); return; }
+  step++; renderStep();
+});
+wback.addEventListener('click', function(){ if (step > 0) { step--; renderStep(); } });
+renderStep();
+</script>
+</body></html>
