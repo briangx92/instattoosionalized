@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storefront section, 5 scratch examples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:#f4f4f2;color:#17171a}
+h1,h2,h3{font-family:'Space Grotesk',Inter,sans-serif;margin:0}
+.wrap{max-width:1060px;margin:0 auto;padding:20px 16px 70px}
+.mocknote{background:#fff4ee;border:1px solid #f3cfb8;color:#7c3f16;border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.5;margin-bottom:14px}
+.switcher{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.switcher button{flex:1;min-width:150px;border:1.5px solid #d8d8d2;background:#fff;border-radius:12px;padding:11px 10px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;text-align:left}
+.switcher button small{display:block;font-weight:500;color:#71717a;margin-top:2px;font-size:12px}
+.switcher button.on{border-color:#f4682a;background:#fff4ee}
+.panel{background:#fff;border:1px solid #e4e4e0;border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(20,20,30,.06)}
+.panel h2{font-size:23px}
+.sub{color:#5c5c66;font-size:14px;margin-top:5px;line-height:1.5}
+.card{border:1px solid #e7e7e2;border-radius:14px;padding:16px;margin-top:14px;background:#fff}
+.card h3{font-size:16px;margin-bottom:4px}
+.card p.d{color:#5c5c66;font-size:13.5px;margin:0 0 12px;line-height:1.5}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:10px 0 5px}
+input[type=text],input[type=date],input[type=time],select,textarea{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14.5px;background:#fff;color:#17171a}
+textarea{min-height:64px;resize:vertical}
+.btn{display:inline-flex;align-items:center;gap:7px;border-radius:11px;border:1px solid #d8d8d2;background:#fff;color:#17171a;padding:10px 15px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn--accent{background:#f4682a;color:#fff;border-color:#f4682a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.avrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 0;border-top:1px solid #f0f0ec}
+.avrow:first-of-type{border-top:none}
+.avrow .who{font-weight:700;min-width:64px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button.on{border-color:#17171a;background:#17171a;color:#fff}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.g{background:#22c55e}.a{background:#f59e0b}.r{background:#ef4444}.x{background:#a1a1aa}
+.avdate{width:170px}
+.ann{border:1px solid #e7e7e2;border-radius:12px;padding:12px 14px;margin-top:9px;background:#fafafa}
+.ann b{font-size:14.5px}
+.ann .m{font-size:14px;color:#3f3f46;margin-top:2px}
+.ann .w{font-size:12.5px;color:#8a8a93;margin-top:4px}
+.prio{font-size:11px;font-weight:700;color:#c24e12;background:#fff4ee;border-radius:999px;padding:2px 8px;margin-left:8px}
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.subtabs button{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:8px 14px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.subtabs button.on{background:#17171a;color:#fff;border-color:#17171a}
+.siteprev{border:1px solid #d8d8d2;border-radius:14px;overflow:hidden;margin-top:14px}
+.siteprev .bar{background:#17171a;color:#fff;font-size:13px;text-align:center;padding:8px 10px;font-weight:600}
+.siteprev .hero{background:linear-gradient(135deg,#3a3a42,#17171a);color:#fff;padding:26px 18px;text-align:center}
+.siteprev .hero .t{font-family:'Space Grotesk';font-size:21px;font-weight:700}
+.siteprev .tick{background:#f4682a;color:#fff;font-size:13px;padding:7px 0;text-align:center;font-weight:600}
+.siteprev .av{padding:12px 16px;font-size:13.5px;color:#3f3f46;line-height:1.7;background:#fff}
+.hidden{display:none!important}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #f0f0ec;font-size:14px}
+.kv:first-of-type{border-top:none}
+.kv span{color:#71717a}
+</style></head><body>
+<div class="wrap">
+  <div class="mocknote">Five takes on the portal's Edit site section, using Copilot's three ideas: availability as a status (Available, Limited, Booked Until, Not Accepting) instead of a "booked out from" box, announcements with a title, dates, and priority instead of one scrolling message, and the section renamed in shop owner language. Sample data, nothing saves.</div>
+  <div class="switcher" id="switcher">
+    <button data-v="1" class="on" type="button">1. Storefront, grouped cards<small>Copilot's favorite name, everything on one page in cards</small></button>
+    <button data-v="2" type="button">2. Website, one clean list<small>The simple rename, settings as a single list</small></button>
+    <button data-v="3" type="button">3. Site Management, panels<small>Two columns of panels, the businesslike name</small></button>
+    <button data-v="4" type="button">4. Storefront, tabs inside<small>One job at a time, easiest on a phone</small></button>
+    <button data-v="5" type="button">5. Storefront, preview first<small>See the homepage change as you edit</small></button>
+  </div>
+  <div id="stage"></div>
+</div>
+<script>
+(function(){
+  var ARTISTS = ['Lex', 'Liv', 'Diana'];
+  function avBlock(idp){
+    return ARTISTS.map(function(a){
+      return '<div class="avrow"><span class="who">' + a + '</span><div class="seg" data-seg="' + idp + a + '">' +
+      '<button type="button" data-st="Available" class="on"><span class="dot g"></span>Available</button>' +
+      '<button type="button" data-st="Limited Availability"><span class="dot a"></span>Limited</button>' +
+      '<button type="button" data-st="Booked Until"><span class="dot r"></span>Booked Until</button>' +
+      '<button type="button" data-st="Not Accepting Requests"><span class="dot x"></span>Not Accepting</button></div>' +
+      '<input type="date" class="avdate hidden" data-date="' + idp + a + '" value="2026-12-19"></div>';
+    }).join('');
+  }
+  function annForm(idp){
+    return '<label>Title</label><input type="text" data-ann="title" placeholder="Guest artist in town">' +
+    '<label>Message</label><input type="text" data-ann="msg" placeholder="Guest artist in town Dec 3-8, books open now">' +
+    '<div class="grid2"><div><label>Starts</label><input type="date" data-ann="start" value="2026-12-03"></div>' +
+    '<div><label>Ends</label><input type="date" data-ann="end" value="2026-12-08"></div></div>' +
+    '<label>Priority</label><select data-ann="prio"><option>Normal</option><option>High, show first</option></select>' +
+    '<p style="margin-top:12px"><button class="btn btn--accent" type="button" data-addann="' + idp + '">Add announcement</button></p>';
+  }
+  function annList(idp){
+    return '<div data-annlist="' + idp + '"><div class="ann"><b>Walk-ins welcome</b><span class="prio">HIGH</span><div class="m">Walk-ins all weekend, first come first served.</div><div class="w">Shows Nov 21 to Nov 23</div></div></div>';
+  }
+  function detailsBlock(){
+    return '<div class="kv"><span>Opening hours</span><b>Tue to Sat, 12:00 to 5:00</b></div>' +
+    '<div class="kv"><span>Phone</span><b>(610) 440-2700</b></div>' +
+    '<div class="kv"><span>Services</span><b>Tattoos, Piercing</b></div>' +
+    '<div class="kv"><span>Deposit policy</span><b>The shop\'s deposit is $40 and holds your spot.</b></div>';
+  }
+  var V = {};
+  V[1] = '<div class="panel"><h2>Storefront</h2><p class="sub">Everything a customer sees on your website, in one place. Save a change and it shows on the site.</p>' +
+    '<div class="card"><h3>Announcements</h3><p class="d">Posts itself on the start date and comes down the day after it ends. High priority shows first.</p>' + annList('v1') + annForm('v1') + '</div>' +
+    '<div class="card"><h3>Artist availability</h3><p class="d">How each artist shows on their page and the request form. Booked Until takes their days off the form.</p>' + avBlock('v1') + '</div>' +
+    '<div class="card"><h3>Shop details and your words</h3>' + detailsBlock() + '<p style="margin-top:12px"><button class="btn" type="button">Edit details</button></p></div></div>';
+  V[2] = '<div class="panel"><h2>Website</h2><p class="sub">Your website settings, in the order customers meet them.</p>' +
+    '<div class="card"><h3>Artist availability</h3><p class="d">Pick a status per artist. Booked Until asks for the date they are booked to.</p>' + avBlock('v2') + '</div>' +
+    '<div class="card"><h3>Announcement</h3><p class="d">One announcement at a time, with dates so it posts and retires itself.</p>' + annList('v2') + annForm('v2') + '</div>' +
+    '<div class="card"><h3>Everything else</h3>' + detailsBlock() + '</div></div>';
+  V[3] = '<div class="panel"><h2>Site Management</h2><p class="sub">Grouped panels, the way a settings page in a bigger system would lay it out.</p><div class="grid2">' +
+    '<div class="card"><h3>Announcements</h3>' + annList('v3') + annForm('v3') + '</div>' +
+    '<div><div class="card" style="margin-top:0"><h3>Availability</h3>' + avBlock('v3') + '</div>' +
+    '<div class="card"><h3>Shop details</h3>' + detailsBlock() + '</div></div></div></div>';
+  V[4] = '<div class="panel"><h2>Storefront</h2><p class="sub">Pick a job. Each tab holds one thing, so nothing crowds a phone screen.</p>' +
+    '<div class="subtabs" id="v4tabs"><button data-t="ann" class="on" type="button">Announcements</button><button data-t="av" type="button">Availability</button><button data-t="det" type="button">Shop details</button></div>' +
+    '<div data-v4="ann"><div class="card">' + annList('v4') + annForm('v4') + '</div></div>' +
+    '<div data-v4="av" class="hidden"><div class="card"><h3>Artist availability</h3><p class="d">Booked Until takes the artist\'s days off the request form.</p>' + avBlock('v4') + '</div></div>' +
+    '<div data-v4="det" class="hidden"><div class="card">' + detailsBlock() + '</div></div></div>';
+  V[5] = '<div class="panel"><h2>Storefront</h2><p class="sub">The top is your homepage as visitors see it. Change anything below and the preview follows.</p>' +
+    '<div class="siteprev"><div class="bar" id="pv-bar">Walk-ins all weekend, first come first served.</div>' +
+    '<div class="hero"><div class="t">Instattoosionalized</div><div style="font-size:13.5px;opacity:.85;margin-top:4px">Tattoos and piercing, Northampton PA</div></div>' +
+    '<div class="tick" id="pv-tick">Now booking December</div>' +
+    '<div class="av" id="pv-av">Lex: Available &middot; Liv: Available &middot; Diana: Available</div></div>' +
+    '<div class="card"><h3>Announcement</h3><label>Message on the top strip</label><input type="text" id="pv-msg" value="Walk-ins all weekend, first come first served.">' +
+    '<label>Scrolling line under the photo</label><input type="text" id="pv-tickin" value="Now booking December"></div>' +
+    '<div class="card"><h3>Artist availability</h3>' + avBlock('v5') + '</div></div>';
+  var stage = document.getElementById('stage');
+  function wire(root){
+    root.querySelectorAll('.seg').forEach(function(seg){
+      seg.querySelectorAll('button').forEach(function(b){
+        b.addEventListener('click', function(){
+          seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+          var key = seg.getAttribute('data-seg');
+          var date = root.querySelector('[data-date="' + key + '"]');
+          if (date) date.classList.toggle('hidden', b.getAttribute('data-st') !== 'Booked Until');
+          var pv = document.getElementById('pv-av');
+          if (pv && root.contains(seg)) {
+            var out = ARTISTS.map(function(a){
+              var s = root.querySelector('[data-seg="v5' + a + '"] button.on');
+              var st = s ? s.getAttribute('data-st') : 'Available';
+              if (st === 'Booked Until') { var d = root.querySelector('[data-date="v5' + a + '"]'); st = 'Booked until ' + (d ? d.value : ''); }
+              return a + ': ' + st;
+            });
+            pv.innerHTML = out.join(' &middot; ');
+          }
+        });
+      });
+    });
+    root.querySelectorAll('[data-addann]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var card = btn.closest('.card') || root;
+        var t = card.querySelector('[data-ann="title"]').value || 'Announcement';
+        var m = card.querySelector('[data-ann="msg"]').value || '';
+        var s = card.querySelector('[data-ann="start"]').value, e = card.querySelector('[data-ann="end"]').value;
+        var pr = card.querySelector('[data-ann="prio"]').value;
+        var listKey = btn.getAttribute('data-addann');
+        var list = document.querySelector('[data-annlist="' + listKey + '"]');
+        if (!list) return;
+        var div = document.createElement('div'); div.className = 'ann';
+        div.innerHTML = '<b></b>' + (pr.indexOf('High') === 0 ? '<span class="prio">HIGH</span>' : '') + '<div class="m"></div><div class="w">Shows ' + s + ' to ' + e + '</div>';
+        div.querySelector('b').textContent = t; div.querySelector('.m').textContent = m;
+        if (pr.indexOf('High') === 0 && list.firstChild) list.insertBefore(div, list.firstChild); else list.appendChild(div);
+      });
+    });
+    var tabs = root.querySelector('#v4tabs');
+    if (tabs) tabs.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        tabs.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+        root.querySelectorAll('[data-v4]').forEach(function(p){ p.classList.toggle('hidden', p.getAttribute('data-v4') !== b.getAttribute('data-t')); });
+      });
+    });
+    var msg = root.querySelector('#pv-msg'), tick = root.querySelector('#pv-tickin');
+    if (msg) msg.addEventListener('input', function(){ document.getElementById('pv-bar').textContent = msg.value; });
+    if (tick) tick.addEventListener('input', function(){ document.getElementById('pv-tick').textContent = tick.value; });
+    root.querySelectorAll('[data-date]').forEach(function(d){ d.addEventListener('change', function(){
+      var segBtn = root.querySelector('[data-seg="' + d.getAttribute('data-date') + '"] button.on');
+      if (segBtn) segBtn.click();
+    });});
+  }
+  function show(n){ stage.innerHTML = V[n]; wire(stage); }
+  document.querySelectorAll('#switcher button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#switcher button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      show(b.getAttribute('data-v'));
+    });
+  });
+  show('1');
+})();
+</script>
+</body></html>
