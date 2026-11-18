@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Before and after upload, 5 ways to try</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{margin:0;background:#f4f2ec;color:#191919}
+.wrap{max-width:780px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:22px;margin:6px 0 2px}
+.lede{color:#5c5c66;font-size:14.5px;line-height:1.5;margin:0 0 8px}
+.ex{background:#fff;border:1px solid #e3ded2;border-radius:14px;padding:18px 16px;margin-top:18px}
+.ex h2{font-size:18px;margin:0 0 3px}
+.ex .sub{color:#5c5c66;font-size:13.5px;line-height:1.5;margin:0 0 14px}
+.lab{font-size:11.5px;letter-spacing:.07em;color:#8a8578;font-weight:700;text-transform:uppercase;margin:0 0 6px}
+.row{display:flex;gap:12px}
+.pick{flex:1;border:2px dashed #b9b2a2;border-radius:10px;min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#6d675a;background:#faf8f3;cursor:pointer;text-align:center;padding:10px;overflow:hidden}
+.pick img{width:100%;height:130px;object-fit:cover;border-radius:6px}
+.pick .plus{font-size:28px;line-height:1}
+.split{display:flex;border:2px solid #191919;border-radius:10px;overflow:hidden;min-height:170px;background:#eee}
+.split .half{flex:1;position:relative;display:flex;align-items:center;justify-content:center;color:#777;font-weight:700;letter-spacing:.08em;font-size:12.5px;min-height:170px}
+.split .half img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.split .half span{position:relative;background:rgba(255,255,255,.85);padding:2px 8px;border-radius:6px}
+.split .div{width:3px;background:#191919;flex:0 0 auto}
+input[type=text]{width:100%;border:1.5px solid #d9d4c7;border-radius:9px;padding:10px 11px;font:inherit;font-size:14.5px}
+.btn{display:inline-block;background:#f4682a;color:#fff;border:none;border-radius:9px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer}
+.btn.dark{background:#191919}
+.btn.light{background:#fff;color:#191919;border:1.5px solid #191919}
+.status{font-size:13.5px;color:#2e6b3e;min-height:18px;margin-top:10px}
+.pairrow{display:flex;gap:10px;align-items:center;border:1.5px solid #e7e2d9;border-radius:10px;padding:10px;margin-bottom:10px}
+.thumb{width:72px;height:72px;border-radius:8px;border:2px dashed #b9b2a2;background:#faf8f3;display:flex;align-items:center;justify-content:center;font-size:22px;color:#8a8578;cursor:pointer;overflow:hidden;flex:0 0 auto}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb.filled{border-style:solid;border-color:#191919}
+.steps{display:flex;gap:8px;margin-bottom:14px}
+.step{flex:1;text-align:center;padding:8px 4px;border-radius:8px;border:2px solid #e7e2d9;color:#8a8578;font-size:13px;font-weight:700}
+.step.on{border-color:#191919;color:#191919;background:#f7f4ec}
+.tag{border:2px solid #191919;border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:700;background:#fff;cursor:pointer}
+.tag.on{background:#191919;color:#fff}
+.hidden{display:none}
+</style></head><body>
+<div class="wrap">
+<h1>Before and after uploads, 5 ways</h1>
+<p class="lede">Try each one with real photos from your phone. Every version ends at the same split on the site: before on the left, after on the right, a line down the middle. Nothing here saves for real, it is just for trying.</p>
+
+<div class="ex" id="ex1">
+<h2>1 · Two boxes</h2>
+<p class="sub">One box for the before photo, one for the after. The split preview builds itself underneath.</p>
+<div class="row">
+  <div style="flex:1"><p class="lab">Before</p><label class="pick" data-pick="e1b"><span class="plus">+</span><span>Tap to add before</span></label></div>
+  <div style="flex:1"><p class="lab">After</p><label class="pick" data-pick="e1a"><span class="plus">+</span><span>Tap to add after</span></label></div>
+</div>
+<p class="lab" style="margin-top:16px">How it looks on the site</p>
+<div class="split"><div class="half" data-half="e1b"><span>BEFORE</span></div><div class="div"></div><div class="half" data-half="e1a"><span>AFTER</span></div></div>
+<div class="row" style="margin-top:12px"><div style="flex:1"><input type="text" placeholder="Caption, like: Cover-up, first session"></div><div><button class="btn" data-save="1">Save pair</button></div></div>
+<div class="status" data-status="1"></div>
+</div>
+
+<div class="ex" id="ex2">
+<h2>2 · Drop on the split</h2>
+<p class="sub">One big split frame. Tap the left half for the before photo, the right half for the after.</p>
+<div class="split">
+  <div class="half" data-half="e2b" style="cursor:pointer"><span>+ BEFORE</span></div><div class="div"></div>
+  <div class="half" data-half="e2a" style="cursor:pointer"><span>+ AFTER</span></div>
+</div>
+<div class="row" style="margin-top:12px"><div style="flex:1"><input type="text" placeholder="Caption"></div><div><button class="btn" data-save="2">Save pair</button></div></div>
+<div class="status" data-status="2"></div>
+</div>
+
+<div class="ex" id="ex3">
+<h2>3 · A list of pairs</h2>
+<p class="sub">Each set is a row. Fill either side whenever the photo turns up, like a healed shot days later.</p>
+<div id="pairs"></div>
+<button class="btn light" id="addpair" type="button">+ Add a pair</button>
+<div class="status" data-status="3"></div>
+</div>
+
+<div class="ex" id="ex4">
+<h2>4 · Step by step</h2>
+<p class="sub">Before, then after, then the caption. One thing at a time, made for a phone at the chair.</p>
+<div class="steps"><div class="step on" data-stepdot="1">1 · Before</div><div class="step" data-stepdot="2">2 · After</div><div class="step" data-stepdot="3">3 · Caption</div></div>
+<div data-step="1"><label class="pick" data-pick="e4b" style="min-height:170px"><span class="plus">+</span><span style="font-weight:700">Add the BEFORE photo</span><span>Take a photo or pick one</span></label></div>
+<div data-step="2" class="hidden"><label class="pick" data-pick="e4a" style="min-height:170px"><span class="plus">+</span><span style="font-weight:700">Add the AFTER photo</span><span>Take a photo or pick one</span></label></div>
+<div data-step="3" class="hidden">
+  <div class="split"><div class="half" data-half="e4b"><span>BEFORE</span></div><div class="div"></div><div class="half" data-half="e4a"><span>AFTER</span></div></div>
+  <div style="margin-top:12px"><input type="text" id="e4cap" placeholder="Caption, like: Healed, 3 weeks on"></div>
+  <div style="margin-top:12px;text-align:right"><button class="btn" data-save="4">Save pair</button></div>
+</div>
+<div style="margin-top:12px;text-align:right" id="e4nav"><button class="btn dark" id="e4next" type="button">Next</button></div>
+<div class="status" data-status="4"></div>
+</div>
+
+<div class="ex" id="ex5">
+<h2>5 · Upload once, tag each</h2>
+<p class="sub">One button uploads a whole batch. Tag each photo before or after and they pair up in order.</p>
+<label class="pick" id="e5pick" style="min-height:100px"><span class="plus">+</span><span>Tap to upload photos, as many as you like</span></label>
+<div id="e5list" style="margin-top:12px"></div>
+<div class="split hidden" id="e5split"><div class="half" data-half="e5b"><span>BEFORE</span></div><div class="div"></div><div class="half" data-half="e5a"><span>AFTER</span></div></div>
+<div style="margin-top:12px;text-align:right"><button class="btn" data-save="5">Save pairs</button></div>
+<div class="status" data-status="5"></div>
+</div>
+
+</div>
+<input type="file" id="filein" accept="image/*" class="hidden">
+<input type="file" id="filemulti" accept="image/*" multiple class="hidden">
+<script>
+(function(){
+  var urls = {};       // key -> object URL
+  var target = null;   // current pick key
+  var filein = document.getElementById('filein');
+  var multi = document.getElementById('filemulti');
+  function setImg(key, url){
+    urls[key] = url;
+    document.querySelectorAll('[data-half="' + key + '"]').forEach(function(h){
+      var img = h.querySelector('img');
+      if (!img) { img = document.createElement('img'); h.insertBefore(img, h.firstChild); }
+      img.src = url;
+      var sp = h.querySelector('span'); if (sp) sp.style.display = 'none';
+    });
+    document.querySelectorAll('[data-pick="' + key + '"]').forEach(function(p){
+      p.innerHTML = ''; var img = document.createElement('img'); img.src = url; p.appendChild(img);
+    });
+    document.querySelectorAll('[data-thumb="' + key + '"]').forEach(function(th){
+      th.innerHTML = ''; var img = document.createElement('img'); img.src = url; th.appendChild(img);
+      th.classList.add('filled');
+    });
+  }
+  filein.addEventListener('change', function(){
+    if (filein.files && filein.files[0] && target) setImg(target, URL.createObjectURL(filein.files[0]));
+    filein.value = '';
+  });
+  document.querySelectorAll('[data-pick]').forEach(function(p){
+    p.addEventListener('click', function(){ target = p.getAttribute('data-pick'); filein.click(); });
+  });
+  document.querySelectorAll('[data-half]').forEach(function(h){
+    if (h.style.cursor === 'pointer') h.addEventListener('click', function(){ target = h.getAttribute('data-half'); filein.click(); });
+  });
+  function status(n, msg){ var s = document.querySelector('[data-status="' + n + '"]'); if (s) s.textContent = msg; }
+  document.querySelectorAll('[data-save]').forEach(function(b){
+    b.addEventListener('click', function(){ status(b.getAttribute('data-save'), 'Saved. In the real portal this pair would now show on the site.'); });
+  });
+  // Example 3: pairs list
+  var pairN = 0;
+  function addPair(){
+    pairN++;
+    var row = document.createElement('div'); row.className = 'pairrow';
+    var kb = 'p' + pairN + 'b', ka = 'p' + pairN + 'a';
+    row.innerHTML = '<div class="thumb" data-thumb="' + kb + '">+</div>' +
+      '<div class="thumb" data-thumb="' + ka + '">+</div>' +
+      '<div style="flex:1"><input type="text" placeholder="Caption for this pair"></div>' +
+      '<button class="btn light" type="button">Remove</button>';
+    row.querySelectorAll('[data-thumb]').forEach(function(th){
+      th.addEventListener('click', function(){ target = th.getAttribute('data-thumb'); filein.click(); });
+    });
+    row.querySelector('button').addEventListener('click', function(){ row.remove(); });
+    document.getElementById('pairs').appendChild(row);
+  }
+  document.getElementById('addpair').addEventListener('click', addPair);
+  addPair();
+  // Example 4: steps
+  var step = 1;
+  document.getElementById('e4next').addEventListener('click', function(){
+    if (step >= 3) { step = 1; } else { step++; }
+    document.querySelectorAll('[data-step]').forEach(function(d){ d.classList.toggle('hidden', +d.getAttribute('data-step') !== step); });
+    document.querySelectorAll('[data-stepdot]').forEach(function(d){ d.classList.toggle('on', +d.getAttribute('data-stepdot') === step); });
+    document.getElementById('e4next').textContent = step === 3 ? 'Start over' : 'Next';
+  });
+  // Example 5: batch tag
+  var e5 = [];
+  document.getElementById('e5pick').addEventListener('click', function(){ multi.click(); });
+  multi.addEventListener('change', function(){
+    Array.prototype.forEach.call(multi.files, function(f){ e5.push({url: URL.createObjectURL(f), name: f.name, tag: ''}); });
+    multi.value = ''; renderE5();
+  });
+  function renderE5(){
+    var list = document.getElementById('e5list'); list.innerHTML = '';
+    e5.forEach(function(it, i){
+      var row = document.createElement('div'); row.className = 'pairrow';
+      row.innerHTML = '<div class="thumb filled"><img src="' + it.url + '"></div>' +
+        '<div style="flex:1"><strong style="font-size:13.5px">' + it.name + '</strong></div>';
+      var tb = document.createElement('button'); tb.className = 'tag' + (it.tag === 'b' ? ' on' : ''); tb.textContent = 'BEFORE'; tb.type = 'button';
+      var ta = document.createElement('button'); ta.className = 'tag' + (it.tag === 'a' ? ' on' : ''); ta.textContent = 'AFTER'; ta.type = 'button';
+      tb.addEventListener('click', function(){ it.tag = 'b'; renderE5(); });
+      ta.addEventListener('click', function(){ it.tag = 'a'; renderE5(); });
+      row.appendChild(tb); row.appendChild(ta); list.appendChild(row);
+    });
+    var b = e5.filter(function(x){ return x.tag === 'b'; })[0];
+    var a = e5.filter(function(x){ return x.tag === 'a'; })[0];
+    var sp = document.getElementById('e5split');
+    if (b && a) { sp.classList.remove('hidden'); setImg('e5b', b.url); setImg('e5a', a.url); }
+    else sp.classList.add('hidden');
+  }
+})();
+</script>
+</body></html>
