@@ -453,11 +453,8 @@ html.dark .oa-pf .oa-fig .oa-cap{background:#232329;border-color:#3a3a42;color:#
     <section data-panel="requests" class="hidden">
       <h1>Requests</h1>
       <p class="sub">Every request sent from your website lands here, and also goes out by text like it does now. Move each one along as you work it.</p>
-      <div class="panel">
-        <div class="head"><h3>Requests</h3><span class="chip">Sample rows</span></div>
-        <div class="roleline"><strong>Sam K.</strong><span>Tattoo with Lex &middot; Sat, Nov 14, afternoon &middot; Small forearm piece</span><select aria-label="Status for Sam K."><option>New</option><option>Contacted</option><option>Booked</option><option>Done</option></select></div>
-        <div class="roleline"><strong>Jess M.</strong><span>Tattoo with Diana &middot; Flexible &middot; Forward helix</span><select aria-label="Status for Jess M."><option>New</option><option selected>Contacted</option><option>Booked</option><option>Done</option></select></div>
-        <div class="roleline"><strong>Priya S.</strong><span>Tattoo, no preference &middot; Mon, Nov 16, evening &middot; Cover-up, has photos</span><select aria-label="Status for Priya S."><option>New</option><option>Contacted</option><option selected>Booked</option><option>Done</option></select></div>
+            <div class="panel">
+        <div class="oa-req" id="oa-req"></div>
       </div>
       <div class="panel" style="margin-top:14px">
         <div class="head"><h3>Waitlist</h3><span class="chip">Sample rows</span></div>
@@ -1325,7 +1322,7 @@ var DEFAULTS = {
     }
   };
   var added = {}, removed = {}, counter = 0, offset = 0;
-  var PORTAL_API = { bookings: 'https://portal.instattoosionalized.net/bookings' };
+  var PORTAL_API = { bookings: 'https://portal.instattoosionalized.net/bookings', requests: 'https://portal.instattoosionalized.net/requests' };
   var remote = {}, remoteState = {};
   function pad2(n){ return (n < 10 ? '0' : '') + n; }
   function isoOf(d){ return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
@@ -2437,6 +2434,341 @@ var DEFAULTS = {
 </script>
 
 <script>
+/* Requests board: kanban of website requests in the owner admin.
+   Data is live from the portal API (GET /requests); a move POSTs
+   {action:'status', id, status} with the column label as the status.
+   Request fields come from a public form, so every one of them is
+   rendered through textContent, never innerHTML. */
+(function(){
+  var STATUSES = [
+    { label: 'New', dot: '' },
+    { label: 'Contacted', dot: 'c' },
+    { label: 'Consultation Scheduled', dot: 's' },
+    { label: 'Awaiting Deposit', dot: 'd' },
+    { label: 'Booked', dot: 'b' },
+    { label: 'Closed', dot: 'x' }
+  ];
+  var ARTIST_FILTERS = ['All', 'Lex', 'Liv', 'Diana', 'No preference'];
+  var root = document.getElementById('oa-req');
+  if (!root) return;
+  var API = (typeof PORTAL_API !== 'undefined' && PORTAL_API.requests) || 'https://portal.instattoosionalized.net/requests';
+
+  var style = document.createElement('style');
+  style.textContent = [
+    '.oa-req .oar-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}',
+    '.oa-req .oar-head h3{margin:0}',
+    '.oa-req .oar-counts{color:#5c5c66;font-size:13.5px;margin-top:4px}',
+    '.oa-req .oar-counts b{color:#17171a}',
+    '.oa-req .oar-refresh{margin-left:auto}',
+    '.oa-req .oar-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 12px}',
+    '.oa-req .oar-chip{border:1.5px solid #d8d8d2;background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;color:#17171a}',
+    '.oa-req .oar-chip.on{background:#17171a;color:#fff;border-color:#17171a}',
+    '.oa-req .oar-filters input{flex:1;min-width:150px;border:1px solid #d8d8d2;border-radius:11px;padding:10px 12px;font:inherit;font-size:14px;background:#fff;color:#17171a}',
+    '.oa-req .oar-note{font-size:13.5px;margin:0 0 10px;color:#5c5c66}',
+    '.oa-req .oar-note.err{color:#b3261e;font-weight:600}',
+    '.oa-req .oar-board{display:grid;grid-template-columns:repeat(6,minmax(180px,1fr));gap:10px;align-items:start;overflow-x:auto;padding-bottom:8px}',
+    '.oa-req .oar-col{background:#ececea;border:1px solid #e0e0da;border-radius:14px;padding:10px;min-height:120px}',
+    '.oa-req .oar-col.over{outline:2px dashed #f4682a;outline-offset:-4px}',
+    '.oa-req .oar-col h3{font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin:2px 2px 10px;color:#17171a}',
+    '.oa-req .oar-col h3 .n{background:#17171a;color:#fff;border-radius:999px;font-size:11.5px;padding:1px 8px}',
+    '.oa-req .oar-card{background:#fff;border:1px solid #e4e4e0;border-radius:13px;padding:12px;margin-bottom:9px;cursor:grab;box-shadow:0 3px 10px rgba(20,20,30,.05)}',
+    '.oa-req .oar-card:active{cursor:grabbing}',
+    '.oa-req .oar-st{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a}',
+    '.oa-req .oar-dot{width:8px;height:8px;border-radius:50%;background:#f4682a;flex:none;display:inline-block}',
+    '.oa-req .oar-dot.c{background:#2563eb}.oa-req .oar-dot.s{background:#7c3aed}.oa-req .oar-dot.d{background:#d97706}.oa-req .oar-dot.b{background:#15803d}.oa-req .oar-dot.x{background:#a1a1aa}',
+    '.oa-req .oar-card h4{margin:7px 0 4px;font-size:15.5px;color:#17171a}',
+    '.oa-req .oar-meta{font-size:13px;color:#3f3f46;line-height:1.45}',
+    '.oa-req .oar-idea{font-size:13px;color:#5c5c66;font-style:italic;margin-top:5px;line-height:1.4;white-space:pre-wrap}',
+    '.oa-req .oar-when{font-size:12px;color:#8a8a93;margin-top:7px}',
+    '.oa-req .oar-rev{margin-top:9px;width:100%;border:1px solid #d8d8d2;background:#fafafa;border-radius:9px;padding:7px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:#17171a}',
+    '.oa-req .oar-empty{font-size:12.5px;color:#8a8a93;text-align:center;padding:10px 4px}',
+    '.oar-scrim{position:fixed;inset:0;background:rgba(15,15,20,.45);z-index:900}',
+    '.oar-drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,100vw);background:#fff;color:#17171a;z-index:901;box-shadow:-18px 0 50px rgba(0,0,0,.25);padding:22px;overflow-y:auto}',
+    '.oar-drawer h2{font-size:21px;margin:0}',
+    '.oar-drawer .oar-x{position:absolute;top:14px;right:14px;border:1px solid #d8d8d2;background:#fff;border-radius:9px;width:36px;height:36px;font-size:16px;cursor:pointer;color:#17171a}',
+    '.oar-drawer .oar-frow{display:grid;grid-template-columns:110px 1fr;gap:8px;padding:7px 0;border-top:1px solid #f0f0ec;font-size:14px}',
+    '.oar-drawer .oar-frow b{color:#71717a;font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}',
+    '.oar-drawer .oar-note-full{white-space:pre-wrap}',
+    '.oar-drawer select{width:100%;border:1px solid #d8d8d2;border-radius:11px;padding:11px;font:inherit;font-size:14px;background:#fff;color:#17171a}',
+    '.oar-drawer .oar-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}',
+    '.oar-drawer .oar-acts .btn{justify-content:center;text-align:center}',
+    '.oar-drawer .oar-acts .wide{grid-column:1/-1}',
+    '.oar-hidden{display:none!important}',
+    '@media(max-width:820px){.oa-req .oar-board{grid-template-columns:1fr;overflow:visible}.oa-req .oar-refresh{margin-left:0}}',
+    'html.dark .oa-req .oar-counts{color:#a1a1aa}html.dark .oa-req .oar-counts b{color:#f4f4f5}',
+    'html.dark .oa-req .oar-chip{background:#1d1d21;color:#f4f4f5;border-color:#3a3a41}html.dark .oa-req .oar-chip.on{background:#f4f4f5;color:#111113;border-color:#f4f4f5}',
+    'html.dark .oa-req .oar-filters input{background:#17171a;color:#f4f4f5;border-color:#3a3a41}',
+    'html.dark .oa-req .oar-note{color:#a1a1aa}html.dark .oa-req .oar-note.err{color:#f28b82}',
+    'html.dark .oa-req .oar-col{background:#17171a;border-color:#2e2e34}html.dark .oa-req .oar-col h3{color:#f4f4f5}html.dark .oa-req .oar-col h3 .n{background:#f4f4f5;color:#111113}',
+    'html.dark .oa-req .oar-card{background:#1d1d21;border-color:#2e2e34}html.dark .oa-req .oar-card h4{color:#f4f4f5}',
+    'html.dark .oa-req .oar-meta{color:#d4d4d8}html.dark .oa-req .oar-idea{color:#a1a1aa}html.dark .oa-req .oar-rev{background:#1d1d21;border-color:#3a3a41;color:#f4f4f5}',
+    'html.dark .oar-drawer{background:#1d1d21;color:#f4f4f5}html.dark .oar-drawer .oar-x{background:#1d1d21;border-color:#3a3a41;color:#f4f4f5}',
+    'html.dark .oar-drawer .oar-frow{border-top-color:#2a2a2f}html.dark .oar-drawer select{background:#17171a;color:#f4f4f5;border-color:#3a3a41}'
+  ].join('\n');
+  document.head.appendChild(style);
+
+  function el(tag, cls, text){
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function dotClass(label){
+    for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].label === label) return STATUSES[i].dot;
+    return '';
+  }
+  function normalizeStatus(raw){
+    var s = String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim().toLowerCase();
+    for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].label.toLowerCase() === s) return STATUSES[i].label;
+    if (s === 'done' || s === 'complete' || s === 'completed') return 'Closed';
+    return 'New';
+  }
+
+  var reqs = [];
+  var artistFilter = 'All';
+  var query = '';
+  var loading = false;
+  var drawerReq = null;
+
+  /* skeleton */
+  var head = el('div', 'oar-head');
+  var headLeft = el('div');
+  headLeft.appendChild(el('h3', null, 'Requests'));
+  var counts = el('div', 'oar-counts');
+  headLeft.appendChild(counts);
+  head.appendChild(headLeft);
+  var refreshBtn = el('button', 'btn oar-refresh', 'Refresh');
+  refreshBtn.type = 'button';
+  head.appendChild(refreshBtn);
+  root.appendChild(head);
+
+  var filters = el('div', 'oar-filters');
+  ARTIST_FILTERS.forEach(function(name){
+    var chip = el('button', 'oar-chip' + (name === 'All' ? ' on' : ''), name === 'All' ? 'All artists' : name);
+    chip.type = 'button';
+    chip.setAttribute('data-af', name);
+    chip.addEventListener('click', function(){
+      artistFilter = name;
+      filters.querySelectorAll('.oar-chip').forEach(function(c){ c.classList.toggle('on', c === chip); });
+      render();
+    });
+    filters.appendChild(chip);
+  });
+  var search = document.createElement('input');
+  search.type = 'text';
+  search.placeholder = 'Search name or request...';
+  search.setAttribute('aria-label', 'Search requests');
+  search.addEventListener('input', function(){ query = search.value.toLowerCase(); render(); });
+  filters.appendChild(search);
+  root.appendChild(filters);
+
+  var note = el('p', 'oar-note oar-hidden');
+  root.appendChild(note);
+  var board = el('div', 'oar-board');
+  root.appendChild(board);
+
+  var scrim = el('div', 'oar-scrim oar-hidden');
+  var drawer = el('aside', 'oar-drawer oar-hidden');
+  drawer.setAttribute('aria-label', 'Request details');
+  document.body.appendChild(scrim);
+  document.body.appendChild(drawer);
+  scrim.addEventListener('click', closeDrawer);
+
+  function setNote(text, isErr, withRetry){
+    note.textContent = '';
+    note.classList.remove('oar-hidden', 'err');
+    if (isErr) note.classList.add('err');
+    note.appendChild(document.createTextNode(text));
+    if (withRetry) {
+      var b = el('button', 'btn', 'Retry');
+      b.type = 'button';
+      b.style.marginLeft = '10px';
+      b.addEventListener('click', load);
+      note.appendChild(b);
+    }
+  }
+  function clearNote(){ note.classList.add('oar-hidden'); note.textContent = ''; }
+
+  function passes(r){
+    if (artistFilter === 'No preference' && r.artist) return false;
+    if (artistFilter !== 'All' && artistFilter !== 'No preference' && r.artist !== artistFilter) return false;
+    if (query && (r.name + ' ' + r.note + ' ' + r.artist).toLowerCase().indexOf(query) === -1) return false;
+    return true;
+  }
+  function countFor(label){ return reqs.filter(function(r){ return r.col === label; }).length; }
+
+  function render(){
+    counts.textContent = '';
+    STATUSES.slice(0, 5).forEach(function(st, i){
+      if (i) counts.appendChild(document.createTextNode(' · '));
+      counts.appendChild(document.createTextNode(st.label === 'Consultation Scheduled' ? 'Consults' : st.label));
+      counts.appendChild(document.createTextNode(': '));
+      var b = el('b', null, String(countFor(st.label)));
+      counts.appendChild(b);
+    });
+    board.textContent = '';
+    STATUSES.forEach(function(st){
+      var col = el('div', 'oar-col');
+      col.setAttribute('data-col', st.label);
+      var h = el('h3');
+      h.appendChild(document.createTextNode(st.label));
+      h.appendChild(el('span', 'n', String(countFor(st.label))));
+      col.appendChild(h);
+      var items = reqs.filter(function(r){ return r.col === st.label && passes(r); });
+      if (!items.length) col.appendChild(el('div', 'oar-empty', 'Nothing here'));
+      items.forEach(function(r){ col.appendChild(card(r)); });
+      col.addEventListener('dragover', function(ev){ ev.preventDefault(); col.classList.add('over'); });
+      col.addEventListener('dragleave', function(){ col.classList.remove('over'); });
+      col.addEventListener('drop', function(ev){
+        ev.preventDefault(); col.classList.remove('over');
+        var id = ev.dataTransfer.getData('text/plain');
+        var r = reqs.filter(function(x){ return String(x.id) === id; })[0];
+        if (r) move(r, st.label);
+      });
+      board.appendChild(col);
+    });
+    if (!reqs.length) setNote('No requests yet. When someone sends one from your website, it lands here.');
+  }
+
+  function card(r){
+    var c = el('div', 'oar-card');
+    c.draggable = true;
+    c.setAttribute('data-id', String(r.id));
+    var st = el('div', 'oar-st');
+    st.appendChild(el('span', 'oar-dot ' + dotClass(r.col)));
+    st.appendChild(document.createTextNode(r.col));
+    c.appendChild(st);
+    c.appendChild(el('h4', null, r.name));
+    c.appendChild(el('div', 'oar-meta', r.artist ? 'with ' + r.artist : 'No artist preference'));
+    if (r.note) {
+      var idea = el('div', 'oar-idea', r.note.length > 140 ? r.note.slice(0, 140) + '...' : r.note);
+      c.appendChild(idea);
+    }
+    if (r.when) c.appendChild(el('div', 'oar-when', r.when));
+    var rev = el('button', 'oar-rev', 'Review');
+    rev.type = 'button';
+    rev.addEventListener('click', function(ev){ ev.stopPropagation(); openDrawer(r); });
+    c.appendChild(rev);
+    c.addEventListener('click', function(){ openDrawer(r); });
+    c.addEventListener('dragstart', function(ev){ ev.dataTransfer.setData('text/plain', String(r.id)); });
+    return c;
+  }
+
+  function move(r, label){
+    if (!r || r.col === label) return;
+    var prev = r.col;
+    r.col = label;
+    render();
+    if (drawerReq === r) buildDrawer(r);
+    fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status', id: r.id, status: label }) })
+      .then(function(resp){ if (!resp.ok) throw new Error('bad'); r.status = label; })
+      .catch(function(){
+        r.col = prev;
+        render();
+        if (drawerReq === r) buildDrawer(r);
+        setNote('Could not save that move, so it was put back. Check the connection and try again.', true);
+      });
+  }
+
+  function frow(label, value){
+    var row = el('div', 'oar-frow');
+    row.appendChild(el('b', null, label));
+    row.appendChild(el('div', null, value));
+    return row;
+  }
+  function buildDrawer(r){
+    drawer.textContent = '';
+    var x = el('button', 'oar-x', 'X');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Close');
+    x.addEventListener('click', closeDrawer);
+    drawer.appendChild(x);
+    drawer.appendChild(el('h2', null, r.name));
+    var st = el('div', 'oar-st');
+    st.style.marginTop = '4px';
+    st.appendChild(el('span', 'oar-dot ' + dotClass(r.col)));
+    st.appendChild(document.createTextNode(r.col));
+    drawer.appendChild(st);
+    if (r.phone) drawer.appendChild(frow('Phone', r.phone));
+    drawer.appendChild(frow('Artist', r.artist || 'No preference'));
+    if (r.when) drawer.appendChild(frow('When', r.when));
+    if (r.note) {
+      var row = el('div', 'oar-frow');
+      row.appendChild(el('b', null, 'Request'));
+      row.appendChild(el('div', 'oar-note-full', r.note));
+      drawer.appendChild(row);
+    }
+    var lab = el('p', null, 'Move to');
+    lab.style.cssText = 'font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:18px 0 7px';
+    drawer.appendChild(lab);
+    var sel = document.createElement('select');
+    sel.setAttribute('aria-label', 'Status');
+    STATUSES.forEach(function(s){
+      var o = document.createElement('option');
+      o.value = s.label; o.textContent = s.label;
+      if (s.label === r.col) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change', function(){ move(r, sel.value); });
+    drawer.appendChild(sel);
+    var acts = el('div', 'oar-acts');
+    if (r.phone) {
+      var tel = el('a', 'btn', 'Contact Client');
+      tel.href = 'tel:' + r.phone.replace(/[^0-9+]/g, '');
+      acts.appendChild(tel);
+    }
+    [['Schedule Consultation', 'Consultation Scheduled'], ['Request Deposit', 'Awaiting Deposit'], ['Mark Booked', 'Booked']].forEach(function(pair){
+      var b = el('button', 'btn', pair[0]);
+      b.type = 'button';
+      b.addEventListener('click', function(){ move(r, pair[1]); });
+      acts.appendChild(b);
+    });
+    var close = el('button', 'btn wide', 'Close Request');
+    close.type = 'button';
+    close.addEventListener('click', function(){ move(r, 'Closed'); });
+    acts.appendChild(close);
+    drawer.appendChild(acts);
+  }
+  function openDrawer(r){
+    drawerReq = r;
+    buildDrawer(r);
+    scrim.classList.remove('oar-hidden');
+    drawer.classList.remove('oar-hidden');
+  }
+  function closeDrawer(){
+    drawerReq = null;
+    scrim.classList.add('oar-hidden');
+    drawer.classList.add('oar-hidden');
+  }
+
+  function load(){
+    if (loading) return;
+    loading = true;
+    fetch(API)
+      .then(function(resp){ if (!resp.ok) throw new Error('bad'); return resp.json(); })
+      .then(function(data){
+        loading = false;
+        reqs = (data.requests || []).map(function(r){
+          return { id: r.id, name: r.name || '(no name)', artist: r.artist || '', when: r.when || '', phone: r.phone || '', note: r.note || '', status: r.status || '', col: normalizeStatus(r.status) };
+        });
+        clearNote();
+        render();
+      })
+      .catch(function(){
+        loading = false;
+        setNote('Requests could not be loaded. Check the connection and try again.', true, true);
+      });
+  }
+
+  refreshBtn.addEventListener('click', load);
+  var tabBtn = document.querySelector('[data-tab="requests"]');
+  if (tabBtn) tabBtn.addEventListener('click', load);
+  var panel = root.closest ? root.closest('[data-panel="requests"]') : null;
+  if (panel && !panel.classList.contains('hidden')) load();
+})();
+</script>
+
+<script>
 /* Unsaved-changes guard (fork only): prompt before leaving a page with pending edits */
 (function(){
   var dirty = false;
@@ -2444,6 +2776,7 @@ var DEFAULTS = {
     if (!el || !el.closest) return false;
     if (el.closest('.oa-pf')) return false;                 /* portfolio module saves instantly */
     if (el.closest('[data-panel="book"]')) return false;    /* bookings write live to the calendar */
+    if (el.closest('.oa-req')) return false;                 /* requests board writes live to the API */
     return !!el.closest('[data-panel]');
   }
   document.addEventListener('input', function(e){ if (inScope(e.target)) dirty = true; }, true);
