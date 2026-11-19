@@ -245,7 +245,6 @@
   html.dark .bk-col{background:repeating-linear-gradient(to bottom,#1d1d21 0,#1d1d21 69px,#2c2c31 69px,#2c2c31 70px);border-color:#2e2e34}
   html.dark .bk-closed{background:#1d1d21;border-color:#3a3a41;color:#a1a1aa}
   html.dark .bk-now{border-top-color:#f4f4f5}
-  html.dark .crm-scroll{background:#1d1d21;border-color:#2e2e34}
   html.dark .crm-table{background:#1d1d21;border-color:#2e2e34}
   html.dark .crm-table th,html.dark .crm-table td{border-bottom-color:#2a2a2f;color:#f4f4f5}
   html.dark .crm-table th{color:#a1a1aa}
@@ -517,9 +516,21 @@ html.dark .oa-pf .oa-fig .oa-cap{background:#232329;border-color:#3a3a42;color:#
         .crm-table{ width:100%; border-collapse:collapse; background:#fff; border:1px solid #e7e2d9; border-radius:12px; overflow:hidden; }
         .crm-table th, .crm-table td{ text-align:left; padding:10px 12px; border-bottom:1px solid #efece4; font-size:14.5px; }
         .crm-table th{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:#8a8578; }
-        .crm-scroll{ overflow:auto; max-height:420px; border:1px solid #e7e2d9; border-radius:12px; background:#fff; }
-        .crm-scroll .crm-table{ border:none; border-radius:0; }
-        .crm-scroll .crm-table thead th{ position:sticky; top:0; background:#fff; z-index:1; }
+        @media(max-width:700px){
+          .crm-table{ border:none; background:transparent; overflow:visible; }
+          .crm-table thead{ display:none; }
+          .crm-table, .crm-table tbody, .crm-table tr, .crm-table td{ display:block; width:100%; }
+          .crm-table tr{ background:#fff; border:1px solid #e7e2d9; border-radius:12px; padding:10px 14px; margin-bottom:10px; }
+          .crm-table td{ border-bottom:none; padding:2px 0; }
+          .crm-table td:nth-child(1){ font-size:16px; font-weight:700; padding-bottom:4px; }
+          .crm-table td:nth-child(2)::before{ content:"Artist: "; color:#8a8578; }
+          .crm-table td:nth-child(3)::before{ content:"Piece: "; color:#8a8578; }
+          .crm-table td:nth-child(4)::before{ content:"Last visit: "; color:#8a8578; }
+          .crm-table td:nth-child(5)::before{ content:"Visits: "; color:#8a8578; }
+          .crm-table td:nth-child(6)::before{ content:"Phone: "; color:#8a8578; }
+          .crm-table td:nth-child(8){ padding-top:8px; }
+          .crm-bar span{ display:none; }
+        }
         .crm-chip{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:700; background:#f1eee5; color:#6d675a; }
         .crm-chip.booked{ background:#e4f0e6; color:#2e6b3e; }
         .crm-chip.waiting{ background:#fdf0d9; color:#8a6414; }
@@ -537,12 +548,10 @@ html.dark .oa-pf .oa-fig .oa-cap{background:#232329;border-color:#3a3a42;color:#
       <div class="crm-bar">
         <input type="search" id="crm-search" placeholder="Search by name, artist, or piece"> <select id="crm-group" aria-label="Group clients by"><option value="">No grouping</option><option value="artist">Group by artist</option><option value="status">Group by status</option></select> <span style="color:#5c5c66;font-size:13px">Tap a heading to sort</span>
       </div>
-      <div class="crm-scroll">
       <table class="crm-table">
         <thead><tr><th data-sort="name">Client</th><th data-sort="artist">Artist</th><th>Last piece</th><th data-sort="last">Last visit</th><th data-sort="visits">Visits</th><th>Phone</th><th data-sort="status">Status</th><th></th></tr></thead>
         <tbody id="crm-body"></tbody>
       </table>
-      </div>
       <form class="crm-add" id="crm-add">
         <input required id="crm-name" placeholder="Client name">
         <input id="crm-phone" placeholder="Phone">
