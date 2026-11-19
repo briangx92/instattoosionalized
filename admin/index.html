@@ -245,7 +245,6 @@
   html.dark .bk-col{background:repeating-linear-gradient(to bottom,#1d1d21 0,#1d1d21 69px,#2c2c31 69px,#2c2c31 70px);border-color:#2e2e34}
   html.dark .bk-closed{background:#1d1d21;border-color:#3a3a41;color:#a1a1aa}
   html.dark .bk-now{border-top-color:#f4f4f5}
-  html.dark .crm-scroll{background:#1d1d21;border-color:#2e2e34}
   html.dark .crm-table{background:#1d1d21;border-color:#2e2e34}
   html.dark .crm-table th,html.dark .crm-table td{border-bottom-color:#2a2a2f;color:#f4f4f5}
   html.dark .crm-table th{color:#a1a1aa}
@@ -259,6 +258,64 @@
   @media(max-width:900px){ html.dark .login-brand{background:transparent;color:#f4f4f5} html.dark #p-login{background:#131316} }
 </style>
 <script>try { if (localStorage.getItem('oa-theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}</script>
+<style>
+/* ---- Artist Portfolio + Upload (fork build) ---- */
+.oa-pf{margin-top:12px}
+.oa-pf .oa-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.oa-pf .oa-lab{font-size:12px;letter-spacing:.06em;color:#5c5c66;font-weight:700}
+.oa-pf .oa-chlist{border:1.5px solid #e7e2d9;border-radius:11px;overflow:hidden;margin-top:10px;background:#fff}
+.oa-pf .oa-chlist button{display:block;width:100%;background:#fff;border:none;border-bottom:1px solid #eee9dd;padding:12px 13px;font:inherit;font-size:14.5px;font-weight:600;text-align:left;cursor:pointer;color:#191919}
+.oa-pf .oa-chlist button:last-child{border-bottom:none}
+.oa-pf .oa-bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:12px 0 10px}
+.oa-pf .oa-bar select{border:1px solid #d8d8d2;border-radius:8px;padding:7px 9px;font:inherit;font-size:13.5px;background:#fff}
+.oa-pf .oa-pager{display:flex;gap:8px;align-items:center;font-size:13px;color:#5c5c66}
+.oa-pf .oa-pager button{border:1px solid #d8d8d2;background:#fff;border-radius:8px;padding:7px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.oa-pf .oa-pager button:disabled{opacity:.4;cursor:default}
+.oa-pf .oa-note{font-size:13px;color:#2e6b3e;font-weight:600;margin:8px 0 0}
+.oa-pf .oa-note.warn{color:#b34a17}
+.oa-pf .oa-empty{border:2px dashed #d8d8d2;border-radius:10px;padding:16px;text-align:center;color:#8a8578;font-size:13.5px;background:#faf8f3}
+.oa-pf .oa-pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
+.oa-pf .oa-fig{margin:0;min-width:0;position:relative}
+.oa-pf .oa-fig img{width:100%;height:118px;object-fit:cover;border-radius:14px;display:block;border:1px solid #d9d4c7}
+.oa-pf .oa-fig .oa-rm{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(20,20,24,.82);color:#fff;cursor:pointer;line-height:1;font-size:14px}
+.oa-pf .oa-fig .oa-cap{margin-top:5px;width:100%;font-size:12.5px;padding:6px 8px;border:1px solid #d8d8d2;border-radius:8px;font:inherit;background:#fff}
+.oa-pf .oa-pair{border:1px solid #e7e2d9;border-radius:12px;padding:10px;margin-bottom:12px;background:#fdfcf9}
+.oa-pf .oa-split{display:flex;border-radius:10px;overflow:hidden;min-height:118px}
+.oa-pf .oa-split .half{flex:1;position:relative;min-height:118px;background:#eee}
+.oa-pf .oa-split .half img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.oa-pf .oa-split .tag{position:absolute;top:6px;left:6px;background:rgba(20,20,20,.72);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:6px;z-index:2}
+.oa-pf .oa-split .mid{width:2px;background:#fff;flex:none}
+.oa-pf .oa-caplab{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin:8px 0 4px}
+.oa-pf .oa-sechead{display:flex;gap:9px;align-items:center;margin-bottom:10px}
+.oa-pf .oa-sechead input{flex:1;border:1px solid transparent;border-radius:8px;padding:7px 9px;font:inherit;font-size:16px;font-weight:700;background:#faf8f3}
+.oa-pf .oa-sechead .cnt{font-size:12.5px;color:#8a8578;white-space:nowrap}
+.oa-pf .oa-tile{position:relative;border-radius:14px;min-height:104px;overflow:hidden;border:1px solid #d9d4c7}
+.oa-pf .oa-tile img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+.oa-pf .oa-tile .oa-tx{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(20,20,20,.78);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;z-index:2}
+.oa-pf .oa-tile .oa-tsite{position:absolute;top:5px;left:5px;border:0;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;background:rgba(255,255,255,.93);color:#3f3f46;cursor:pointer;z-index:2}
+.oa-pf .oa-tile .oa-tsite.on{background:#2e6b3e;color:#fff}
+.oa-pf .oa-tile .oa-tcap{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);font-size:11.5px;padding:4px 7px;color:#3f3f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oa-pf .oa-upopts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.oa-pf .oa-bapair{border:1.5px solid #e7e2d9;border-radius:10px;padding:12px 10px 10px;margin-bottom:10px;background:#fdfcf9}
+.oa-pf .oa-bapair .cols{display:flex;gap:10px}
+.oa-pf .oa-bapair .cell{flex:1}
+.oa-pf .oa-babox{position:relative;width:100%;height:104px;border:2px dashed #b9b2a2;border-radius:8px;background:#faf8f3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;letter-spacing:.05em;color:#8a8578;cursor:pointer;overflow:hidden;text-align:center}
+.oa-pf .oa-babox.filled{border-style:solid;border-color:#d8d8d2}
+.oa-pf .oa-babox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.oa-pf .oa-babox .blab{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.93);color:#3f3f46;font-size:11px;font-weight:600;padding:3px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oa-pf .oa-babox.over{border-color:#f4682a}
+.oa-pf .oa-bameta{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.oa-pf .oa-bameta select{border:1px solid #d8d8d2;border-radius:8px;padding:7px 9px;font:inherit;font-size:13.5px;background:#fff}
+.oa-pf .oa-bastatus{font-size:12.5px;color:#8a8578}
+.oa-pf .oa-drop{border:2px dashed #b9b2a2;border-radius:10px;padding:10px;margin-top:10px;text-align:center;font-size:12.5px;color:#8a8578;background:#faf8f3}
+.oa-pf .oa-drop.over{border-color:#f4682a;background:#fff4ec;color:#b34a17}
+html.dark .oa-pf .oa-chlist,html.dark .oa-pf .oa-chlist button{background:#1d1d21;color:#f4f4f5;border-color:#2e2e34}
+html.dark .oa-pf .oa-pair,html.dark .oa-pf .oa-bapair{background:#1d1d21;border-color:#2e2e34}
+html.dark .oa-pf .oa-empty,html.dark .oa-pf .oa-babox,html.dark .oa-pf .oa-drop{background:#232329;color:#a1a1aa}
+html.dark .oa-pf .oa-sechead input{background:#232329;color:#f4f4f5}
+html.dark .oa-pf .oa-fig .oa-cap{background:#232329;border-color:#3a3a42;color:#f4f4f5}
+</style>
+
 </head>
 <body>
 
@@ -458,9 +515,21 @@
         .crm-table{ width:100%; border-collapse:collapse; background:#fff; border:1px solid #e7e2d9; border-radius:12px; overflow:hidden; }
         .crm-table th, .crm-table td{ text-align:left; padding:10px 12px; border-bottom:1px solid #efece4; font-size:14.5px; }
         .crm-table th{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:#8a8578; }
-        .crm-scroll{ overflow:auto; max-height:420px; border:1px solid #e7e2d9; border-radius:12px; background:#fff; }
-        .crm-scroll .crm-table{ border:none; border-radius:0; }
-        .crm-scroll .crm-table thead th{ position:sticky; top:0; background:#fff; z-index:1; }
+        @media(max-width:700px){
+          .crm-table{ border:none; background:transparent; overflow:visible; }
+          .crm-table thead{ display:none; }
+          .crm-table, .crm-table tbody, .crm-table tr, .crm-table td{ display:block; width:100%; }
+          .crm-table tr{ background:#fff; border:1px solid #e7e2d9; border-radius:12px; padding:10px 14px; margin-bottom:10px; }
+          .crm-table td{ border-bottom:none; padding:2px 0; }
+          .crm-table td:nth-child(1){ font-size:16px; font-weight:700; padding-bottom:4px; }
+          .crm-table td:nth-child(2)::before{ content:"Artist: "; color:#8a8578; }
+          .crm-table td:nth-child(3)::before{ content:"Piece: "; color:#8a8578; }
+          .crm-table td:nth-child(4)::before{ content:"Last visit: "; color:#8a8578; }
+          .crm-table td:nth-child(5)::before{ content:"Visits: "; color:#8a8578; }
+          .crm-table td:nth-child(6)::before{ content:"Phone: "; color:#8a8578; }
+          .crm-table td:nth-child(8){ padding-top:8px; }
+          .crm-bar span{ display:none; }
+        }
         .crm-chip{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:700; background:#f1eee5; color:#6d675a; }
         .crm-chip.booked{ background:#e4f0e6; color:#2e6b3e; }
         .crm-chip.waiting{ background:#fdf0d9; color:#8a6414; }
@@ -478,12 +547,10 @@
       <div class="crm-bar">
         <input type="search" id="crm-search" placeholder="Search by name, artist, or piece"> <select id="crm-group" aria-label="Group clients by"><option value="">No grouping</option><option value="artist">Group by artist</option><option value="status">Group by status</option></select> <span style="color:#5c5c66;font-size:13px">Tap a heading to sort</span>
       </div>
-      <div class="crm-scroll">
       <table class="crm-table">
         <thead><tr><th data-sort="name">Client</th><th data-sort="artist">Artist</th><th>Last piece</th><th data-sort="last">Last visit</th><th data-sort="visits">Visits</th><th>Phone</th><th data-sort="status">Status</th><th></th></tr></thead>
         <tbody id="crm-body"></tbody>
       </table>
-      </div>
       <form class="crm-add" id="crm-add">
         <input required id="crm-name" placeholder="Client name">
         <input id="crm-phone" placeholder="Phone">
@@ -2037,6 +2104,367 @@ var DEFAULTS = {
       });
     }
   } catch (e) {}
+})();
+</script>
+<script>
+/* Artist Portfolio + Upload — fork build.
+   Portfolio is the only surface; Upload opens Gallery or Before/After workspaces.
+   Published singles mirror into the portal's own .pf-grid so Save artists keeps working.
+   Workspace structure (sections, pairs, off-site photos) persists in localStorage oa-gallery-v1. */
+(function(){
+  'use strict';
+  var SKEY = 'oa-gallery-v1';
+  var DEFSECS = ['Healed work', 'Fresh work', 'Flash designs'];
+  var uid = Date.now() % 100000;
+  function nid(p){ return p + (++uid); }
+  function loadStore(){ try { return JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch(e){ return {}; } }
+  function saveStore(st){ try { localStorage.setItem(SKEY, JSON.stringify(st)); } catch(e){} }
+  function esc(s){ return (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+  function disp(src){ if (!src || src.indexOf('data:') === 0 || src.indexOf('../') === 0 || src.indexOf('http') === 0) return src; return '../' + src; }
+  function raw(src){ return (src || '').replace(/^\.\.\//, ''); }
+  function nameOf(s){ if (s.cap) return s.cap; var f = raw(s.src).split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '); return f || 'Photo'; }
+  function sortedItems(arr, mode){
+    var a = arr.slice();
+    if (mode === 'new') a.sort(function(x, y){ return y.ord - x.ord; });
+    if (mode === 'old') a.sort(function(x, y){ return x.ord - y.ord; });
+    if (mode === 'az') a.sort(function(x, y){ return nameOf(x).localeCompare(nameOf(y)); });
+    return a;
+  }
+  function readFile(f, cb){
+    if (!f || !/^image\//.test(f.type || '')) return;
+    var r = new FileReader(); r.onload = function(){ cb(r.result); }; r.readAsDataURL(f);
+  }
+
+  function initBlock(blk){
+    var list = blk.querySelector('.soc-list[data-artist]');
+    if (!list) return;
+    var slug = list.getAttribute('data-artist');
+    if (!slug || slug === 'new') return;
+    var wrap = blk.querySelector('.pf-wrap');
+    if (!wrap || wrap.getAttribute('data-oa-init')) return;
+    wrap.setAttribute('data-oa-init', '1');
+
+    /* harvest the portal's seeded/persisted singles from its own grid */
+    var grid = blk.querySelector('.pf-grid');
+    var harvested = [];
+    if (grid) grid.querySelectorAll('.pf-item').forEach(function(it){
+      var im = it.querySelector('img'); var cap = it.querySelector('.pf-cap');
+      var src = im ? raw(im.getAttribute('src') || '') : '';
+      if (src) harvested.push({ src: src, cap: cap ? cap.value : '' });
+    });
+
+    var store = loadStore();
+    var model = store[slug];
+    if (!model || !model.sections) {
+      model = { sections: DEFSECS.slice(), singles: [], pairs: [] };
+      harvested.forEach(function(h){ model.singles.push({ id: nid('s'), src: h.src, cap: h.cap, sec: model.sections[0], onSite: true, ord: uid }); });
+    } else {
+      var have = {}; model.singles.forEach(function(s){ have[s.src] = 1; });
+      harvested.forEach(function(h){ if (!have[h.src]) model.singles.push({ id: nid('s'), src: h.src, cap: h.cap, sec: model.sections[0], onSite: true, ord: uid }); });
+    }
+
+    /* hide the old furniture, keep the portal grid as a hidden mirror for Save */
+    Array.prototype.forEach.call(wrap.children, function(ch){
+      if (ch === grid) { ch.style.display = 'none'; return; }
+      if (ch.classList && (ch.classList.contains('pf-add') || ch.classList.contains('pf-status'))) { ch.style.display = 'none'; return; }
+      if (ch.tagName === 'DIV' && /WORK PHOTOS/.test(ch.textContent || '')) ch.style.display = 'none';
+    });
+
+    var root = document.createElement('div'); root.className = 'oa-pf';
+    wrap.insertBefore(root, wrap.firstChild);
+
+    var view = 'portfolio', page = 0, sortMode = 'new', baPairs = [], baTarget = null, note = '', noteWarn = false, syncing = false, armDelSec = false;
+
+    function commit(){
+      var st = loadStore(); st[slug] = model; saveStore(st);
+      if (!grid) return;
+      syncing = true;
+      grid.innerHTML = '';
+      model.singles.filter(function(s){ return s.onSite; }).forEach(function(s){
+        var d = document.createElement('div'); d.className = 'pf-item';
+        var im = document.createElement('img'); im.alt = ''; im.setAttribute('src', s.src); d.appendChild(im);
+        var cap = document.createElement('input'); cap.type = 'text'; cap.className = 'pf-cap'; cap.value = s.cap || ''; d.appendChild(cap);
+        grid.appendChild(d);
+      });
+      syncing = false;
+    }
+    function secName(){ return model.sections[Math.min(page, model.sections.length - 1)]; }
+    function pagerHTML(){
+      return '<span class="oa-pager"><button type="button" data-act="prev"' + (page === 0 ? ' disabled' : '') + '>&larr; Prev</button><span>Section ' + (page + 1) + ' of ' + model.sections.length + ' · ' + esc(secName()) + '</span><button type="button" data-act="next"' + (page >= model.sections.length - 1 ? ' disabled' : '') + '>Next &rarr;</button></span>';
+    }
+    function barHTML(){
+      return '<div class="oa-bar"><label style="font-size:13px;color:#5c5c66">Sort <select data-role="sort"><option value="new"' + (sortMode === 'new' ? ' selected' : '') + '>Newest first</option><option value="old"' + (sortMode === 'old' ? ' selected' : '') + '>Oldest first</option><option value="az"' + (sortMode === 'az' ? ' selected' : '') + '>A to Z</option></select></label>' + pagerHTML() + '</div>';
+    }
+    function noteHTML(){ return note ? '<p class="oa-note' + (noteWarn ? ' warn' : '') + '">' + esc(note) + '</p>' : ''; }
+
+    function renderPortfolio(){
+      var sec = secName();
+      var pairs = model.pairs.filter(function(p){ return p.sec === sec; });
+      var singles = sortedItems(model.singles.filter(function(s){ return s.onSite && s.sec === sec; }), sortMode);
+      var h = '<div class="oa-head"><span class="oa-lab">PORTFOLIO</span><button class="btn btn--primary" type="button" data-act="upload">Upload</button></div>';
+      h += '<div class="oa-chlist" data-role="choose" style="display:none"><button type="button" data-act="ch-gallery">Gallery photos</button><button type="button" data-act="ch-ba">Before / after pair</button><button type="button" data-act="ch-cancel">Cancel</button></div>';
+      h += noteHTML();
+      h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">This is what appears on the site. Captions change here, and only here.</p>';
+      h += barHTML();
+      if (!pairs.length && !singles.length) h += '<div class="oa-empty">Nothing on the site in this section yet. Upload photos, or finish a before / after pair.</div>';
+      pairs.forEach(function(p){
+        h += '<div class="oa-pair"><div class="oa-split"><div class="half"><img src="' + esc(disp(p.bsrc)) + '" alt=""><span class="tag">BEFORE</span></div><div class="mid"></div><div class="half"><img src="' + esc(disp(p.asrc)) + '" alt=""><span class="tag">AFTER</span></div></div>' +
+          '<div class="oa-caplab">Before caption</div><input type="text" data-pcap="' + p.id + ':bcap" value="' + esc(p.bcap) + '" placeholder="No caption yet" style="width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;background:#fff">' +
+          '<div class="oa-caplab">After caption</div><input type="text" data-pcap="' + p.id + ':acap" value="' + esc(p.acap) + '" placeholder="No caption yet" style="width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;background:#fff">' +
+          '<div style="margin-top:8px"><button class="btn" type="button" data-prm="' + p.id + '">Remove pair from the site</button></div></div>';
+      });
+      if (singles.length) {
+        h += '<div class="oa-pgrid">' + singles.map(function(s){
+          return '<figure class="oa-fig"><img src="' + esc(disp(s.src)) + '" alt=""><button class="oa-rm" type="button" data-off="' + s.id + '" aria-label="Remove from site">&times;</button><input class="oa-cap" type="text" data-cap="' + s.id + '" value="' + esc(s.cap) + '" placeholder="Caption"></figure>';
+        }).join('') + '</div>';
+      }
+      root.innerHTML = h;
+    }
+
+    function renderGallery(){
+      var sec = secName();
+      var items = sortedItems(model.singles.filter(function(s){ return s.sec === sec; }), sortMode);
+      var h = '<div class="oa-head"><span class="oa-lab">GALLERY</span><button class="btn" type="button" data-act="done">Done</button></div>';
+      h += noteHTML();
+      h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">The working shelf. Tap On site to put a photo on the artist\u2019s page; it shows in Portfolio right away.</p>';
+      h += barHTML();
+      h += '<div class="oa-sechead"><input type="text" data-role="secname" value="' + esc(sec) + '"><span class="cnt">' + items.length + (items.length === 1 ? ' photo' : ' photos') + '</span></div>';
+      if (model.sections.length > 1) {
+        var tgt = model.sections.filter(function(x){ return x !== sec; })[0];
+        h += '<div style="margin-bottom:10px"><button class="btn" type="button" data-act="delsec">' + (armDelSec ? 'Tap again to confirm remove' : 'Remove section') + '</button>' + (armDelSec ? ' <span style="font-size:12.5px;color:#5c5c66">Photos and pairs in it move to ' + esc(tgt) + '. Nothing is deleted.</span>' : '') + '</div>';
+      }
+      if (!items.length) h += '<div class="oa-empty">No photos in this section yet. Add some below.</div>';
+      else h += '<div class="oa-pgrid" data-role="ggrid">' + items.map(function(s){
+        return '<div class="oa-tile"><img src="' + esc(disp(s.src)) + '" alt=""><button class="oa-tsite' + (s.onSite ? ' on' : '') + '" type="button" data-site="' + s.id + '">' + (s.onSite ? 'On site' : '+ Site') + '</button><button class="oa-tx" type="button" data-del="' + s.id + '" aria-label="Delete photo">&times;</button><span class="oa-tcap">' + esc(nameOf(s)) + '</span></div>';
+      }).join('') + '</div>';
+      h += '<div class="oa-drop" data-role="drop">Drop photo files here, or use Upload below.</div>';
+      h += '<div style="margin-top:12px"><button class="btn btn--primary" type="button" data-act="gupload">Upload</button></div>';
+      h += '<div class="oa-upopts" data-role="gupopts" style="display:none"><button class="btn" type="button" data-act="g-photos">Photos, into this section</button><button class="btn" type="button" data-act="g-section">New section</button><button class="btn" type="button" data-act="g-cancel">Cancel</button></div>';
+      h += '<input type="file" data-role="gfile" accept="image/*" multiple hidden>';
+      root.innerHTML = h;
+      var dz = root.querySelector('[data-role="drop"]');
+      ['dragover', 'dragleave', 'drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.toggle('over', ev === 'dragover'); if (ev === 'drop') addFiles(sec, e.dataTransfer.files); }); });
+    }
+
+    function boxHTML(pair, side){
+      var v = pair[side]; var lab = side === 'b' ? 'BEFORE' : 'AFTER';
+      if (!v) return '<div class="oa-babox" data-box="' + side + '">' + lab + '<br>+ add</div>';
+      return '<div class="oa-babox filled" data-box="' + side + '"><img src="' + esc(v.src) + '" alt=""><span class="blab">' + lab + ' · ' + esc(v.t) + '</span></div>';
+    }
+    function renderBA(){
+      var h = '<div class="oa-head"><span class="oa-lab">BEFORE / AFTER</span><button class="btn" type="button" data-act="done">Done</button></div>';
+      h += noteHTML();
+      h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">Build a pair: a before in one box, an after in the other, and pick its section. A pair cannot be finished without both photos, and a new pair cannot start until the one above has both. Finish sends it to Portfolio.</p>';
+      if (!baPairs.length) h += '<div class="oa-empty" style="margin-top:10px">No pairs being built. Add one below.</div>';
+      baPairs.forEach(function(pair, i){
+        var ready = pair.b && pair.a;
+        var status = ready ? 'Ready to finish.' : (pair.b ? 'Add the after photo.' : (pair.a ? 'Add the before photo.' : 'Add both photos.'));
+        var opts = model.sections.map(function(s){ return '<option' + (s === pair.sec ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('');
+        h += '<div class="oa-bapair" data-i="' + i + '"><div class="cols"><div class="cell">' + boxHTML(pair, 'b') + '</div><div class="cell">' + boxHTML(pair, 'a') + '</div></div>' +
+          '<div class="oa-bameta"><label style="font-size:13px;color:#5c5c66">Section <select data-bsec="' + i + '">' + opts + '</select></label><span class="oa-bastatus">' + status + '</span>' +
+          '<button class="btn btn--primary" type="button" data-fin="' + i + '"' + (ready ? '' : ' disabled style="opacity:.45"') + '>Finish, send to Portfolio</button>' +
+          '<button class="btn" type="button" data-brm="' + i + '">Remove pair</button></div></div>';
+      });
+      h += '<div style="margin-top:4px"><button class="btn btn--primary" type="button" data-act="addpair">Add another pair</button></div>';
+      h += '<input type="file" data-role="bafile" accept="image/*" hidden>';
+      root.innerHTML = h;
+      root.querySelectorAll('.oa-babox').forEach(function(box){
+        box.addEventListener('dragover', function(e){ e.preventDefault(); box.classList.add('over'); });
+        box.addEventListener('dragleave', function(){ box.classList.remove('over'); });
+        box.addEventListener('drop', function(e){
+          e.preventDefault(); box.classList.remove('over');
+          var pr = box.closest('.oa-bapair'); var i = +pr.getAttribute('data-i'); var side = box.getAttribute('data-box');
+          var f = e.dataTransfer.files && e.dataTransfer.files[0];
+          if (f) readFile(f, function(src){ baPairs[i][side] = { src: src, t: f.name.replace(/\.[^.]+$/, '') }; renderBA(); });
+        });
+      });
+    }
+
+    function render(){ if (view !== 'gallery') armDelSec = false; if (view === 'portfolio') renderPortfolio(); else if (view === 'gallery') renderGallery(); else renderBA(); }
+    function addFiles(sec, files){
+      Array.prototype.forEach.call(files, function(f){
+        readFile(f, function(src){ model.singles.push({ id: nid('s'), src: src, cap: '', sec: sec, onSite: false, ord: uid }); commit(); render(); });
+      });
+    }
+    function tryAddPair(){
+      var last = baPairs[baPairs.length - 1];
+      if (last && !(last.b && last.a)) { note = 'That pair is not finished: it needs a before photo and an after photo before you can add another.'; noteWarn = true; render(); return false; }
+      note = ''; noteWarn = false;
+      baPairs.push({ sec: model.sections[0], b: null, a: null }); render(); return true;
+    }
+
+    root.addEventListener('click', function(e){
+      var t = e.target.closest('[data-act],[data-site],[data-del],[data-off],[data-prm],[data-fin],[data-brm],[data-box]');
+      if (!t) return;
+      var act = t.getAttribute('data-act');
+      if (act === 'upload') { var c = root.querySelector('[data-role="choose"]'); if (c) c.style.display = c.style.display === 'none' ? '' : 'none'; return; }
+      if (act === 'ch-cancel') { root.querySelector('[data-role="choose"]').style.display = 'none'; return; }
+      if (act === 'ch-gallery') { view = 'gallery'; note = ''; render(); return; }
+      if (act === 'ch-ba') { if (!baPairs.length) baPairs.push({ sec: model.sections[0], b: null, a: null }); view = 'ba'; note = ''; render(); return; }
+      if (act === 'done') { view = 'portfolio'; note = ''; render(); return; }
+      if (act === 'prev') { if (page > 0) { page--; armDelSec = false; render(); } return; }
+      if (act === 'next') { if (page < model.sections.length - 1) { page++; armDelSec = false; render(); } return; }
+      if (act === 'gupload') { var o = root.querySelector('[data-role="gupopts"]'); if (o) o.style.display = o.style.display === 'none' ? '' : 'none'; return; }
+      if (act === 'g-cancel') { root.querySelector('[data-role="gupopts"]').style.display = 'none'; return; }
+      if (act === 'g-photos') { root.querySelector('[data-role="gfile"]').click(); return; }
+      if (act === 'g-section') {
+        var name = 'New section', n = 2;
+        while (model.sections.indexOf(name) >= 0) { name = 'New section ' + (n++); }
+        model.sections.push(name); page = model.sections.length - 1; commit(); render(); return;
+      }
+      if (act === 'addpair') { tryAddPair(); return; }
+      if (act === 'delsec') {
+        if (!armDelSec) { armDelSec = true; render(); return; }
+        var old = secName();
+        var target = model.sections.filter(function(x){ return x !== old; })[0];
+        model.singles.forEach(function(s){ if (s.sec === old) s.sec = target; });
+        model.pairs.forEach(function(p){ if (p.sec === old) p.sec = target; });
+        baPairs.forEach(function(p){ if (p.sec === old) p.sec = target; });
+        model.sections.splice(page, 1);
+        if (page >= model.sections.length) page = model.sections.length - 1;
+        armDelSec = false;
+        note = 'Section removed. Its photos and pairs moved to ' + target + '.'; noteWarn = false;
+        commit(); render(); return;
+      }
+      if (t.hasAttribute('data-site')) {
+        var s1 = model.singles.filter(function(x){ return x.id === t.getAttribute('data-site'); })[0];
+        if (s1) { s1.onSite = !s1.onSite; commit(); render(); }
+        return;
+      }
+      if (t.hasAttribute('data-del')) {
+        model.singles = model.singles.filter(function(x){ return x.id !== t.getAttribute('data-del'); });
+        commit(); render(); return;
+      }
+      if (t.hasAttribute('data-off')) {
+        var s2 = model.singles.filter(function(x){ return x.id === t.getAttribute('data-off'); })[0];
+        if (s2) { s2.onSite = false; note = 'Removed from the site. The photo is still in Gallery.'; noteWarn = false; commit(); render(); }
+        return;
+      }
+      if (t.hasAttribute('data-prm')) {
+        model.pairs = model.pairs.filter(function(x){ return x.id !== t.getAttribute('data-prm'); });
+        commit(); render(); return;
+      }
+      if (t.hasAttribute('data-fin')) {
+        var pair = baPairs[+t.getAttribute('data-fin')];
+        if (pair && pair.b && pair.a) {
+          model.pairs.push({ id: nid('p'), bsrc: pair.b.src, asrc: pair.a.src, bcap: '', acap: '', sec: pair.sec, ord: uid });
+          baPairs.splice(+t.getAttribute('data-fin'), 1);
+          page = model.sections.indexOf(pair.sec); if (page < 0) page = 0;
+          view = 'portfolio'; note = 'Pair finished. It is in Portfolio now, under ' + pair.sec + '. Set its captions here.'; noteWarn = false;
+          commit(); render();
+        }
+        return;
+      }
+      if (t.hasAttribute('data-brm')) { baPairs.splice(+t.getAttribute('data-brm'), 1); render(); return; }
+      if (t.hasAttribute('data-box')) {
+        var pr = t.closest('.oa-bapair'); baTarget = { i: +pr.getAttribute('data-i'), side: t.getAttribute('data-box') };
+        root.querySelector('[data-role="bafile"]').click(); return;
+      }
+    });
+    root.addEventListener('change', function(e){
+      var t = e.target;
+      if (t.getAttribute('data-role') === 'sort') { sortMode = t.value; render(); return; }
+      if (t.getAttribute('data-role') === 'secname') {
+        var nn = t.value.trim(); var old = secName();
+        if (nn && nn !== old && model.sections.indexOf(nn) < 0) {
+          model.sections[page] = nn;
+          model.singles.forEach(function(s){ if (s.sec === old) s.sec = nn; });
+          model.pairs.forEach(function(p){ if (p.sec === old) p.sec = nn; });
+          baPairs.forEach(function(p){ if (p.sec === old) p.sec = nn; });
+          commit();
+        }
+        render(); return;
+      }
+      if (t.hasAttribute('data-bsec')) { baPairs[+t.getAttribute('data-bsec')].sec = t.value; return; }
+      if (t.getAttribute('data-role') === 'gfile') { addFiles(secName(), t.files); t.value = ''; return; }
+      if (t.getAttribute('data-role') === 'bafile') {
+        var f = t.files && t.files[0];
+        if (f && baTarget) readFile(f, function(src){ baPairs[baTarget.i][baTarget.side] = { src: src, t: f.name.replace(/\.[^.]+$/, '') }; renderBA(); });
+        t.value = ''; return;
+      }
+    });
+    root.addEventListener('input', function(e){
+      var t = e.target;
+      if (t.hasAttribute('data-cap')) {
+        var s = model.singles.filter(function(x){ return x.id === t.getAttribute('data-cap'); })[0];
+        if (s) { s.cap = t.value; commit(); }
+        return;
+      }
+      if (t.hasAttribute('data-pcap')) {
+        var parts = t.getAttribute('data-pcap').split(':');
+        var p = model.pairs.filter(function(x){ return x.id === parts[0]; })[0];
+        if (p) { p[parts[1]] = t.value; commit(); }
+      }
+    });
+
+    /* if the portal re-renders its grid (restore after save), reconcile singles */
+    if (grid) {
+      new MutationObserver(function(){
+        if (syncing) return;
+        var items = mirrorList();
+        var have = {}; model.singles.forEach(function(s){ have[s.src] = s; });
+        var changed = false;
+        items.forEach(function(it){
+          if (!have[it.src]) { model.singles.push({ id: nid('s'), src: it.src, cap: it.cap, sec: model.sections[0], onSite: true, ord: uid }); changed = true; }
+        });
+        if (changed) { var st = loadStore(); st[slug] = model; saveStore(st); render(); }
+      }).observe(grid, { childList: true });
+    }
+    function mirrorList(){
+      var out = [];
+      grid.querySelectorAll('.pf-item').forEach(function(it){
+        var im = it.querySelector('img'); var cap = it.querySelector('.pf-cap');
+        var src = im ? raw(im.getAttribute('src') || '') : '';
+        if (src) out.push({ src: src, cap: cap ? cap.value : '' });
+      });
+      return out;
+    }
+
+    commit();
+    render();
+  }
+
+  function scan(){
+    document.querySelectorAll('[data-panel="artists"] .soc-list[data-artist]').forEach(function(list){
+      var blk = list.closest('div[style*="border-top"]');
+      if (blk) initBlock(blk);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan); else scan();
+  new MutationObserver(function(){ scan(); }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-artist'] });
+})();
+</script>
+</script>
+
+<script>
+/* Unsaved-changes guard (fork only): prompt before leaving a page with pending edits */
+(function(){
+  var dirty = false;
+  function inScope(el){
+    if (!el || !el.closest) return false;
+    if (el.closest('.oa-pf')) return false;                 /* portfolio module saves instantly */
+    if (el.closest('[data-panel="book"]')) return false;    /* bookings write live to the calendar */
+    return !!el.closest('[data-panel]');
+  }
+  document.addEventListener('input', function(e){ if (inScope(e.target)) dirty = true; }, true);
+  document.addEventListener('change', function(e){ if (inScope(e.target)) dirty = true; }, true);
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest ? e.target.closest('button') : null;
+    if (b && /^save\b/i.test((b.textContent || '').trim())) setTimeout(function(){ dirty = false; }, 0);
+  }, true);
+  window.addEventListener('beforeunload', function(e){ if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  document.addEventListener('click', function(e){
+    if (!dirty) return;
+    var t = e.target;
+    var nav = t.closest ? (t.closest('[data-tab]') || t.closest('[data-goto]') || t.closest('#p-brand-home') || t.closest('#oa-artist-back') || t.closest('.artist-row')) : null;
+    if (!nav) return;
+    if (nav.hasAttribute && nav.hasAttribute('data-tab')) {
+      var cur = document.querySelector('[data-panel]:not(.hidden)');
+      if (cur && cur.getAttribute('data-panel') === nav.getAttribute('data-tab')) return;
+    }
+    if (!window.confirm('You have unsaved changes. Leave without saving?')) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+  }, true);
+  window.__oaDirty = function(){ return dirty; };
 })();
 </script>
 </body>
