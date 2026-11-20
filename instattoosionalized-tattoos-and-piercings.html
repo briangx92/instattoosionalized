@@ -385,6 +385,8 @@
   .s-railnav:disabled{ opacity:.35; cursor:default; }
   #artist-prev{ left:var(--sp-1); }
   #artist-next{ right:var(--sp-1); }
+  .s-rail{ cursor:grab; }
+  .s-rail.is-dragging{ scroll-snap-type:none; cursor:grabbing; user-select:none; -webkit-user-select:none; }
   .s-rail__card{ flex:0 0 min(340px, 78%); scroll-snap-align:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; transform:scale(.97); transition:transform var(--dur) var(--ease), border-color var(--dur) var(--ease); display:flex; flex-direction:column; }
   .s-rail__card.is-focused{ transform:scale(1.02); border-color:var(--line-2); }
   .s-rail__photo{ position:relative; aspect-ratio:4 / 3; overflow:hidden; background:var(--mid); display:block; }
@@ -1056,6 +1058,7 @@ const MODULES = {
       setFocus(card);
       const r = rail.getBoundingClientRect(), c = card.getBoundingClientRect();
       rail.scrollBy({ left: (c.left + c.width / 2) - (r.left + r.width / 2), behavior: T.reduced() ? "auto" : "smooth" });
+      if (typeof updateNav === "function") updateNav();
     }
 
     list.forEach(a => {
@@ -1101,7 +1104,7 @@ const MODULES = {
     const nextBtn = root.querySelector("#artist-next");
     function focusedIndex(){ return cards.findIndex(c => c.classList.contains("is-focused")); }
     function updateNav(){
-      const canScroll = !rail.classList.contains("is-fit") && rail.scrollWidth - rail.clientWidth > 1;
+      const canScroll = cards.length > 1;
       const i = focusedIndex();
       if (prevBtn) { prevBtn.hidden = !canScroll; prevBtn.disabled = i <= 0; }
       if (nextBtn) { nextBtn.hidden = !canScroll; nextBtn.disabled = i < 0 || i >= cards.length - 1; }
@@ -1114,11 +1117,30 @@ const MODULES = {
     if (prevBtn) prevBtn.addEventListener("click", () => stepArtist(-1));
     if (nextBtn) nextBtn.addEventListener("click", () => stepArtist(1));
     rail.addEventListener("scroll", () => requestAnimationFrame(updateNav), { passive: true });
+    let drag = null, dragMoved = false;
+    rail.addEventListener("pointerdown", e => {
+      if (e.pointerType !== "mouse" || rail.classList.contains("is-fit")) return;
+      drag = { x: e.clientX, sl: rail.scrollLeft }; dragMoved = false;
+      try { rail.setPointerCapture(e.pointerId); } catch (err) {}
+      rail.classList.add("is-dragging");
+    });
+    rail.addEventListener("pointermove", e => {
+      if (!drag) return;
+      const dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 4) dragMoved = true;
+      if (dragMoved) rail.scrollLeft = drag.sl - dx;
+    });
+    function endDrag(){ if (!drag) return; drag = null; rail.classList.remove("is-dragging"); }
+    rail.addEventListener("pointerup", endDrag);
+    rail.addEventListener("pointercancel", endDrag);
+    rail.addEventListener("click", e => { if (dragMoved) { e.preventDefault(); e.stopPropagation(); dragMoved = false; } }, true);
+    rail.addEventListener("dragstart", e => e.preventDefault());
     fitRail();
     addEventListener("resize", fitRail);
     if ("IntersectionObserver" in window) {
       const io = new IntersectionObserver(entries => {
         entries.forEach(en => { if (en.isIntersecting) setFocus(en.target); });
+        updateNav();
       }, { root: rail, rootMargin: "0px -45% 0px -45%", threshold: 0 });
       cards.forEach(c => io.observe(c));
     }
