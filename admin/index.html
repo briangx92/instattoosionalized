@@ -309,6 +309,24 @@
 .oa-pf .oa-bastatus{font-size:12.5px;color:#8a8578}
 .oa-pf .oa-drop{border:2px dashed #b9b2a2;border-radius:10px;padding:10px;margin-top:10px;text-align:center;font-size:12.5px;color:#8a8578;background:#faf8f3}
 .oa-pf .oa-drop.over{border-color:#f4682a;background:#fff4ec;color:#b34a17}
+.oa-pf .oa-add{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;align-items:start;margin-top:12px}
+@media (max-width:860px){.oa-pf .oa-add{grid-template-columns:1fr}}
+.oa-pf .oa-fld{display:block;margin-top:10px}
+.oa-pf .oa-fld>span{display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#71717a;margin-bottom:4px}
+.oa-pf .oa-fld input,.oa-pf .oa-fld textarea,.oa-pf .oa-fld select{width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;background:#fff;color:#17171a}
+.oa-pf .oa-fld textarea{min-height:74px;resize:vertical}
+.oa-pf .oa-meta3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.oa-pf .oa-drafts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.oa-pf .oa-dchip{border:1.5px solid #e7e2d9;background:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:12.5px;font-weight:600;display:flex;gap:7px;align-items:center;color:#17171a}
+.oa-pf .oa-dchip button{border:0;border-radius:999px;padding:4px 10px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#17171a;color:#fff}
+.oa-pf .oa-dchip button.del{background:#ececea;color:#3f3f46}
+.oa-pf .oa-pubrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.oa-pf .oa-ptitle{font-size:16px;font-weight:700;margin-top:8px}
+.oa-pf .oa-pstory{font-size:13.5px;color:#3f3f46;margin-top:2px}
+.oa-pf .oa-pmeta{font-size:12px;color:#8a8578;margin-top:2px}
+html.dark .oa-pf .oa-fld input,html.dark .oa-pf .oa-fld textarea,html.dark .oa-pf .oa-fld select{background:#232329;border-color:#3a3a42;color:#f4f4f5}
+html.dark .oa-pf .oa-dchip{background:#1d1d21;border-color:#2e2e34;color:#f4f4f5}
+html.dark .oa-pf .oa-pstory{color:#d4d4d8}
 html.dark .oa-pf .oa-chlist,html.dark .oa-pf .oa-chlist button{background:#1d1d21;color:#f4f4f5;border-color:#2e2e34}
 html.dark .oa-pf .oa-pair,html.dark .oa-pf .oa-bapair{background:#1d1d21;border-color:#2e2e34}
 html.dark .oa-pf .oa-empty,html.dark .oa-pf .oa-babox,html.dark .oa-pf .oa-drop{background:#232329;color:#a1a1aa}
@@ -1080,7 +1098,7 @@ var DEFAULTS = {
     if (th) { var raw = th.getAttribute('src') || ''; if (raw.indexOf('data:') === 0 && th.complete && th.naturalWidth) { try { var mx = 800, w = th.naturalWidth, h = th.naturalHeight, sc = Math.max(w, h) > mx ? mx / Math.max(w, h) : 1; var cv = document.createElement('canvas'); cv.width = Math.round(w * sc); cv.height = Math.round(h * sc); cv.getContext('2d').drawImage(th, 0, 0, cv.width, cv.height); photo = cv.toDataURL('image/jpeg', 0.85); } catch (e) { photo = raw; } } else if (raw) { photo = raw.replace(/^\.\.\//, ''); } }
     roster.push({ slug: key, name: gi[0] ? gi[0].value.trim() : key, what: gi[1] ? gi[1].value.trim() : 'Tattoo', about: blk.querySelector('textarea') ? blk.querySelector('textarea').value : '', socials: soc, photo: photo });
     var items = [];
-    blk.querySelectorAll('.pf-item').forEach(function(it){ var im = it.querySelector('img'); var cap = it.querySelector('.pf-cap'); var src = im ? (im.getAttribute('src') || '') : ''; if (src) items.push({ src: src.replace(/^\.\.\//, ''), cap: cap ? cap.value : '' }); });
+    blk.querySelectorAll('.pf-item').forEach(function(it){ var im = it.querySelector('img'); var cap = it.querySelector('.pf-cap'); var src = im ? (im.getAttribute('src') || '') : ''; if (!src) return; var dp = it.getAttribute('data-pair'); if (dp) { try { items.push({ src: src.replace(/^\.\.\//, ''), cap: cap ? cap.value : '', ba: JSON.parse(dp) }); return; } catch (e) {} } items.push({ src: src.replace(/^\.\.\//, ''), cap: cap ? cap.value : '' }); });
     pfAll[key] = items;
   });
   state.artists = roster; state.portfolio = pfAll;
@@ -1767,7 +1785,7 @@ var DEFAULTS = {
           }
         }
         var grid2 = blk.querySelector('.pf-grid');
-        if (grid2) { var pfs = (st0.portfolio && st0.portfolio[sa.slug]) || []; pfs.forEach(function(it){ var d = document.createElement('div'); d.className = 'pf-item'; var im = document.createElement('img'); im.alt = ''; im.setAttribute('src', /^(data:|https?:|\.\.\/)/.test(it.src) ? it.src : '../' + it.src); d.appendChild(im); var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'pf-rm'; rm.textContent = '\u00d7'; rm.setAttribute('aria-label', 'Remove photo'); rm.addEventListener('click', function(){ d.remove(); }); d.appendChild(rm); var cap = document.createElement('input'); cap.type = 'text'; cap.className = 'pf-cap'; cap.placeholder = 'Caption'; cap.value = it.cap || ''; d.appendChild(cap); grid2.appendChild(d); }); }
+        if (grid2) { var pfs = (st0.portfolio && st0.portfolio[sa.slug]) || []; pfs.forEach(function(it){ var d = document.createElement('div'); d.className = 'pf-item'; if (it.ba) { try { d.setAttribute('data-pair', JSON.stringify(it.ba)); } catch (e) {} } var im = document.createElement('img'); im.alt = ''; im.setAttribute('src', /^(data:|https?:|\.\.\/)/.test(it.src) ? it.src : '../' + it.src); d.appendChild(im); var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'pf-rm'; rm.textContent = '\u00d7'; rm.setAttribute('aria-label', 'Remove photo'); rm.addEventListener('click', function(){ d.remove(); }); d.appendChild(rm); var cap = document.createElement('input'); cap.type = 'text'; cap.className = 'pf-cap'; cap.placeholder = 'Caption'; cap.value = it.cap || ''; d.appendChild(cap); grid2.appendChild(d); }); }
         ab0.parentNode.insertBefore(blk, ab0);
         if (window.__oaWirePf) window.__oaWirePf(blk);
         have[sa.slug] = true;
@@ -2105,9 +2123,12 @@ var DEFAULTS = {
 </script>
 <script>
 /* Artist Portfolio + Upload — fork build.
-   Portfolio is the only surface; Upload opens Gallery or Before/After workspaces.
-   Published singles mirror into the portal's own .pf-grid so Save artists keeps working.
-   Workspace structure (sections, pairs, off-site photos) persists in localStorage oa-gallery-v1. */
+   Portfolio is the only surface; Upload opens one Add work screen: a before/after
+   project form (Publish, or Save smart draft, which autosaves half-finished work)
+   beside the standard gallery. Published singles and pairs mirror into the portal's
+   own .pf-grid (pairs ride a data-pair attribute) so Save artists keeps working.
+   Workspace structure (sections, pairs, drafts, off-site photos) persists in
+   localStorage oa-gallery-v1. */
 (function(){
   'use strict';
   var SKEY = 'oa-gallery-v1';
@@ -2143,21 +2164,28 @@ var DEFAULTS = {
 
     /* harvest the portal's seeded/persisted singles from its own grid */
     var grid = blk.querySelector('.pf-grid');
-    var harvested = [];
+    var harvested = [], harvestedPairs = [];
     if (grid) grid.querySelectorAll('.pf-item').forEach(function(it){
       var im = it.querySelector('img'); var cap = it.querySelector('.pf-cap');
       var src = im ? raw(im.getAttribute('src') || '') : '';
-      if (src) harvested.push({ src: src, cap: cap ? cap.value : '' });
+      if (!src) return;
+      var dp = it.getAttribute('data-pair');
+      if (dp) { try { var pj = JSON.parse(dp); if (pj && pj.b && pj.a) { harvestedPairs.push({ id: pj.id || nid('p'), bsrc: raw(pj.b), asrc: raw(pj.a), bcap: pj.bcap || '', acap: pj.acap || '', title: pj.title || '', story: pj.story || '', tags: pj.tags || '', medium: pj.medium || '', dims: pj.dims || '', sec: pj.sec || '', ord: uid }); return; } } catch (e) {} }
+      harvested.push({ src: src, cap: cap ? cap.value : '' });
     });
 
     var store = loadStore();
     var model = store[slug];
     if (!model || !model.sections) {
-      model = { sections: DEFSECS.slice(), singles: [], pairs: [] };
+      model = { sections: DEFSECS.slice(), singles: [], pairs: [], drafts: [] };
       harvested.forEach(function(h){ model.singles.push({ id: nid('s'), src: h.src, cap: h.cap, sec: model.sections[0], onSite: true, ord: uid }); });
+      harvestedPairs.forEach(function(p){ if (model.sections.indexOf(p.sec) < 0) p.sec = model.sections[0]; model.pairs.push(p); });
     } else {
+      if (!model.drafts) model.drafts = [];
       var have = {}; model.singles.forEach(function(s){ have[s.src] = 1; });
       harvested.forEach(function(h){ if (!have[h.src]) model.singles.push({ id: nid('s'), src: h.src, cap: h.cap, sec: model.sections[0], onSite: true, ord: uid }); });
+      var haveP = {}; model.pairs.forEach(function(p){ haveP[p.id] = 1; });
+      harvestedPairs.forEach(function(p){ if (!haveP[p.id]) { if (model.sections.indexOf(p.sec) < 0) p.sec = model.sections[0]; model.pairs.push(p); } });
     }
 
     /* hide the old furniture, keep the portal grid as a hidden mirror for Save */
@@ -2170,13 +2198,21 @@ var DEFAULTS = {
     var root = document.createElement('div'); root.className = 'oa-pf';
     wrap.insertBefore(root, wrap.firstChild);
 
-    var view = 'portfolio', page = 0, sortMode = 'new', baPairs = [], baTarget = null, note = '', noteWarn = false, syncing = false, armDelSec = false;
+    var view = 'portfolio', page = 0, sortMode = 'new', cur = null, formTarget = null, note = '', noteWarn = false, syncing = false, armDelSec = false;
 
+    function persist(){ var st = loadStore(); st[slug] = model; saveStore(st); }
     function commit(){
-      var st = loadStore(); st[slug] = model; saveStore(st);
+      persist();
       if (!grid) return;
       syncing = true;
       grid.innerHTML = '';
+      model.pairs.forEach(function(p){
+        var d = document.createElement('div'); d.className = 'pf-item';
+        var im = document.createElement('img'); im.alt = ''; im.setAttribute('src', p.asrc); d.appendChild(im);
+        var cap = document.createElement('input'); cap.type = 'text'; cap.className = 'pf-cap'; cap.value = p.title || p.acap || ''; d.appendChild(cap);
+        try { d.setAttribute('data-pair', JSON.stringify({ id: p.id, b: p.bsrc, a: p.asrc, bcap: p.bcap || '', acap: p.acap || '', title: p.title || '', story: p.story || '', tags: p.tags || '', medium: p.medium || '', dims: p.dims || '', sec: p.sec })); } catch (e) {}
+        grid.appendChild(d);
+      });
       model.singles.filter(function(s){ return s.onSite; }).forEach(function(s){
         var d = document.createElement('div'); d.className = 'pf-item';
         var im = document.createElement('img'); im.alt = ''; im.setAttribute('src', s.src); d.appendChild(im);
@@ -2199,16 +2235,17 @@ var DEFAULTS = {
       var pairs = model.pairs.filter(function(p){ return p.sec === sec; });
       var singles = sortedItems(model.singles.filter(function(s){ return s.onSite && s.sec === sec; }), sortMode);
       var h = '<div class="oa-head"><span class="oa-lab">PORTFOLIO</span><button class="btn btn--primary" type="button" data-act="upload">Upload</button></div>';
-      h += '<div class="oa-chlist" data-role="choose" style="display:none"><button type="button" data-act="ch-gallery">Gallery photos</button><button type="button" data-act="ch-ba">Before / after pair</button><button type="button" data-act="ch-cancel">Cancel</button></div>';
+      h += '<div class="oa-chlist" data-role="choose" style="display:none"><button type="button" data-act="ch-add">Add work: photos + before / after project</button><button type="button" data-act="ch-cancel">Cancel</button></div>';
       h += noteHTML();
       h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">This is what appears on the site. Captions change here, and only here.</p>';
       h += barHTML();
-      if (!pairs.length && !singles.length) h += '<div class="oa-empty">Nothing on the site in this section yet. Upload photos, or finish a before / after pair.</div>';
+      if (!pairs.length && !singles.length) h += '<div class="oa-empty">Nothing on the site in this section yet. Upload photos, or publish a before / after project.</div>';
       pairs.forEach(function(p){
         h += '<div class="oa-pair"><div class="oa-split"><div class="half"><img src="' + esc(disp(p.bsrc)) + '" alt=""><span class="tag">BEFORE</span></div><div class="mid"></div><div class="half"><img src="' + esc(disp(p.asrc)) + '" alt=""><span class="tag">AFTER</span></div></div>' +
+          (p.title ? '<div class="oa-ptitle">' + esc(p.title) + '</div>' : '') + (p.story ? '<div class="oa-pstory">' + esc(p.story) + '</div>' : '') + ((p.tags || p.medium || p.dims) ? '<div class="oa-pmeta">' + esc([p.tags, p.medium, p.dims].filter(Boolean).join(' · ')) + '</div>' : '') +
           '<div class="oa-caplab">Before caption</div><input type="text" data-pcap="' + p.id + ':bcap" value="' + esc(p.bcap) + '" placeholder="No caption yet" style="width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;background:#fff">' +
           '<div class="oa-caplab">After caption</div><input type="text" data-pcap="' + p.id + ':acap" value="' + esc(p.acap) + '" placeholder="No caption yet" style="width:100%;border:1px solid #d8d8d2;border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;background:#fff">' +
-          '<div style="margin-top:8px"><button class="btn" type="button" data-prm="' + p.id + '">Remove pair from the site</button></div></div>';
+          '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" type="button" data-pedit="' + p.id + '">Edit project</button><button class="btn" type="button" data-prm="' + p.id + '">Remove pair from the site</button></div></div>';
       });
       if (singles.length) {
         h += '<div class="oa-pgrid">' + singles.map(function(s){
@@ -2218,13 +2255,10 @@ var DEFAULTS = {
       root.innerHTML = h;
     }
 
-    function renderGallery(){
+    function galleryInner(){
       var sec = secName();
       var items = sortedItems(model.singles.filter(function(s){ return s.sec === sec; }), sortMode);
-      var h = '<div class="oa-head"><span class="oa-lab">GALLERY</span><button class="btn" type="button" data-act="done">Done</button></div>';
-      h += noteHTML();
-      h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">The working shelf. Tap On site to put a photo on the artist\u2019s page; it shows in Portfolio right away.</p>';
-      h += barHTML();
+      var h = barHTML();
       h += '<div class="oa-sechead"><input type="text" data-role="secname" value="' + esc(sec) + '"><span class="cnt">' + items.length + (items.length === 1 ? ' photo' : ' photos') + '</span></div>';
       if (model.sections.length > 1) {
         var tgt = model.sections.filter(function(x){ return x !== sec; })[0];
@@ -2238,67 +2272,111 @@ var DEFAULTS = {
       h += '<div style="margin-top:12px"><button class="btn btn--primary" type="button" data-act="gupload">Upload</button></div>';
       h += '<div class="oa-upopts" data-role="gupopts" style="display:none"><button class="btn" type="button" data-act="g-photos">Photos, into this section</button><button class="btn" type="button" data-act="g-section">New section</button><button class="btn" type="button" data-act="g-cancel">Cancel</button></div>';
       h += '<input type="file" data-role="gfile" accept="image/*" multiple hidden>';
-      root.innerHTML = h;
+      return h;
+    }
+    function wireDrop(){
       var dz = root.querySelector('[data-role="drop"]');
-      ['dragover', 'dragleave', 'drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.toggle('over', ev === 'dragover'); if (ev === 'drop') addFiles(sec, e.dataTransfer.files); }); });
+      if (!dz) return;
+      ['dragover', 'dragleave', 'drop'].forEach(function(ev){ dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.toggle('over', ev === 'dragover'); if (ev === 'drop') addFiles(secName(), e.dataTransfer.files); }); });
+    }
+    function renderGallery(){
+      var h = '<div class="oa-head"><span class="oa-lab">GALLERY</span><button class="btn" type="button" data-act="done">Done</button></div>';
+      h += noteHTML();
+      h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">The working shelf. Tap On site to put a photo on the artist\u2019s page; it shows in Portfolio right away.</p>';
+      h += galleryInner();
+      root.innerHTML = h;
+      wireDrop();
     }
 
-    function boxHTML(pair, side){
-      var v = pair[side]; var lab = side === 'b' ? 'BEFORE' : 'AFTER';
-      if (!v) return '<div class="oa-babox" data-box="' + side + '">' + lab + '<br>+ add</div>';
-      return '<div class="oa-babox filled" data-box="' + side + '"><img src="' + esc(v.src) + '" alt=""><span class="blab">' + lab + ' · ' + esc(v.t) + '</span></div>';
+    function blankDraft(){ return { id: nid('d'), sec: secName(), b: null, a: null, title: '', story: '', tags: '', medium: '', dims: '', pairId: '' }; }
+    function ensureCur(){
+      if (!cur) { cur = model.drafts[0] || blankDraft(); if (model.drafts.indexOf(cur) < 0) { model.drafts.unshift(cur); persist(); } }
+      return cur;
     }
-    function renderBA(){
-      var h = '<div class="oa-head"><span class="oa-lab">BEFORE / AFTER</span><button class="btn" type="button" data-act="done">Done</button></div>';
-      h += noteHTML();
-      h += '<p style="color:#5c5c66;font-size:13px;margin:10px 0 0">Build a pair: a before in one box, an after in the other, and pick its section. A pair cannot be finished without both photos, and a new pair cannot start until the one above has both. Finish sends it to Portfolio.</p>';
-      if (!baPairs.length) h += '<div class="oa-empty" style="margin-top:10px">No pairs being built. Add one below.</div>';
-      baPairs.forEach(function(pair, i){
-        var ready = pair.b && pair.a;
-        var status = ready ? 'Ready to finish.' : (pair.b ? 'Add the after photo.' : (pair.a ? 'Add the before photo.' : 'Add both photos.'));
-        var opts = model.sections.map(function(s){ return '<option' + (s === pair.sec ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('');
-        h += '<div class="oa-bapair" data-i="' + i + '"><div class="cols"><div class="cell">' + boxHTML(pair, 'b') + '</div><div class="cell">' + boxHTML(pair, 'a') + '</div></div>' +
-          '<div class="oa-bameta"><label style="font-size:13px;color:#5c5c66">Section <select data-bsec="' + i + '">' + opts + '</select></label><span class="oa-bastatus">' + status + '</span>' +
-          '<button class="btn btn--primary" type="button" data-fin="' + i + '"' + (ready ? '' : ' disabled style="opacity:.45"') + '>Finish, send to Portfolio</button>' +
-          '<button class="btn" type="button" data-brm="' + i + '">Remove pair</button></div></div>';
+    function dropBlankDraft(){
+      if (cur && !cur.pairId && !cur.b && !cur.a && !cur.title && !cur.story && !cur.tags && !cur.medium && !cur.dims) {
+        model.drafts = model.drafts.filter(function(x){ return x.id !== cur.id; });
+        persist();
+      }
+      cur = null;
+    }
+    function boxHTML2(d, side){
+      var v = d[side]; var lab = side === 'b' ? 'BEFORE' : 'AFTER'; var num = side === 'b' ? '1. UPLOAD BEFORE' : '2. UPLOAD AFTER';
+      if (!v) return '<div class="oa-babox" data-fbox="' + side + '">' + num + '</div>';
+      return '<div class="oa-babox filled" data-fbox="' + side + '"><img src="' + esc(v.src) + '" alt=""><span class="blab">' + lab + ' · ' + esc(v.t) + '</span></div>';
+    }
+    function draftsHTML(){
+      if (!model.drafts.length) return '';
+      var h = '<div class="oa-caplab" style="margin-top:14px">Smart drafts</div><div class="oa-drafts">';
+      model.drafts.forEach(function(dr){
+        h += '<span class="oa-dchip">' + esc(dr.title || 'Untitled project') + '<button type="button" data-resume="' + dr.id + '">' + (cur && dr.id === cur.id ? 'Open' : 'Resume') + '</button><button type="button" class="del" data-ddel="' + dr.id + '">Delete</button></span>';
       });
-      h += '<div style="margin-top:4px"><button class="btn btn--primary" type="button" data-act="addpair">Add another pair</button></div>';
-      h += '<input type="file" data-role="bafile" accept="image/*" hidden>';
-      root.innerHTML = h;
-      root.querySelectorAll('.oa-babox').forEach(function(box){
+      return h + '</div>';
+    }
+    function wireFormBoxes(){
+      root.querySelectorAll('.oa-babox[data-fbox]').forEach(function(box){
         box.addEventListener('dragover', function(e){ e.preventDefault(); box.classList.add('over'); });
         box.addEventListener('dragleave', function(){ box.classList.remove('over'); });
         box.addEventListener('drop', function(e){
           e.preventDefault(); box.classList.remove('over');
-          var pr = box.closest('.oa-bapair'); var i = +pr.getAttribute('data-i'); var side = box.getAttribute('data-box');
+          var side = box.getAttribute('data-fbox');
           var f = e.dataTransfer.files && e.dataTransfer.files[0];
-          if (f) readFile(f, function(src){ baPairs[i][side] = { src: src, t: f.name.replace(/\.[^.]+$/, '') }; renderBA(); });
+          if (f && cur) readFile(f, function(src){ cur[side] = { src: src, t: f.name.replace(/\.[^.]+$/, '') }; persist(); renderAdd(); });
         });
       });
     }
+    function renderAdd(){
+      var d = ensureCur();
+      var h = '<div class="oa-head"><span class="oa-lab">ADD WORK</span><button class="btn" type="button" data-act="done">Done</button></div>';
+      h += noteHTML();
+      h += '<div class="oa-add"><div class="oa-formcol">';
+      h += '<div class="oa-lab">BEFORE &amp; AFTER</div>';
+      h += '<div style="display:flex;gap:10px;margin-top:8px"><div style="flex:1">' + boxHTML2(d, 'b') + '</div><div style="flex:1">' + boxHTML2(d, 'a') + '</div></div>';
+      h += '<label class="oa-fld"><span>Project title</span><input type="text" data-f="title" value="' + esc(d.title) + '" placeholder="e.g., The Willow"></label>';
+      h += '<label class="oa-fld"><span>Caption / description</span><textarea data-f="story" placeholder="Shared transformation story">' + esc(d.story) + '</textarea></label>';
+      h += '<div class="oa-meta3"><label class="oa-fld"><span>Tags</span><input type="text" data-f="tags" value="' + esc(d.tags) + '"></label><label class="oa-fld"><span>Medium</span><input type="text" data-f="medium" value="' + esc(d.medium) + '"></label><label class="oa-fld"><span>Dimensions</span><input type="text" data-f="dims" value="' + esc(d.dims) + '"></label></div>';
+      h += '<label class="oa-fld"><span>Section</span><select data-fsec>' + model.sections.map(function(s){ return '<option' + (s === d.sec ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select></label>';
+      h += '<div class="oa-pubrow"><button class="btn btn--primary" type="button" data-act="pub">Publish project</button><button class="btn" type="button" data-act="draft">Save smart draft</button><button class="btn" type="button" data-act="deldraft">Delete draft</button></div>';
+      h += '<p class="oa-bastatus" style="margin-top:8px">' + (d.pairId ? 'Editing a published project. The live version stays up until you publish the update.' : 'Drafts save on their own as you work, half-finished is fine. Publish needs both photos.') + '</p>';
+      h += draftsHTML();
+      h += '<input type="file" data-role="ffile" accept="image/*" hidden>';
+      h += '</div><div class="oa-galcol">';
+      h += '<div class="oa-lab">STANDARD GALLERY</div>';
+      h += galleryInner();
+      h += '</div></div>';
+      root.innerHTML = h;
+      wireDrop();
+      wireFormBoxes();
+    }
 
-    function render(){ if (view !== 'gallery') armDelSec = false; if (view === 'portfolio') renderPortfolio(); else if (view === 'gallery') renderGallery(); else renderBA(); }
+    function render(){ if (view !== 'gallery') armDelSec = false; if (view === 'portfolio') renderPortfolio(); else if (view === 'gallery') renderGallery(); else renderAdd(); }
     function addFiles(sec, files){
       Array.prototype.forEach.call(files, function(f){
         readFile(f, function(src){ model.singles.push({ id: nid('s'), src: src, cap: '', sec: sec, onSite: false, ord: uid }); commit(); render(); });
       });
     }
-    function tryAddPair(){
-      var last = baPairs[baPairs.length - 1];
-      if (last && !(last.b && last.a)) { note = 'That pair is not finished: it needs a before photo and an after photo before you can add another.'; noteWarn = true; render(); return false; }
-      note = ''; noteWarn = false;
-      baPairs.push({ sec: model.sections[0], b: null, a: null }); render(); return true;
-    }
-
     root.addEventListener('click', function(e){
-      var t = e.target.closest('[data-act],[data-site],[data-del],[data-off],[data-prm],[data-fin],[data-brm],[data-box]');
+      var t = e.target.closest('[data-act],[data-site],[data-del],[data-off],[data-prm],[data-pedit],[data-fbox],[data-resume],[data-ddel]');
       if (!t) return;
       var act = t.getAttribute('data-act');
       if (act === 'upload') { var c = root.querySelector('[data-role="choose"]'); if (c) c.style.display = c.style.display === 'none' ? '' : 'none'; return; }
       if (act === 'ch-cancel') { root.querySelector('[data-role="choose"]').style.display = 'none'; return; }
-      if (act === 'ch-gallery') { view = 'gallery'; note = ''; render(); return; }
-      if (act === 'ch-ba') { if (!baPairs.length) baPairs.push({ sec: model.sections[0], b: null, a: null }); view = 'ba'; note = ''; render(); return; }
-      if (act === 'done') { view = 'portfolio'; note = ''; render(); return; }
+      if (act === 'ch-add') { view = 'add'; note = ''; ensureCur(); render(); return; }
+      if (act === 'done') { dropBlankDraft(); view = 'portfolio'; note = ''; render(); return; }
+      if (act === 'pub') {
+        if (!cur) return;
+        if (!cur.b || !cur.a) { note = 'A project needs both a before photo and an after photo to publish. Everything so far is saved in the draft.'; noteWarn = true; render(); return; }
+        var np = { id: cur.pairId || nid('p'), bsrc: cur.b.src, asrc: cur.a.src, bcap: '', acap: '', title: (cur.title || '').trim(), story: (cur.story || '').trim(), tags: (cur.tags || '').trim(), medium: (cur.medium || '').trim(), dims: (cur.dims || '').trim(), sec: cur.sec, ord: uid };
+        var oi = -1; model.pairs.forEach(function(p, ix){ if (p.id === np.id) oi = ix; });
+        if (oi >= 0) { np.bcap = model.pairs[oi].bcap || ''; np.acap = model.pairs[oi].acap || ''; model.pairs[oi] = np; } else model.pairs.push(np);
+        model.drafts = model.drafts.filter(function(x){ return x.id !== cur.id; });
+        cur = null;
+        page = model.sections.indexOf(np.sec); if (page < 0) page = 0;
+        view = 'portfolio'; note = 'Project published to Portfolio' + (np.title ? ': ' + np.title : '') + '. Save artists sends it to the site.'; noteWarn = false;
+        commit(); render(); return;
+      }
+      if (act === 'draft') { persist(); cur = null; view = 'portfolio'; note = 'Smart draft saved. It waits here, half-finished is fine, until you publish it.'; noteWarn = false; render(); return; }
+      if (act === 'deldraft') { if (cur) { model.drafts = model.drafts.filter(function(x){ return x.id !== cur.id; }); cur = null; persist(); } note = 'Draft deleted.'; noteWarn = false; render(); return; }
       if (act === 'prev') { if (page > 0) { page--; armDelSec = false; render(); } return; }
       if (act === 'next') { if (page < model.sections.length - 1) { page++; armDelSec = false; render(); } return; }
       if (act === 'gupload') { var o = root.querySelector('[data-role="gupopts"]'); if (o) o.style.display = o.style.display === 'none' ? '' : 'none'; return; }
@@ -2309,14 +2387,13 @@ var DEFAULTS = {
         while (model.sections.indexOf(name) >= 0) { name = 'New section ' + (n++); }
         model.sections.push(name); page = model.sections.length - 1; commit(); render(); return;
       }
-      if (act === 'addpair') { tryAddPair(); return; }
       if (act === 'delsec') {
         if (!armDelSec) { armDelSec = true; render(); return; }
         var old = secName();
         var target = model.sections.filter(function(x){ return x !== old; })[0];
         model.singles.forEach(function(s){ if (s.sec === old) s.sec = target; });
         model.pairs.forEach(function(p){ if (p.sec === old) p.sec = target; });
-        baPairs.forEach(function(p){ if (p.sec === old) p.sec = target; });
+        model.drafts.forEach(function(p){ if (p.sec === old) p.sec = target; });
         model.sections.splice(page, 1);
         if (page >= model.sections.length) page = model.sections.length - 1;
         armDelSec = false;
@@ -2341,21 +2418,29 @@ var DEFAULTS = {
         model.pairs = model.pairs.filter(function(x){ return x.id !== t.getAttribute('data-prm'); });
         commit(); render(); return;
       }
-      if (t.hasAttribute('data-fin')) {
-        var pair = baPairs[+t.getAttribute('data-fin')];
-        if (pair && pair.b && pair.a) {
-          model.pairs.push({ id: nid('p'), bsrc: pair.b.src, asrc: pair.a.src, bcap: '', acap: '', sec: pair.sec, ord: uid });
-          baPairs.splice(+t.getAttribute('data-fin'), 1);
-          page = model.sections.indexOf(pair.sec); if (page < 0) page = 0;
-          view = 'portfolio'; note = 'Pair finished. It is in Portfolio now, under ' + pair.sec + '. Set its captions here.'; noteWarn = false;
-          commit(); render();
+      if (t.hasAttribute('data-pedit')) {
+        var pp = model.pairs.filter(function(x){ return x.id === t.getAttribute('data-pedit'); })[0];
+        if (pp) {
+          cur = { id: nid('d'), pairId: pp.id, sec: pp.sec, b: { src: pp.bsrc, t: '' }, a: { src: pp.asrc, t: '' }, title: pp.title || '', story: pp.story || '', tags: pp.tags || '', medium: pp.medium || '', dims: pp.dims || '' };
+          view = 'add'; note = ''; render();
         }
         return;
       }
-      if (t.hasAttribute('data-brm')) { baPairs.splice(+t.getAttribute('data-brm'), 1); render(); return; }
-      if (t.hasAttribute('data-box')) {
-        var pr = t.closest('.oa-bapair'); baTarget = { i: +pr.getAttribute('data-i'), side: t.getAttribute('data-box') };
-        root.querySelector('[data-role="bafile"]').click(); return;
+      if (t.hasAttribute('data-resume')) {
+        var rd = model.drafts.filter(function(x){ return x.id === t.getAttribute('data-resume'); })[0];
+        if (rd) { cur = rd; render(); }
+        return;
+      }
+      if (t.hasAttribute('data-ddel')) {
+        var did = t.getAttribute('data-ddel');
+        model.drafts = model.drafts.filter(function(x){ return x.id !== did; });
+        if (cur && cur.id === did) cur = null;
+        persist(); render(); return;
+      }
+      if (t.hasAttribute('data-fbox')) {
+        formTarget = t.getAttribute('data-fbox');
+        var ff = root.querySelector('[data-role="ffile"]'); if (ff) ff.click();
+        return;
       }
     });
     root.addEventListener('change', function(e){
@@ -2367,21 +2452,25 @@ var DEFAULTS = {
           model.sections[page] = nn;
           model.singles.forEach(function(s){ if (s.sec === old) s.sec = nn; });
           model.pairs.forEach(function(p){ if (p.sec === old) p.sec = nn; });
-          baPairs.forEach(function(p){ if (p.sec === old) p.sec = nn; });
+          model.drafts.forEach(function(p){ if (p.sec === old) p.sec = nn; });
           commit();
         }
         render(); return;
       }
-      if (t.hasAttribute('data-bsec')) { baPairs[+t.getAttribute('data-bsec')].sec = t.value; return; }
+      if (t.hasAttribute('data-fsec')) { if (cur) { cur.sec = t.value; persist(); } return; }
       if (t.getAttribute('data-role') === 'gfile') { addFiles(secName(), t.files); t.value = ''; return; }
-      if (t.getAttribute('data-role') === 'bafile') {
+      if (t.getAttribute('data-role') === 'ffile') {
         var f = t.files && t.files[0];
-        if (f && baTarget) readFile(f, function(src){ baPairs[baTarget.i][baTarget.side] = { src: src, t: f.name.replace(/\.[^.]+$/, '') }; renderBA(); });
+        if (f && formTarget && cur) readFile(f, function(src){ cur[formTarget] = { src: src, t: f.name.replace(/\.[^.]+$/, '') }; persist(); renderAdd(); });
         t.value = ''; return;
       }
     });
     root.addEventListener('input', function(e){
       var t = e.target;
+      if (t.hasAttribute('data-f')) {
+        if (cur) { cur[t.getAttribute('data-f')] = t.value; persist(); }
+        return;
+      }
       if (t.hasAttribute('data-cap')) {
         var s = model.singles.filter(function(x){ return x.id === t.getAttribute('data-cap'); })[0];
         if (s) { s.cap = t.value; commit(); }
@@ -2410,6 +2499,7 @@ var DEFAULTS = {
     function mirrorList(){
       var out = [];
       grid.querySelectorAll('.pf-item').forEach(function(it){
+        if (it.getAttribute('data-pair')) return;
         var im = it.querySelector('img'); var cap = it.querySelector('.pf-cap');
         var src = im ? raw(im.getAttribute('src') || '') : '';
         if (src) out.push({ src: src, cap: cap ? cap.value : '' });
