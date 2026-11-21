@@ -8,6 +8,7 @@ Built and maintained by 717 Digital Studio.
 ```
 public/       everything the web serves. This is the website.
   admin/      the owner portal
+  artists/    one folder per artist, named by their permanent slug (lex, liv, diana). Photos: portrait.jpg, work-01.jpg ...
   next/       staging copy of the site
   scratch/    design mockups
 app/          server code (not started)
@@ -19,7 +20,7 @@ resources/    source content the pages are built from (not started)
 tests/        automated checks (not started)
 ```
 
-Only `public/` is published. Page addresses are the same as before. The empty folders only mark where things will go.
+Only `public/` is published. Page addresses are the same as before. Artist folders keep their slug even if the artist's display name changes, so photos and links never move. The empty folders only mark where things will go.
 
 ## Publishing
 

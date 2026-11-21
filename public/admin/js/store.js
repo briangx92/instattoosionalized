@@ -255,7 +255,7 @@
     },
     all: function () { return tx('readonly', function (s) { return s.getAllKeys(); }); },
     /* Plain repo photos live one folder up from this page. */
-    src: function (ref) { if (!ref) return ''; if (/^(idb:)/.test(ref)) return ''; if (/^(https?:|data:|blob:)/.test(ref)) return ref; return '../' + ref; },
+    src: function (ref) { if (!ref) return ''; if (/^(idb:)/.test(ref)) return ''; if (/^(https?:|data:|blob:)/.test(ref)) return ref; return '../' + String(ref).replace(/^(lex|liv|diana)-(portrait|work-\d+)\.jpg$/, 'artists/$1/$2.jpg'); },
     el: function (ref, alt, cls) {
       var im = OA.h('img', { alt: alt || '', class: cls || '', loading: 'lazy', decoding: 'async' });
       if (/^idb:/.test(ref || '')) {
