@@ -1700,26 +1700,64 @@ const MODULES = {
     }
 
     const overlay = $("send-overlay");
-    function finish(path, text){
+    const REQUEST_API = "https://api.instattoosionalized.net/requests";
+    let requestId = null;
+    function buildPayload(path, text){
+      const a = st.a;
+      const guided = path === "guided";
+      if (!requestId) requestId = "req-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+      return {
+        id: requestId,
+        path: path,
+        artist: st.artist ? artistBySlug[st.artist].name : "",
+        services: guided ? [...st.picked].map(id => byId[id].name) : [],
+        when: guided && a.whenMode === "date" && a.date ? { date: a.date, part: a.part || "", time: a.time || "" } : null,
+        name: guided ? a.name.trim() : qName.value.trim(),
+        phone: guided ? a.phone : T.fmtPhone(qPhone.value),
+        text: text,
+        page: location.href
+      };
+    }
+    async function sendRequest(path, text){
+      const ctl = new AbortController();
+      const killer = setTimeout(() => ctl.abort(), 10000);
+      try {
+        const r = await fetch(REQUEST_API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(buildPayload(path, text)), signal: ctl.signal });
+        if (!r.ok) return false;
+        const j = await r.json().catch(() => null);
+        return Boolean(j && j.ok);
+      } catch (e) { return false; } finally { clearTimeout(killer); }
+    }
+    function showResult(text, sent){
+      overlay.hidden = true;
+      overlay.classList.remove("is-run");
+      pathsBox.hidden = true;
+      panels.quick.hidden = true;
+      panels.guided.hidden = true;
+      result.hidden = false;
+      $("result-text").textContent = text;
+      $("result-sms").href = S.smsBase + "?&body=" + encodeURIComponent(text);
+      if (sent) {
+        $("result-title").textContent = "Request sent"; $("result-sms").hidden = true; $("result-copy").hidden = true;
+        $("result-status").textContent = "The shop got your request. They will confirm your time by text, and once they do it goes on their calendar. Here is what you sent:";
+      } else {
+        $("result-title").textContent = "One more step: send it to the shop"; $("result-sms").hidden = false; $("result-copy").hidden = false;
+        $("result-status").textContent = "We could not send that automatically. Text it to the shop, or copy it and send it any way you like. Here is your request:";
+      }
+      $("result").dataset.text = text;
+      $("ask").scrollIntoView({ block: "start", behavior: "auto" });
+      $("result-title").focus({ preventScroll: true });
+    }
+    async function finish(path, text){
       st.lastPath = path;
       overlay.hidden = false;
       overlay.classList.remove("is-run");
       void overlay.offsetWidth;
       overlay.classList.add("is-run");
-      setTimeout(() => {
-        overlay.hidden = true;
-        overlay.classList.remove("is-run");
-        pathsBox.hidden = true;
-        panels.quick.hidden = true;
-        panels.guided.hidden = true;
-        result.hidden = false;
-        $("result-text").textContent = text;
-        $("result-sms").href = S.smsBase + "?&body=" + encodeURIComponent(text);
-        $("result-title").textContent = "Request sent"; $("result-sms").hidden = true; $("result-copy").hidden = true; $("result-status").textContent = "The shop got your request. They will confirm your time by text, and once they do it goes on their calendar. Here is what you sent:";
-        $("result").dataset.text = text;
-        $("ask").scrollIntoView({ block: "start", behavior: "auto" });
-        $("result-title").focus({ preventScroll: true });
-      }, T.reduced() ? 900 : 2000);
+      const wait = new Promise(res => setTimeout(res, T.reduced() ? 900 : 2000));
+      const sent = await sendRequest(path, text);
+      await wait;
+      showResult(text, sent);
     }
     $("result-copy").addEventListener("click", async () => {
       const text = $("result").dataset.text || "";
