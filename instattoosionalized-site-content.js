@@ -9,7 +9,7 @@
   var KINDS = { notice: 'News', closure: 'Closed', special: 'Special' };
   var ISO = /^\d{4}-\d{2}-\d{2}$/;
   var HOSTS = { Instagram: ['instagram.com'], Facebook: ['facebook.com'], TikTok: ['tiktok.com'], YouTube: ['youtube.com'], X: ['x.com'], Threads: ['threads.net', 'threads.com'], Bluesky: ['bsky.app'], Snapchat: ['snapchat.com'], Website: null };
-  var MAX = { artists: 20, socials: 8, name: 80, role: 40, bio: 1500, label: 60, url: 300 };
+  var MAX = { policy: 800, artists: 20, socials: 8, name: 80, role: 40, bio: 1500, label: 60, url: 300 };
 
   function warn(msg) { try { console.error('[site-content] ' + msg); } catch (e) { /* console missing */ } }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
@@ -84,6 +84,77 @@
     return by;
   }
 
+  /* Policies: the three the shop can post. Returns an object of checked strings, or null when the content has none. */
+  var POLICY_TITLES = { deposit: 'Deposit', age: 'Age and ID', aftercare: 'Aftercare' };
+  var POLICY_DEFAULTS = { deposit: 'The shop\u2019s deposit is $40 and holds your spot.', age: '', aftercare: '' };
+  function cleanPolicies(c) {
+    if (!c || !c.policies || typeof c.policies !== 'object' || Array.isArray(c.policies)) return null;
+    var out = {};
+    Object.keys(POLICY_TITLES).forEach(function (k) {
+      var v = c.policies[k];
+      if (v == null) { out[k] = ''; return; }
+      if (str(v, MAX.policy)) out[k] = v.trim(); else { warn('The ' + POLICY_TITLES[k] + ' policy was skipped because it is not valid.'); out[k] = POLICY_DEFAULTS[k]; }
+    });
+    return out;
+  }
+  function pointPolicyLinks() {
+    if (!PREVIEW) return;
+    Array.prototype.forEach.call(document.querySelectorAll('a[data-pol-link]'), function (a) { a.setAttribute('href', withPreview(a.getAttribute('href'))); });
+  }
+  /* Homepage "Good to know" box: shows the published policies. Blank ones stay hidden, as do all of them when every one is blank. */
+  function homePolicies() {
+    pointPolicyLinks();
+    var p = cleanPolicies(read()); if (!p) return;
+    Object.keys(POLICY_TITLES).forEach(function (k) {
+      var row = document.querySelector('[data-pol="' + k + '"]'); if (!row) return;
+      var span = row.querySelector('[data-pol-text]'); if (p[k]) { if (span) span.textContent = p[k]; row.hidden = false; } else row.hidden = true;
+    });
+    var card = document.getElementById('policies-card'); if (card) card.hidden = !card.querySelector('[data-pol]:not([hidden])');
+  }
+  /* Menu: the artist links become one "Artists" dropdown, built from the published artists (hidden ones left out),
+     or from the links already on the page when nothing is published. Works for any number of artists. */
+  function navNames() {
+    try {
+      var nav = document.querySelector('.p-menu'); if (!nav || nav.querySelector('.p-drop')) return;
+      var found = Array.prototype.filter.call(nav.querySelectorAll('a[href^="instattoosionalized-artist-"]'), function (a) { return !a.children.length; });
+      if (!found.length) return;
+      var by = cleanArtists(read()), items = [];
+      if (by) {
+        var order = (read() && read().artists) || [];
+        order.forEach(function (a) { var q = a && by[a.slug]; if (q && q.visible) items.push({ href: 'instattoosionalized-artist-' + q.slug + '.html', text: q.nick }); });
+      } else {
+        found.forEach(function (a) { items.push({ href: a.getAttribute('href'), text: a.textContent }); });
+      }
+      var wrap = el('div', 'p-drop'), btn = el('button', 'p-drop__btn', 'Artists'), list = el('div', 'p-drop__list');
+      btn.type = 'button'; btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'p-drop-list'); list.id = 'p-drop-list'; list.hidden = true;
+      items.forEach(function (it) { var a = el('a', null, it.text); a.href = withPreview(it.href); list.appendChild(a); });
+      wrap.append(btn, list);
+      function close() { list.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+      btn.addEventListener('click', function (e) { e.stopPropagation(); var open = list.hidden; list.hidden = !open; btn.setAttribute('aria-expanded', String(open)); });
+      document.addEventListener('click', function (e) { if (!list.hidden && !wrap.contains(e.target)) close(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !list.hidden) { close(); btn.focus(); } });
+      found[0].parentNode.insertBefore(wrap, found[0]);
+      found.forEach(function (a) { if (a.parentNode) a.parentNode.removeChild(a); });
+      if (!items.length) wrap.hidden = true;
+    } catch (e) { warn('menu names not updated'); }
+  }
+  /* Policies page. */
+  function policiesPage() {
+    try {
+      var c = read(); previewBar(!!c); pointPolicyLinks(); navNames();
+      if (PREVIEW) Array.prototype.forEach.call(document.querySelectorAll('a[href]'), function (a) { var h = a.getAttribute('href'), n = withPreview(h); if (n !== h) a.setAttribute('href', n); });
+      var p = cleanPolicies(c) || POLICY_DEFAULTS, list = document.getElementById('pol-list'), empty = document.getElementById('pol-empty'), n = 0;
+      if (!list) return;
+      Object.keys(POLICY_TITLES).forEach(function (k) {
+        var t = (p[k] || '').trim(); if (!t) return;
+        var box = el('section', 'pol-item'); box.appendChild(el('h2', null, POLICY_TITLES[k]));
+        paragraphs(t).forEach(function (x) { box.appendChild(el('p', null, x)); });
+        list.appendChild(box); n++;
+      });
+      if (empty) empty.hidden = n > 0;
+    } catch (e) { warn('Could not show the policies: ' + e.message); }
+  }
+
   function paragraphs(bio) { return bio.split(/\n\s*\n/).map(function (p) { return p.replace(/\s*\n\s*/g, ' ').trim(); }).filter(Boolean); }
   function withPreview(href) {
     if (!PREVIEW || typeof href !== 'string' || !/^instattoosionalized-[a-z-]+\.html/.test(href)) return href;
@@ -149,7 +220,7 @@
   function applyArtistPage(slug) {
     try {
       var c = read(), by = cleanArtists(c), p = by && by[slug];
-      previewBar(!!c);
+      previewBar(!!c); navNames();
       if (PREVIEW) {
         Array.prototype.forEach.call(document.querySelectorAll('a[href]'), function (a) { var h = a.getAttribute('href'); var n = withPreview(h); if (n !== h) a.setAttribute('href', n); });
       }
@@ -194,9 +265,19 @@
     } catch (e) { warn('Could not show the published artist content: ' + e.message); }
   }
 
-  window.SiteContent = { PREVIEW: PREVIEW, KINDS: KINDS, read: read, shopToday: shopToday, active: active, cleanNews: cleanNews, cleanArtists: cleanArtists, mergeHome: mergeHome, applyArtistPage: applyArtistPage, previewBar: previewBar, el: el, warn: warn };
+  window.SiteContent = { navNames: navNames, homePolicies: homePolicies, cleanPolicies: cleanPolicies, withPreview: withPreview, PREVIEW: PREVIEW, KINDS: KINDS, read: read, shopToday: shopToday, active: active, cleanNews: cleanNews, cleanArtists: cleanArtists, mergeHome: mergeHome, applyArtistPage: applyArtistPage, previewBar: previewBar, el: el, warn: warn };
 
   var me = document.currentScript;
+  function navPage() {
+    previewBar(!!read()); navNames();
+    if (PREVIEW) Array.prototype.forEach.call(document.querySelectorAll('a[href]'), function (a) { var h = a.getAttribute('href'), n = withPreview(h); if (n !== h) a.setAttribute('href', n); });
+  }
+  if (me && me.getAttribute('data-nav')) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', navPage); else navPage();
+  }
+  if (me && me.getAttribute('data-policies')) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', policiesPage); else policiesPage();
+  }
   if (me && me.getAttribute('data-artist')) {
     var slug = me.getAttribute('data-artist');
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { applyArtistPage(slug); }); else applyArtistPage(slug);
