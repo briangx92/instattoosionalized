@@ -372,12 +372,12 @@
   /* ---------- portfolio ---------- */
   OA.items = function (slug) { var s = st().site; if (!s.portfolio[slug]) s.portfolio[slug] = []; return s.portfolio[slug]; };
   act.addPhotos = function (slug, files) {
-    var list = Array.prototype.slice.call(files || []), added = [], failed = [];
+    var list = Array.prototype.slice.call(files || []), added = [], dates = [], failed = [];
     return list.reduce(function (p, f) {
-      return p.then(function () { return OA.img.compress(f).then(OA.img.put).then(function (id) { added.push(id); }); }).catch(function (e) { failed.push({ name: f.name, msg: e.message }); });
+      return p.then(function () { return OA.img.exifDate(f).then(function (d) { return OA.img.compress(f).then(OA.img.put).then(function (id) { added.push(id); dates.push(d); }); }); }).catch(function (e) { failed.push({ name: f.name, msg: e.message }); });
     }, Promise.resolve()).then(function () {
       var items = OA.items(slug), top = items.reduce(function (m, p) { return Math.max(m, p.ord || 0); }, 0);
-      added.forEach(function (id, i) { items.push({ id: OA.uid('ph'), src: id, cap: '', sec: '', onSite: false, ord: top + (i + 1) * 10 }); });
+      added.forEach(function (id, i) { items.push({ id: OA.uid('ph'), src: id, cap: '', sec: '', onSite: false, ord: top + (i + 1) * 10, date: dates[i] || OA.todayISO(), dateSource: dates[i] ? 'exif' : 'upload' }); });
       if (added.length) S.commit();
       return { added: added.length, failed: failed };
     });
