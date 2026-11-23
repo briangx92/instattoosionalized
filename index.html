@@ -1,3 +1,327 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Instattoosionalized</title>
-<meta http-equiv="refresh" content="0; url=instattoosionalized-tattoos-and-piercings.html"></head>
-<body><p><a href="instattoosionalized-tattoos-and-piercings.html">Instattoosionalized</a></p></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="case-tag" content="instattoosionalized-tattoos-and-piercings·z62">
+<title>Instattoosionalized Tattoos and Piercings | Tattoo Studio in Northampton, PA</title>
+<meta name="description" content="Tattoos and body piercing at 1852 Main St in Northampton, PA. Call (610) 440-2700.">
+<meta property="og:title" content="Instattoosionalized Tattoos and Piercings">
+<meta property="og:description" content="Tattoos and body piercing on Main Street in Northampton, PA.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0E0E10">
+<link rel="icon" href="instattoosionalized-logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap">
+<link rel="stylesheet" href="css/home.css">
+
+
+
+
+</head>
+<body>
+<header class="s-header" data-module="header">
+  <div class="l-wrap">
+    <span class="s-header__brand"><img class="s-header__logo" src="instattoosionalized-logo.jpg" alt="Instattoosionalized logo"><a class="s-header__name" href="#top" data-fill="shortName"></a></span>
+    <nav class="s-nav" aria-label="Site">
+      <div class="s-nav__item">
+        <button class="s-nav__btn" id="artists-btn" type="button" aria-expanded="false" aria-haspopup="true">Artists <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 9 L12 15 L18 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="s-nav__menu" id="artists-menu" hidden>
+          <a data-nav-artist="lex" href="view/pages/artist.html?artist=lex">Lex</a>
+          <a data-nav-artist="liv" href="view/pages/artist.html?artist=liv">Liv</a>
+          <a data-nav-artist="diana" href="view/pages/artist.html?artist=diana">Diana</a>
+          <a href="#artists">All artists</a>
+        </div>
+      </div>
+      <a class="c-btn" href="#ask">Start a request</a>
+    </nav>
+    <a class="c-btn c-btn--ghost" data-href="phoneHref">Call<span class="u-hide-sm" data-fill="phoneDisplay"></span></a>
+  </div>
+</header>
+
+<section class="s-hero" id="top" data-module="hero">
+  <video class="s-hero__media" autoplay muted loop playsinline src="instattoosionalized-tattoos-and-piercings-hero.mp4"></video>
+  <div class="s-hero__shade"></div>
+  <div class="s-hero__copy">
+    <div class="l-wrap">
+      <div>
+        <p class="s-hero__kicker c-kicker" data-fill="copy.heroKicker"></p>
+        <h1><span class="s-hero__name" data-fill="shortName"></span> <span class="s-hero__sub" data-fill="copy.heroSub"></span></h1>
+        <p class="s-hero__rating" id="hero-rating"></p>
+        <p class="s-hero__line" data-fill="copy.heroLine"></p>
+        <div class="s-hero__cta">
+          <a class="c-btn c-btn--big" href="#ask">Start a request</a>
+          <a class="c-btn c-btn--ghost c-btn--big" data-href="phoneHref">Call now</a>
+        </div>
+      </div>
+      <p class="s-hero__tag"><span data-fill="copy.tagTop"></span><b data-fill="copy.tagMain"></b></p>
+    </div>
+  </div>
+</section>
+
+<div class="s-ticker" data-module="ticker">
+  <a class="s-ticker__static" data-href="phoneHref">Call</a>
+  <div class="s-ticker__track" aria-hidden="true"><div class="s-ticker__scroll" id="ticker-scroll"></div></div>
+  <a class="s-ticker__static" href="#ask">Request</a>
+</div>
+
+<section class="s-news" id="news" aria-label="Shop news" hidden><div class="l-wrap"><ul class="s-news__list" id="news-list"></ul></div></section>
+
+<section class="l-section s-services" id="services" data-module="services">
+  <div class="l-wrap">
+    <div class="s-services__head">
+      <p class="c-kicker">What's on offer</p>
+      <h2 data-fill="copy.servicesTitle"></h2>
+      <p data-fill="copy.servicesIntro"></p>
+    </div>
+    <div class="s-services__grid" id="service-cards"></div>
+  </div>
+</section>
+
+<section class="l-section s-artists" id="artists" data-module="artists" hidden>
+  <div class="l-wrap">
+    <div class="s-artists__head">
+      <p class="c-kicker">The crew</p>
+      <h2>Meet the artists</h2>
+      <p>Every artist keeps their own book here. Slide through the crew, look through their work, then ask for them by name when you send a request.</p>
+    </div>
+    <div class="s-railwrap">
+      <button class="s-railnav" id="artist-prev" type="button" aria-label="Previous artist" hidden><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14.5 5 L8 12 L14.5 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="s-rail" id="artist-rail" aria-label="Artists, scrolls sideways"></div>
+      <button class="s-railnav" id="artist-next" type="button" aria-label="Next artist" hidden><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9.5 5 L16 12 L9.5 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+    <p class="s-artists__note">More artists appear in this section as the shop adds them in the portal.</p>
+  </div>
+</section>
+
+<section class="l-section s-prices" id="prices" data-module="prices">
+  <div class="l-wrap">
+    <div class="s-prices__frame">
+      <div class="s-prices__top">
+        <h2>Prices</h2>
+        <p class="s-prices__label c-chip">Sample prices</p>
+      </div>
+      <p class="s-prices__note" data-fill="copy.pricesNote"></p>
+      <div class="s-prices__groups" id="price-groups"></div>
+    </div>
+  </div>
+</section>
+
+<section class="l-section s-proof" id="proof" data-module="proof">
+  <div class="l-wrap">
+    <div class="s-proof__score">
+      <span class="s-proof__num" id="proof-num"></span>
+      <div>
+        <p class="s-proof__stars c-stars" id="proof-stars"></p>
+        <p class="s-proof__count" id="proof-count"></p>
+      </div>
+    </div>
+    <div id="proof-quotes"></div>
+    <a class="c-btn c-btn--ghost" id="proof-link" target="_blank" rel="noopener">Read the reviews on Google</a>
+  </div>
+</section>
+
+<section class="l-section" id="work" data-module="work">
+  <div class="l-wrap">
+    <div class="c-card s-workcard s-paper">
+      <div class="s-paper__holes" aria-hidden="true"><i></i><i></i><i></i></div>
+      <span class="s-workcard__sheet" id="work-count" aria-hidden="true"></span>
+      <h2>See recent work</h2>
+      <p data-fill="copy.workLine"></p>
+      <button class="c-btn" id="open-book" type="button">Open the book</button>
+    </div>
+  </div>
+</section>
+
+<section class="l-section s-visit" id="visit" data-module="visit">
+  <div class="l-wrap">
+    <h2>Visit</h2>
+    <div class="s-visit__grid">
+      <div class="c-card">
+        <h3>Hours</h3>
+        <table class="s-hours" id="hours-table"></table>
+      </div>
+      <div class="c-card">
+        <h3 data-fill="name"></h3>
+        <p class="s-visit__addr" id="visit-address"></p>
+        <div class="s-visit__stack">
+          <a class="c-btn" id="directions-btn" target="_blank" rel="noopener">Get directions</a>
+          <a class="s-visit__phone" data-href="phoneHref" data-fill="phoneDisplay"></a>
+          <a data-href="facebook" target="_blank" rel="noopener">Find the shop on Facebook</a>
+        </div>
+      </div>
+    </div>
+    <div class="c-card" id="policies-card" style="margin-top:var(--sp-4)">
+      <h3>Good to know</h3>
+      <div data-pol="deposit">
+        <p style="margin-top:10px"><strong>Deposit.</strong> <span data-pol-text>The shop's deposit is $40 and holds your spot.</span></p>
+      </div>
+      <div data-pol="age" hidden>
+        <p style="margin-top:10px"><strong>Age and ID.</strong> <span data-pol-text></span></p>
+      </div>
+      <div data-pol="aftercare" hidden>
+        <p style="margin-top:10px"><strong>Aftercare.</strong> <span data-pol-text></span></p>
+      </div>
+    </div>
+      </div>
+</section>
+
+<section class="l-section s-ask" id="ask" data-module="ask">
+  <div class="l-wrap s-ask__grid">
+    <div class="s-ask__intro">
+      <p class="c-kicker">Request</p>
+      <h2 id="ask-title">Start a request</h2>
+      <p id="ask-lede">Leave your number for a call back, or build the full request in a few taps.</p>
+      <p class="s-ask__call" id="ask-call"></p>
+      <p class="s-ask__pol"><a data-pol-link href="view/pages/policies.html">Shop policies</a></p>
+    </div>
+    <div class="c-card">
+      <div class="s-paths" id="paths" role="tablist" aria-label="How do you want to reach the shop?">
+        <button type="button" role="tab" id="tab-quick" data-path="quick" aria-controls="panel-quick" aria-selected="true" tabindex="0"><span class="s-paths__label">Get in touch</span><span class="s-paths__sub">Name and number</span></button>
+        <button type="button" role="tab" id="tab-guided" data-path="guided" aria-controls="panel-guided" aria-selected="false" tabindex="-1"><span class="s-paths__label">Build my request</span><span class="s-paths__sub">Step by step</span></button>
+      </div>
+
+      <div role="tabpanel" id="panel-quick" aria-labelledby="tab-quick">
+        <form class="s-quick" id="quick-form" novalidate>
+          <div class="c-field">
+            <label class="c-field__label" for="q-name">Name</label>
+            <input class="c-input" id="q-name" type="text" autocomplete="name" autocapitalize="words" enterkeyhint="next" aria-describedby="q-name-err" required>
+            <p class="c-field__err" id="q-name-err"></p>
+          </div>
+          <div class="c-field">
+            <label class="c-field__label" for="q-phone">Phone</label>
+            <input class="c-input" id="q-phone" type="tel" inputmode="tel" autocomplete="tel" enterkeyhint="next" aria-describedby="q-phone-hint" required>
+            <p class="c-field__hint" id="q-phone-hint">At least 7 digits so the shop can reach you.</p>
+          </div>
+          <div class="c-field" id="q-artist-field">
+            <label class="c-field__label" for="q-artist">Who with? (optional)</label>
+            <select class="c-input" id="q-artist"></select>
+            <p class="c-field__hint">No preference means the first artist free for the work.</p>
+          </div>
+          <div class="c-field">
+            <label class="c-field__label" for="q-note">What do you need? (optional)</label>
+            <textarea class="c-input" id="q-note" placeholder="A quick line is plenty" autocapitalize="sentences"></textarea>
+          </div>
+          <button class="c-btn c-btn--big" id="q-send" type="button" aria-describedby="q-phone-hint" disabled>Send request</button>
+          <p class="s-quick__fine">Send it right here. The shop confirms your time and puts it on their calendar.</p>
+        </form>
+      </div>
+
+      <div role="tabpanel" id="panel-guided" aria-labelledby="tab-guided" hidden>
+        <form class="s-form" id="request-form" novalidate>
+          <div class="s-form__top">
+            <p class="s-form__steplabel" id="step-label"></p>
+            <div class="s-form__bar" aria-hidden="true"><span id="step-bar"></span></div>
+          </div>
+          <div id="step-body"></div>
+          <p class="s-form__error" id="step-error" role="alert"></p>
+          <div class="s-form__nav">
+            <button class="c-btn c-btn--ghost" id="btn-back" type="button">Back</button>
+            <button class="c-btn" id="btn-next" type="button">Next</button>
+          </div>
+          <div class="s-form__summary" id="form-summary" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <div class="s-result" id="result" hidden>
+        <h3 id="result-title" tabindex="-1">Your request is ready</h3>
+        <div class="s-result__text" id="result-text"></div>
+        <div class="s-result__actions">
+          <a class="c-btn" id="result-sms">Text it to the shop</a>
+          <button class="c-btn c-btn--ghost" id="result-copy" type="button">Copy</button>
+          <button class="c-btn c-btn--ghost" id="result-edit" type="button">Edit</button>
+        </div>
+        <p class="s-result__status" id="result-status" role="status"></p>
+      </div>
+    </div>
+  </div>
+  <div class="l-wrap">
+    <div class="s-ask__faq">
+      <h3>Before you send it</h3>
+      <details>
+        <summary>How does booking work?</summary>
+        <p>Send a request right here. The shop gets back to you, confirms your time, and puts it on their calendar.</p>
+      </details>
+      <details>
+        <summary>What does the deposit cover?</summary>
+        <p data-deposit-line>The shop's deposit is $40 and holds your spot.</p>
+      </details>
+      <details>
+        <summary>How much will my tattoo cost?</summary>
+        <p>It depends on size, placement, and detail. The prices on this page are starting points; your artist gives you a real quote once they have seen your request.</p>
+      </details>
+    </div>
+  </div>
+  <div class="s-send" id="send-overlay" hidden aria-hidden="true">
+    <div class="s-send__art">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <path class="s-send__fill" d="M100 170C42 130 18 96 34 64C48 36 88 34 100 66C112 34 152 36 166 64C182 96 158 130 100 170Z"/>
+        <path class="s-send__line" pathLength="1" d="M100 170C42 130 18 96 34 64C48 36 88 34 100 66C112 34 152 36 166 64C182 96 158 130 100 170Z"/>
+        <path class="s-send__line" pathLength="1" d="M70 52C64 58 60 66 60 74M150 70C152 64 150 58 146 54"/>
+        <path class="s-send__banner" d="M14 100L56 92H144L186 100L172 113L186 126L144 120H56L14 126L28 113Z"/>
+        <text class="s-send__word" x="100" y="115" text-anchor="middle">READY</text>
+      </svg>
+      <p class="s-send__cap">Inking your request</p>
+    </div>
+  </div>
+</section>
+
+<footer class="s-footer" data-module="footer">
+  <div class="l-wrap">
+    <p class="s-footer__name" data-fill="copy.footerLine"></p>
+    <p class="s-footer__info" data-fill="copy.footerInfo"></p>
+    <nav aria-label="Footer">
+      <a href="#services">Services</a>
+      <a href="#visit">Visit</a>
+      <a href="view/pages/gallery.html">Gallery</a>
+      <a data-pol-link href="view/pages/policies.html">Policies</a>
+      <a data-href="facebook" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://briangx92.github.io/instattoosionalized/admin/" id="oa-footer-login" class="oa-footer-link">Owner login</a>
+    </nav>
+  </div>
+</footer>
+
+
+<div class="s-jump" id="jump" data-module="jump">
+  <a class="c-btn s-jump__req" id="jump-request" href="#ask">Request</a>
+  <button class="c-btn s-jump__up" id="jump-up" type="button" aria-label="Back to top">&#8593;</button>
+</div>
+
+
+<div id="artist-overlay" class="s-aview" role="dialog" aria-modal="true" aria-label="Artist profile" hidden>
+  <div class="s-aview__panel">
+    <div class="s-aview__top">
+      <h3 class="s-aview__title" id="aview-title" tabindex="-1"></h3>
+      <button class="s-aview__x" id="aview-close" type="button" aria-label="Close artist view"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    </div>
+    <div class="s-aview__grid" id="aview-grid"></div>
+    <div class="s-aview__profile" id="aview-profile"></div>
+  </div>
+</div>
+
+<div id="book-overlay" class="s-book" role="dialog" aria-modal="true" aria-label="Recent work" hidden>
+  <button class="c-btn c-btn--ghost s-book__close" id="close-book" type="button">Close</button>
+  <div id="book"></div>
+</div>
+
+<script src="scripts/site-content.js"></script>
+<script src="scripts/home.js"></script>
+
+<script type="application/ld+json" id="schema-ld" data-module="schema"></script>
+<script src="scripts/schema-init.js"></script>
+
+
+
+
+
+
+
+
+
+<script src="scripts/portal-apply-state.js"></script>
+
+<script src="scripts/home-content.js"></script>
+
+</body>
+</html>
