@@ -40,7 +40,7 @@
       chooser.appendChild(h('button', { type: 'button', class: 'role-btn', on: { click: function () { OA.setRole(r[0], r[1]); start(); } } }, h('strong', { text: r[2] }), h('span', { text: r[3] })));
     });
     document.querySelector('#app').appendChild(h('div', { class: 'signin' },
-      h('img', { class: 'signin-logo', src: '../instattoosionalized-logo.jpg', alt: '' }),
+      h('img', { class: 'signin-logo', src: '../assets/instattoosionalized-logo.jpg', alt: '' }),
       h('h1', { text: shop.name }),
       h('p', { class: 'lead', text: 'Owner portal' }),
       h('div', { class: 'demo-note' }, h('strong', { text: 'This is a demo.' }), h('span', { text: ' There are no passwords here. Pick who you want to try it as. On the real portal, people sign in with an emailed one-time code and only see what their role allows.' })),
@@ -69,7 +69,7 @@
     app.appendChild(chrome.demo); app.appendChild(chrome.err);
     app.appendChild(h('header', { class: 'top' },
       h('div', { class: 'top-in' },
-        h('a', { class: 'brand', href: '#/today' }, h('img', { src: '../instattoosionalized-logo.jpg', alt: '' }), h('span', { class: 'brand-name' }, h('b', { text: shop.short || shop.name }), h('i', { text: 'Owner portal' }))),
+        h('a', { class: 'brand', href: '#/today' }, h('img', { src: '../assets/instattoosionalized-logo.jpg', alt: '' }), h('span', { class: 'brand-name' }, h('b', { text: shop.short || shop.name }), h('i', { text: 'Owner portal' }))),
         h('div', { class: 'top-tools' }, OA.liveLink('btn small quiet'), chrome.publish, h('label', { class: 'who' }, h('span', { text: 'Preview as' }), chrome.who), theme, out)),
       nav));
     app.appendChild(main);
