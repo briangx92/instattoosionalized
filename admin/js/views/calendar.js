@@ -30,8 +30,9 @@
   }
 
   function gcalNote() {
-    var st = OA.gcal.status(), txt = 'Google Calendar: ' + st.text.toLowerCase() + '. These appointments exist only in the portal.';
-    return h('p', { class: 'note gcal-chip' }, txt + ' ', OA.role.kind === 'owner' ? ui.link('Set up', '#/settings/integrations', 'link') : null);
+    var st = OA.gcal.status();
+    var txt = 'Google Calendar: ' + st.text.toLowerCase() + '. ' + (st.connected ? 'Appointments are placed on the shop’s master booking calendar.' : st.reason);
+    return h('p', { class: 'note gcal-chip', text: txt });
   }
 
   function weekView(start, q) {

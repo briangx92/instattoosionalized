@@ -30,7 +30,7 @@
   }
   OA.query = function (obj) { var s = Object.keys(obj).filter(function (k) { return obj[k] !== '' && obj[k] != null; }).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]); }).join('&'); return s ? '?' + s : ''; };
 
-  /* ---------- sign-in (demo) ---------- */
+  /* ---------- sign-in ---------- */
   function signIn() {
     var shop = S.state.site.shop;
     document.title = 'Sign in | ' + shop.short + ' portal';
@@ -43,7 +43,6 @@
       h('img', { class: 'signin-logo', src: '../assets/instattoosionalized-logo.jpg', alt: '' }),
       h('h1', { text: shop.name }),
       h('p', { class: 'lead', text: 'Owner portal' }),
-      h('div', { class: 'demo-note' }, h('strong', { text: 'This is a demo.' }), h('span', { text: ' There are no passwords here. Pick who you want to try it as. On the real portal, people sign in with an emailed one-time code and only see what their role allows.' })),
       chooser));
   }
 
@@ -52,7 +51,6 @@
     var app = document.querySelector('#app'); OA.clear(app);
     var shop = S.state.site.shop;
     chrome.err = h('div', { class: 'bar bad', role: 'alert', hidden: true });
-    chrome.demo = h('div', { class: 'bar demo' }, h('span', { text: 'Demo. Changes stay in this browser. Nothing here texts a client, emails anyone, or touches the live website.' }));
     chrome.publish = h('a', { class: 'btn publish', href: '#/site/publish', hidden: true });
     chrome.who = ui.select([], '', { 'aria-label': 'Preview as' });
     [['owner:', 'Shop owner'], ['frontdesk:', 'Front desk']].concat(S.state.site.artists.filter(function (a) { return !a.removedAt; }).map(function (a) { return ['artist:' + a.slug, OA.nick(a)]; })).forEach(function (o) { chrome.who.appendChild(h('option', { value: o[0], text: o[1] })); });
@@ -61,12 +59,12 @@
       var parts = parseHash().parts; if (!parts.length || !OA.can(parts[0])) location.hash = '#/today'; else OA.rerender(); updateChrome();
     });
     var theme = ui.btn('Dark', function () { var d = document.documentElement.getAttribute('data-theme') === 'dark'; setTheme(d ? 'light' : 'dark'); }, 'quiet small', { 'aria-pressed': 'false' }); chrome.theme = theme;
-    var out = ui.btn('Sign out', function () { writeSession(null); OA.role = null; location.hash = ''; start(); }, 'quiet small');
+    var out = ui.btn('Sign out', function () { writeSession(null); OA.role = null; if (window.OA_LOCK) { OA_LOCK.signOut(); return; } location.hash = ''; start(); }, 'quiet small');
     nav = h('nav', { class: 'tabs', 'aria-label': 'Portal sections' });
     TABS.forEach(function (t) { var a = h('a', { class: 'tab', href: '#/' + t.key, 'data-tab': t.key }, h('span', { text: t.label }), h('span', { class: 'badge', hidden: true })); nav.appendChild(a); });
     main = h('main', { id: 'main', tabindex: '-1' });
     app.appendChild(h('a', { class: 'skip', href: '#main', text: 'Skip to content', on: { click: function (e) { e.preventDefault(); main.focus(); } } }));
-    app.appendChild(chrome.demo); app.appendChild(chrome.err);
+    app.appendChild(chrome.err);
     app.appendChild(h('header', { class: 'top' },
       h('div', { class: 'top-in' },
         h('a', { class: 'brand', href: '#/today' }, h('img', { src: '../assets/instattoosionalized-logo.jpg', alt: '' }), h('span', { class: 'brand-name' }, h('b', { text: shop.short || shop.name }), h('i', { text: 'Owner portal' }))),

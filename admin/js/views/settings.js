@@ -33,7 +33,7 @@
 
   function people() {
     var root = h('section', { class: 'card' }, h('h2', { text: 'Who can sign in' }));
-    root.appendChild(h('p', { class: 'note', text: 'Demo only: this list does not control anything yet. On the real portal, signing in uses an emailed one-time code, and only addresses on this list get in.' }));
+    root.appendChild(h('p', { class: 'note', text: 'Each person signs in with their own username and password. What a person can see and change follows their role.' }));
     var roleTipText = h('div', { class: 'hint tip-text', hidden: true, text: 'Owner: everything, including the site and settings. Front desk: requests, calendar and clients. Artist: only their own chair, their clients and their portfolio.' });
     var roleTipBtn = h('button', { type: 'button', class: 'tip-btn', 'aria-expanded': 'false', 'aria-label': 'What can each role do?', text: '?', on: { click: function () { roleTipText.hidden = !roleTipText.hidden; roleTipBtn.setAttribute('aria-expanded', String(!roleTipText.hidden)); } } });
     root.appendChild(h('div', { class: 'flab' }, h('span', { class: 'note', text: 'What can each role do?' }), roleTipBtn));
@@ -71,7 +71,7 @@
     var root = h('div', {}), api = OA.api, st = api.state(), out = h('div', { class: 'saved', 'aria-live': 'polite' });
     var card = h('section', { class: 'card narrow' }, h('h2', { text: 'Website connection' }),
       h('p', { text: 'The shop server saves what people send through the website form and reads Cloudflare for traffic and speed. This portal asks it for both.' }));
-    card.appendChild(h('div', { class: 'row' }, ui.chip(api.configured() ? 'Server set' : 'No server set', api.configured() ? 'ok' : 'quiet'), h('span', { class: 'note', text: api.configured() ? api.base() : 'The server address is set when the portal is deployed (the portal-api line in index.html). It is empty in this demo.' })));
+    card.appendChild(h('div', { class: 'row' }, ui.chip(api.configured() ? 'Server set' : 'No server set', api.configured() ? 'ok' : 'quiet'), h('span', { class: 'note', text: api.configured() ? api.base() : 'The server address is set when the portal is deployed (the portal-api line in index.html). It is not set on this portal.' })));
     var tok = ui.input('', { type: 'password', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Access token', placeholder: api.hasToken() ? 'A token is saved for this tab' : 'Paste the access token' });
     card.appendChild(ui.field('Access token', tok, 'Kept only while this tab is open. It is never saved on the computer or shown on the page. Ask whoever runs the server for it.', null, 'This connects the portal to the shop’s server, which is where bookings, requests and the analytics counts live. Without it, the portal can only edit the website draft.'));
     var row = h('div', { class: 'row' });
@@ -113,43 +113,14 @@
   }
 
   function integrations() {
-    var g = OA.gcalSettings(), st = OA.gcal.status(), root = h('div', {});
+    var st = OA.gcal.status(), root = h('div', {});
     root.appendChild(delivery());
-    var head = h('section', { class: 'card narrow' }, h('h2', { text: 'Google Calendar (optional)' }), h('div', { class: 'row' }, ui.chip(st.text, 'quiet'), h('span', { class: 'note', text: 'Placeholder. Only for artists who choose it.' })),
+    var head = h('section', { class: 'card narrow' }, h('h2', { text: 'Google Calendar' }), h('div', { class: 'row' }, ui.chip(st.text, 'quiet')),
       h('p', { text: 'Appointments added here are placed on the shop\u2019s master booking calendar, and changes or cancellations here update the same event. The website\u2019s open times are read from that same master book.' }),
       h('p', { class: 'note', text: st.reason }));
-    var btn = ui.btn('Connect Google Calendar', function () { OA.gcal.connect().catch(function (e) { ui.fail(e.message); }); }, 'primary', { 'aria-describedby': 'gc-why' });
-    head.appendChild(h('div', { class: 'row' }, btn, h('span', { id: 'gc-why', class: 'note', text: 'Not available in the demo. Signing in to Google has to happen on a server.' })));
+    var btn = ui.btn('Check the connection', function () { OA.gcal.connect().catch(function (e) { ui.fail(e.message); }); }, 'primary', { 'aria-describedby': 'gc-why' });
+    head.appendChild(h('div', { class: 'row' }, btn, h('span', { id: 'gc-why', class: 'note', text: 'The calendar connection runs on the shop server, not in the browser.' })));
     root.appendChild(head);
-
-    var saved = h('div', { class: 'saved', 'aria-live': 'polite' }), card = h('section', { class: 'card narrow' }, h('h2', { text: 'Google calendar for each chair' }), h('p', { class: 'note', text: 'Paste the calendar ID from Google Calendar settings, under Integrate calendar. These are saved now so setup is ready later. They are not used yet.' }));
-    OA.chairs().forEach(function (c) {
-      var inp = ui.input(g.calendars[c.slug] || '', { placeholder: 'e.g. abc123@group.calendar.google.com', 'aria-label': c.name + ' calendar ID' });
-      inp.addEventListener('change', function () {
-        var v = inp.value.trim();
-        if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { note(saved, 'A calendar ID looks like name@group.calendar.google.com, or an email address. Not saved.', true); return; }
-        g.calendars[c.slug] = v; S.commit(); note(saved, 'Saved. Not used until Google Calendar is connected.');
-      });
-      card.appendChild(ui.field(c.name, inp));
-    });
-    var tz = ui.input(g.tz, { 'aria-label': 'Time zone' });
-    tz.addEventListener('change', function () {
-      var v = tz.value.trim();
-      if (!OA.gcalValidTz(v)) { note(saved, 'That is not a time zone name. Use a name like America/New_York. Not saved.', true); return; }
-      g.tz = v; S.commit(); note(saved, 'Saved. Not used until Google Calendar is connected.');
-    });
-    card.appendChild(ui.field('Shop time zone', tz, 'Events are created in this zone so a 1 PM tattoo is 1 PM on every phone.'));
-    var detail = ui.select([['minimal', 'First name, last initial and type only'], ['full', 'Also include what is being done']], g.detail, { 'aria-label': 'What goes in the event' });
-    detail.addEventListener('change', function () { g.detail = detail.value; S.commit(); note(saved, 'Saved. Not used until Google Calendar is connected.'); });
-    card.appendChild(ui.field('What goes in each event', detail, 'Phone numbers, notes and deposit status are never sent. Calendars are often shared, and clients\u2019 details should stay in the portal.'));
-    card.appendChild(saved); root.appendChild(card);
-
-    var prev = ui.btn('Preview what would be sent', function () {
-      var a = OA.scopeAppts(S.state.appts).filter(function (x) { return x.status !== 'cancelled' && x.date >= OA.todayISO(); }).sort(function (x, y) { return x.date < y.date ? -1 : 1; })[0];
-      if (!a) { ui.fail('There is no upcoming appointment to preview.'); return; }
-      ui.dialog({ title: 'Example calendar event', lead: 'This is the event for ' + a.client + '\u2019s next appointment. It is only shown here; nothing was sent.', body: h('pre', { class: 'code', text: JSON.stringify(OA.gcal.toEvent(a), null, 2) }), wide: true });
-    }, '');
-    root.appendChild(h('section', { class: 'card narrow' }, h('h2', { text: 'For the developer' }), h('p', { class: 'note', text: 'Server-side OAuth with the calendar.events scope. Each event carries the portal\u2019s appointment ID in a private extended property so a retry updates the event instead of duplicating it. If a push fails, the appointment must show a visible \u201cnot on Google Calendar\u201d flag, never a silent success. Details in this folder\u2019s README.' }), h('div', { class: 'row' }, prev)));
     return root;
   }
 
@@ -158,8 +129,8 @@
     var photos = h('span', { text: 'checking...' });
     OA.img.all().then(function (k) { photos.textContent = OA.plural(k.length, 'uploaded photo') + ' stored in this browser'; }).catch(function (e) { photos.textContent = 'Photo storage is not available here: ' + e.message; });
     root.appendChild(h('section', { class: 'card narrow' }, h('h2', { text: 'Where this data lives' }),
-      h('p', { text: 'Demo mode: everything is kept in this browser only, about ' + Math.max(1, Math.round(size / 1024)) + ' KB of settings, requests, appointments and clients, plus ' }), h('p', {}, photos),
-      h('p', { class: 'note', text: 'Clearing this site’s browser data, or using a different browser or device, starts from the sample data. The real portal keeps this in a shared database instead.' })));
+      h('p', { text: 'This portal’s working data is kept in this browser, about ' + Math.max(1, Math.round(size / 1024)) + ' KB of settings, requests, appointments and clients, plus ' }), h('p', {}, photos),
+      h('p', { class: 'note', text: 'Publishing sends site changes to the live website, and confirmed bookings are kept on the shop’s calendars. Clearing this browser’s data, or using a different browser or device, starts this device fresh.' })));
     var saved = h('div', { class: 'saved', 'aria-live': 'polite' });
     var file = h('input', { type: 'file', accept: 'application/json,.json', class: 'sr', id: 'restore', 'aria-label': 'Choose a backup file' });
     file.addEventListener('change', function () {
@@ -180,10 +151,10 @@
       h('p', { text: 'A backup is one file with requests, appointments, clients, settings and the site draft.' }),
       h('p', { class: 'note', text: 'It does not include the photo files you uploaded here. Keep the originals.' }),
       h('div', { class: 'row wrap' }, ui.btn('Download backup', function () { OA.download('instattoosionalized-portal-backup-' + OA.todayISO() + '.json', JSON.stringify(S.state, null, 1)); ui.toast('Backup downloaded. Check your Downloads folder.'); }, 'primary'), h('label', { class: 'btn', for: 'restore', text: 'Restore from a backup' }), file), saved));
-    root.appendChild(h('section', { class: 'card narrow' }, h('h2', { text: 'Demo controls' }),
-      h('p', { text: 'Sample appointments and requests are dated around today. If you have not touched anything they refresh on their own each day.' }),
-      h('div', { class: 'row wrap' }, ui.btn('Move sample data to today', function () { OA.refreshSamples(false); ui.toast('Sample requests and appointments re-dated around today. Anything you added is untouched.'); OA.rerender(); }),
-        ui.btn('Reset the whole demo', function () { ui.confirm('Reset the demo?', 'Everything you entered here is erased and the sample data comes back. This cannot be undone.', 'Reset demo', true).then(function (ok) { if (ok) { S.reset(); ui.toast('Demo reset'); OA.go('today'); } }); }, 'danger-quiet'))));
+    root.appendChild(h('section', { class: 'card narrow' }, h('h2', { text: 'This device' }),
+      h('p', { text: 'This device keeps its own copy of the portal’s working data in this browser.' }),
+      h('div', { class: 'row wrap' },
+        ui.btn('Erase this device’s portal data', function () { ui.confirm('Erase this device’s data?', 'Everything stored in this browser is erased and the portal starts empty on this device. Bookings and requests on the shop’s calendars and server are not touched. This cannot be undone.', 'Erase data', true).then(function (ok) { if (ok) { S.reset(); ui.toast('Portal data erased on this device'); OA.go('today'); } }); }, 'danger-quiet'))));
     return root;
   }
 

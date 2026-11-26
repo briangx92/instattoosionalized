@@ -1,5 +1,5 @@
-/* State, persistence, sample data, and the image store.
-   Demo mode keeps everything in this browser (localStorage for data, IndexedDB for uploaded photos).
+/* State, persistence, and the image store.
+   Working data is kept in this browser (localStorage for data, IndexedDB for uploaded photos).
    Every change goes through OA.store.commit(), which is the one place a live backend would plug in. */
 (function () {
   'use strict';
@@ -28,13 +28,19 @@
     if (raw) {
       try { st = JSON.parse(raw); } catch (e) {
         try { localStorage.setItem(KEY + ':unreadable:' + Date.now(), raw); } catch (e2) { /* nothing more to try */ }
-        S.error = 'Saved data could not be read, so the sample data was loaded instead. The unreadable copy was kept in this browser.';
+        S.error = 'Saved data could not be read, so a fresh empty portal was loaded instead. The unreadable copy was kept in this browser.';
         st = null;
       }
     }
     if (!st || st.v !== 1) { st = OA.freshState(); S.state = st; S.save(); }
     S.state = OA.migrate(st);
-    if (!st.touched && st.anchor !== OA.todayISO()) { OA.refreshSamples(true); }
+    /* The portal is live: records left over from the old built-in sample
+       data (marked sample) are removed on load. Anything the shop added
+       by hand is never marked, so it is never touched. */
+    ['requests', 'appts', 'clients', 'timeoff'].forEach(function (k) {
+      if (Array.isArray(S.state[k])) S.state[k] = S.state[k].filter(function (x) { return !x.sample; });
+    });
+    S.save();
   };
   S.reset = function () { S.state = OA.freshState(); S.error = null; OA.clearLive(); S.save(); S.emit(); };
   S.replace = function (st) { S.state = OA.migrate(st); S.save(); S.emit(); };
@@ -55,102 +61,6 @@
   }
   OA.isOpenDay = function (iso, hours) { var hrs = hours || S.state.site.hours; var x = hrs[(OA.dow(iso) + 6) % 7]; return !!(x && x.open); };
   OA.hoursFor = function (iso) { return S.state.site.hours[(OA.dow(iso) + 6) % 7]; };
-
-  function openDays(from, n, hours) { var out = [], d = from; while (out.length < n) { if (OA.isOpenDay(d, hours)) out.push(d); d = OA.addDays(d, 1); if (OA.diffDays(d, from) > 60) break; } return out; }
-  function pastOpen(from, n, hours) { var out = [], d = OA.addDays(from, -1); while (out.length < n) { if (OA.isOpenDay(d, hours)) out.push(d); d = OA.addDays(d, -1); if (OA.diffDays(from, d) > 90) break; } return out; }
-
-  function makeSamples(today, hours) {
-    var now = Date.now(), H = 3600000, D = 86400000;
-    var up = openDays(today, 6, hours), past = pastOpen(today, 12, hours);
-    var clients = [], appts = [], requests = [];
-    function client(name, phone, extra) {
-      var c = { id: OA.uid('c'), name: name, phone: phone, email: '', notes: '', consentAt: null, idChecked: false, created: now - 30 * D, sample: true };
-      Object.keys(extra || {}).forEach(function (k) { c[k] = extra[k]; });
-      clients.push(c); return c;
-    }
-    var P = function (n) { return '(610) 555-01' + (n < 10 ? '0' : '') + n; };
-    var C = {
-      sam: client('Sam R.', P(11), { consentAt: now - 2 * D, idChecked: true }),
-      casey: client('Casey B.', P(12)),
-      mia: client('Mia T.', P(13), { consentAt: now - 26 * D, idChecked: true, notes: 'Repeat client. Likes florals.' }),
-      ana: client('Ana P.', P(14)),
-      priya: client('Priya N.', P(15)),
-      mike: client('Mike K.', P(16), { consentAt: now - D, idChecked: true }),
-      jordan: client('Jordan T.', P(17), { consentAt: now - 20 * D, idChecked: true, notes: 'Large piece in four sessions.' }),
-      tom: client('Tom W.', P(18), { consentAt: now - D, idChecked: true }),
-      chris: client('Chris P.', P(19)),
-      riley: client('Riley S.', P(20), { consentAt: now - 21 * D, idChecked: true }),
-      avery: client('Avery L.', P(21), { consentAt: now - 17 * D, idChecked: true }),
-      noah: client('Noah G.', P(22), { consentAt: now - 9 * D, idChecked: true }),
-      devon: client('Devon H.', P(23)),
-      jess: client('Jess M.', P(24)),
-      jules: client('Jules M.', P(25)),
-      sam2: client('Sam K.', P(26)),
-      taylor: client('Taylor R.', P(27)),
-      dana: client('Dana R.', P(28)),
-      casey2: client('Casey L.', P(29)),
-      alex: client('Alex Q.', P(30))
-    };
-    function appt(date, artist, start, end, c, piece, type, extra) {
-      var a = { id: OA.uid('a'), date: date, artist: artist, start: start, end: end, client: c.name, clientId: c.id, piece: piece, type: type, status: 'booked', deposit: 'none', price: '', note: '', requestId: '', followUp: null, sample: true };
-      Object.keys(extra || {}).forEach(function (k) { a[k] = extra[k]; });
-      appts.push(a); return a;
-    }
-    var d0 = up[0], d1 = up[1], d2 = up[2], d3 = up[3], d4 = up[4];
-    var todayOpen = d0 === today;
-    var aBulldog, aScript, aConsultPriya, aConsultAna;
-    if (todayOpen) {
-      appt(d0, 'lex', '12:00', '13:30', C.sam, 'Hello Kitty in a Jason mask', 'session', { deposit: 'paid', price: '$140' });
-      appt(d0, 'lex', '15:00', '16:30', C.casey, 'Spooky cartoon, calf', 'session', { note: 'Walk-in. Deposit taken at the counter.', deposit: 'paid', price: '$120' });
-      appt(d0, 'liv', '13:00', '14:30', C.mia, 'Bunny with florals', 'session', { deposit: 'paid', price: '$160' });
-      aConsultAna = appt(d0, 'liv', '16:00', '17:00', C.ana, 'Fairytale piece', 'consult');
-      aConsultPriya = appt(d0, 'diana', '12:00', '13:00', C.priya, 'Cover-up ideas', 'consult');
-      aBulldog = appt(d0, 'diana', '14:00', '16:00', C.mike, 'Bulldog portrait, session 1 of 2', 'session', { deposit: 'paid', price: '$280' });
-      appt(d0, 'diana', '16:00', '17:00', C.jordan, 'Character piece, session 2 of 4', 'session', { deposit: 'paid' });
-    } else {
-      aConsultAna = appt(d0, 'liv', '16:00', '17:00', C.ana, 'Fairytale piece', 'consult');
-      aConsultPriya = appt(d0, 'diana', '12:00', '13:00', C.priya, 'Cover-up ideas', 'consult');
-      aBulldog = appt(d0, 'diana', '14:00', '16:00', C.mike, 'Bulldog portrait, session 1 of 2', 'session', { deposit: 'paid', price: '$280' });
-    }
-    aScript = appt(d1, 'lex', '12:00', '14:00', C.tom, 'Script lettering, forearm', 'session', { deposit: 'paid', price: '$110' });
-    appt(d1, 'liv', '12:30', '14:30', C.chris, 'Florals, forearm', 'session', { deposit: 'asked', price: '$140' });
-    appt(d1, 'diana', '13:00', '16:00', C.jordan, 'Dark gothic sleeve, session 3 of 4', 'session', { deposit: 'paid' });
-    appt(d2, 'piercing', '13:00', '13:45', C.jess, 'Forward helix', 'piercing', { deposit: 'asked' });
-    appt(d3, 'lex', '13:00', '15:00', C.sam2, 'Small Ghostface knife, forearm', 'session', { deposit: 'asked' });
-    appt(d4, 'diana', '12:00', '15:00', C.priya, 'Cover-up, shoulder', 'session');
-    /* history: done, no-show, a couple that are due a check-in */
-    appt(past[3], 'lex', '13:00', '14:30', C.riley, 'Flamingo, ankle', 'session', { status: 'done', deposit: 'paid', price: '$90' });
-    appt(past[4], 'liv', '12:30', '15:00', C.avery, 'Lilies with swirls, forearm', 'session', { status: 'done', deposit: 'paid', price: '$150' });
-    appt(past[2], 'diana', '13:00', '15:00', C.noah, 'Monarch butterfly, forearm', 'session', { status: 'done', deposit: 'paid', price: '$180' });
-    appt(past[5], 'lex', '14:00', '15:30', C.devon, 'Paw print, galaxy fill', 'session', { status: 'noshow', deposit: 'paid' });
-    appt(past[9], 'diana', '12:00', '15:00', C.mia, 'Phoenix, shoulder', 'session', { status: 'done', deposit: 'paid', price: '$320', followUp: 'sent' });
-    appt(past[6], 'lex', '13:00', '14:00', C.jordan, 'Daisy stem, calf', 'session', { status: 'done', deposit: 'paid', price: '$100', followUp: 'sent' });
-
-    function req(name, c, artist, kind, status, ageH, f) {
-      var r = { id: OA.uid('r'), name: name, clientId: c ? c.id : '', phone: c ? c.phone : '', email: '', artist: artist, kind: kind, size: '', place: '', idea: '', when: '', note: '', status: status, created: now - ageH * H, log: [], quote: '', askedAt: null, paidAt: null, consentAt: null, closedReason: '', apptId: '', waitlist: false, sample: true };
-      Object.keys(f || {}).forEach(function (k) { r[k] = f[k]; });
-      if (r.status !== 'New' && !r.repliedAt) r.repliedAt = r.created + (1 + requests.length % 5) * H * 1.5;
-      r.log.unshift({ t: r.created, text: 'Request came in from the website form' });
-      requests.push(r); return r;
-    }
-    req('Taylor R.', C.taylor, '', 'tattoo', 'New', 0.6, { size: 'Medium', place: 'Upper arm', idea: 'Sun and moon with florals, like the one on Lex’s page.', when: 'Weekends' });
-    req('Sam K.', C.sam2, 'lex', 'tattoo', 'Contacted', 30, { size: 'Small', place: 'Forearm', idea: 'Small Ghostface knife.', when: 'Saturday afternoon', apptId: '' });
-    req('Jules M.', C.jules, '', 'piercing', 'New', 76, { place: 'Forward helix', idea: 'First piercing. Wondering about jewelry options.', when: 'Flexible' });
-    req('Jess M.', C.jess, '', 'piercing', 'Awaiting Deposit', 50, { place: 'Forward helix', when: 'Flexible', askedAt: now - 2 * D, quote: '$45' });
-    var rpr = req('Priya N.', C.priya, 'diana', 'tattoo', 'Consultation Scheduled', 120, { size: 'Large', place: 'Left shoulder', idea: 'Cover-up of an older piece. Wants to talk through options.', when: 'Any open day' });
-    rpr.apptId = aConsultPriya.id; aConsultPriya.requestId = rpr.id;
-    var rana = req('Ana P.', C.ana, 'liv', 'tattoo', 'Consultation Scheduled', 96, { size: 'Medium', place: 'Thigh', idea: 'Something fairytale. Has a folder of screenshots.', when: 'After 4 PM' });
-    rana.apptId = aConsultAna.id; aConsultAna.requestId = rana.id;
-    req('Chris P.', C.chris, 'liv', 'tattoo', 'Awaiting Deposit', 118, { size: 'Medium', place: 'Forearm', idea: 'Florals wrapping the forearm.', when: 'Weekdays', quote: '$140', askedAt: now - 2 * D });
-    var rmk = req('Mike K.', C.mike, 'diana', 'tattoo', 'Booked', 200, { size: 'Large', place: 'Calf', idea: 'Portrait of his bulldog.', quote: '$280', askedAt: now - 6 * D, paidAt: now - 5 * D, consentAt: now - D });
-    rmk.apptId = aBulldog.id; aBulldog.requestId = rmk.id;
-    var rtm = req('Tom W.', C.tom, 'lex', 'tattoo', 'Booked', 160, { size: 'Small', place: 'Forearm', idea: 'Lettering. Has the exact words.', quote: '$110', askedAt: now - 4 * D, paidAt: now - 3 * D, consentAt: now - D });
-    rtm.apptId = aScript.id; aScript.requestId = rtm.id;
-    req('Dana R.', C.dana, 'liv', 'tattoo', 'Contacted', 140, { size: 'Medium', place: 'Ribs', idea: 'Floral piece.', when: 'Whenever Liv opens up', waitlist: true });
-    req('Casey L.', C.casey2, 'liv', 'tattoo', 'Contacted', 100, { size: 'Small', place: 'Ankle', idea: 'Cat face.', when: 'Flexible', waitlist: true });
-    req('Alex Q.', C.alex, '', 'tattoo', 'Closed', 260, { size: 'Large', place: 'Back', idea: 'Full-color realism back piece.', closedReason: 'Not a fit' });
-    return { clients: clients, appts: appts, requests: requests, timeoff: [{ id: OA.uid('t'), artist: 'lex', date: d2, start: '12:00', end: '14:00', note: 'Dentist', sample: true }] };
-  }
 
   var TEMPLATES = {
     ack: { name: 'Got your request', body: 'Hi {first}, this is {shop}. We got your request and will get back to you soon.' },
@@ -185,12 +95,11 @@
       artists: artists,
       portfolio: portfolio
     };
-    var s = makeSamples(today, hours);
     var tpl = {}; Object.keys(TEMPLATES).forEach(function (k) { tpl[k] = TEMPLATES[k].body; });
     return {
       v: 1, anchor: today, created: Date.now(), touched: false,
       site: site, published: { at: Date.now(), by: '717 Digital Studio', site: OA.clone(site) }, history: [],
-      requests: s.requests, appts: s.appts, clients: s.clients, timeoff: s.timeoff,
+      requests: [], appts: [], clients: [], timeoff: [],
       settings: { depositAmount: '$40', depositHow: '', reviewLink: '', templates: tpl, rating: { stars: seed.rating.stars, count: seed.rating.count, source: seed.rating.source } },
       people: [
         { id: 'p1', name: 'Shop owner', email: 'owner@example.com', role: 'owner', artist: '' },
@@ -203,13 +112,12 @@
     };
   };
 
-  /* Replace the sample records with ones built around today. Anything the shop added by hand stays. */
+  /* Retired with the demo data: the portal is live and starts empty.
+     Kept as a no-op so older callers do not break; it only re-anchors
+     the state's date. */
   OA.refreshSamples = function (quiet) {
-    var st = S.state, today = OA.todayISO(), s = makeSamples(today, st.site.hours);
-    ['requests', 'appts', 'clients', 'timeoff'].forEach(function (k) { st[k] = st[k].filter(function (x) { return !x.sample; }).concat(s[k]); });
+    var st = S.state, today = OA.todayISO();
     st.anchor = today;
-    st.site.artists.forEach(function (a) { if (a.untilSample) a.until = OA.addDays(today, 21); });
-    if (st.published && st.published.site) st.published.site.artists.forEach(function (a) { if (a.untilSample) a.until = OA.addDays(today, 21); });
     S.save(); if (!quiet) { st.touched = true; S.save(); S.emit(); }
   };
 

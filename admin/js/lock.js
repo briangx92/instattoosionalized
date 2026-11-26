@@ -49,11 +49,59 @@
     });
   }
 
+  /* "users": accounts exist, show the sign-in form. "setup": no accounts
+     yet, show the owner-account creation form. "legacy": the server does
+     not know accounts yet (older deployment), fall back to the shop
+     passcode form so the portal never locks anyone out mid-upgrade. */
   function authState() {
     return fetch(API + "/portal-auth-state")
-      .then(function (r) { return r.json(); })
-      .then(function (d) { return !!(d && d.users_exist); })
-      .catch(function () { return true; });
+      .then(function (r) {
+        if (!r.ok) return "legacy";
+        return r.json().then(function (d) { return d && d.users_exist ? "users" : "setup"; });
+      })
+      .catch(function () { return "legacy"; });
+  }
+
+  function wireLegacy() {
+    var form = el("lock-form");
+    if (!form) return;
+    form.hidden = false;
+    var user = el("lock-user");
+    var pass = el("lock-code");
+    var btn = el("lock-btn");
+    var note = el("lock-note");
+    var sub = form.querySelector(".lock-sub");
+    var labels = form.querySelectorAll(".lock-label");
+    if (user) user.hidden = true;
+    if (labels[0]) labels[0].hidden = true;
+    if (labels[1]) labels[1].textContent = "Passcode";
+    pass.placeholder = "Shop passcode";
+    pass.setAttribute("autocomplete", "off");
+    if (sub) sub.textContent = "This portal is private. Type the shop passcode to open it.";
+    function say(t) { if (note) note.textContent = t || ""; }
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var code = pass.value.trim();
+      if (!code) { say("Type the shop passcode."); return; }
+      btn.disabled = true;
+      say("Checking...");
+      post("/portal-unlock", { code: code }).then(function (res) {
+        btn.disabled = false;
+        if (res.status === 200 && res.data && res.data.ok && res.data.token) {
+          store(res.data.token);
+          open();
+          return;
+        }
+        if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
+        if (res.status === 503) { say("The lock is not set up yet. Ask Brian."); return; }
+        say("That passcode did not match. Try again.");
+        pass.select();
+      }).catch(function () {
+        btn.disabled = false;
+        say("Could not reach the server. Check your connection and try again.");
+      });
+    });
+    pass.focus();
   }
 
   function wireLogin() {
@@ -130,6 +178,12 @@
     code.focus();
   }
 
+  function showMode(mode) {
+    if (mode === "users") wireLogin();
+    else if (mode === "setup") wireSetup();
+    else wireLegacy();
+  }
+
   function main() {
     var token = saved();
     if (token) {
@@ -139,12 +193,18 @@
         if (res.data && res.data.ok) { open(); return; }
         clear();
         if (note) note.textContent = "";
-        authState().then(function (exist) { if (exist) wireLogin(); else wireSetup(); });
+        authState().then(showMode);
       });
       return;
     }
-    authState().then(function (exist) { if (exist) wireLogin(); else wireSetup(); });
+    authState().then(showMode);
   }
+
+  /* The portal's Sign out button calls this: drop the session here too,
+     then reload so the lock screen is what comes back. */
+  window.OA_LOCK = {
+    signOut: function () { clear(); location.reload(); },
+  };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", main);
   else main();

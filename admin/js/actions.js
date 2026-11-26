@@ -336,7 +336,7 @@
   OA.publishBlockers = function () {
     var s = st().site, out = [];
     s.hours.forEach(function (x) { if (x.open && (!x.close || OA.mins(x.close) <= OA.mins(x.open))) out.push(x.day + ' closes before it opens.'); });
-    if (s.prices.some(function (g) { return g.sample; })) out.push('The prices are still the sample prices from the demo. Check them on Site, Prices, then tick \u201cThese prices are correct\u201d.');
+    if (s.prices.some(function (g) { return g.sample; })) out.push('The prices are still the starting sample prices. Check them on Site, Prices, then tick \u201cThese prices are correct\u201d.');
     if (!OA.phoneOk(s.shop.phone)) out.push('The shop phone number needs 10 digits, like (610) 555-0100.');
     s.artists.forEach(function (a) { if (!a.removedAt && a.visible && !a.name.trim()) out.push('An artist page has no name.'); });
     [['deposit', 'Deposit'], ['age', 'Age and ID'], ['aftercare', 'Aftercare']].forEach(function (p) { if (((s.policies || {})[p[0]] || '').length > OA.LIMITS.policy) out.push('The ' + p[1] + ' policy is over ' + OA.LIMITS.policy + ' characters.'); });
