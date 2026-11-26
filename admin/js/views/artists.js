@@ -191,7 +191,7 @@
       var fnRow = h('label', { class: 'fnrow' }, h('span', { text: 'File name' }), fnIn);
       if (!p.fileName) fnRow.style.display = 'none';
       fnIn.addEventListener('change', function () { p.fileName = fnIn.value.trim(); S.commit(); OA.updateChrome(); });
-      var aiBtn = (OA.api && OA.api.ready()) ? ui.btn('Describe with AI', function () {
+      var aiBtn = (OA.api && OA.api.describeReady()) ? ui.btn('Describe with AI', function () {
         aiBtn.disabled = true; var old = aiBtn.textContent; aiBtn.textContent = 'Describing...';
         OA.api.describe(p).then(function (r) {
           var prevCap = p.cap, prevFn = p.fileName;

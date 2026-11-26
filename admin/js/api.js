@@ -1,10 +1,12 @@
-/* The shop server: pulls website requests and analytics. The server address is set at deploy time (the portal-api meta tag,
-   which the page's Content-Security-Policy also names). The access token is typed in by the owner, kept for this tab only,
-   and never written to storage that outlives the tab, to the console, or to the page. */
+/* The shop server: pulls website requests into the portal. The server address
+   is set at deploy time (the portal-api meta tag, which the page's
+   Content-Security-Policy also names). There is no token to type: the server
+   sits behind the same Cloudflare sign-in wall as the calendar, and the
+   browser carries that sign-in on every call (credentials: include). */
 (function () {
   'use strict';
   var OA = window.OA, S = OA.store, act = OA.act, ui = OA.ui;
-  var TOKEN_KEY = 'oa2:apitoken', POLL_MS = 90000, MAX_PAGES = 20, busy = null, timer = null;
+  var POLL_MS = 90000, MAX_PAGES = 20, busy = null, timer = null;
 
   function base() {
     var m = document.querySelector('meta[name="portal-api"]'), v = m ? (m.getAttribute('content') || '').trim() : '';
@@ -12,25 +14,22 @@
     try { var u = new URL(v), local = u.hostname === 'localhost' || u.hostname === '127.0.0.1'; return (u.protocol === 'https:' || (u.protocol === 'http:' && local)) ? u.origin : ''; } catch (e) { return ''; }
   }
   function state() { var s = S.state.settings; if (!s.api) s.api = { after: 0, lastOk: null, lastError: '', added: 0 }; return s.api; }
-  function getToken() { try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } }
 
   var api = OA.api = {
     base: base,
     configured: function () { return !!base(); },
-    hasToken: function () { return !!getToken(); },
-    setToken: function (t) { try { sessionStorage.setItem(TOKEN_KEY, String(t || '').trim()); return true; } catch (e) { return false; } },
-    clearToken: function () { try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) { /* nothing stored */ } },
     state: state,
-    ready: function () { return api.configured() && api.hasToken(); },
+    ready: function () { return api.configured(); },
+    /* The photo description service has no route on the shop server yet,
+       so its button stays hidden until one exists. */
+    describeReady: function () { return false; },
 
     call: function (path) {
       if (!api.configured()) return Promise.reject(new Error('This portal is not pointed at a shop server yet.'));
-      var t = getToken();
-      if (!t) return Promise.reject(new Error('Enter the access token in Settings first.'));
-      return fetch(base() + path, { headers: { Authorization: 'Bearer ' + t }, cache: 'no-store' }).then(function (r) {
+      return fetch(base() + path, { credentials: 'include', cache: 'no-store' }).then(function (r) {
         return r.json().catch(function () { return null; }).then(function (j) {
           if (r.ok && j) return j;
-          if (r.status === 401) throw new Error('The access token was not accepted. Check it in Settings.');
+          if (r.status === 403) throw new Error('The shop server refused. Sign in to the portal first (the server door), then try again.');
           if (r.status === 429) throw new Error('Too many tries. Wait a few minutes.');
           throw new Error((j && typeof j.error === 'string' && j.error) || 'The shop server answered with an error (' + r.status + ').');
         });
@@ -54,16 +53,12 @@
       return busy;
     },
 
-    analytics: function (days) { return api.call('/api/analytics?days=' + encodeURIComponent(days)); },
-
     callPost: function (path, body) {
       if (!api.configured()) return Promise.reject(new Error('This portal is not pointed at a shop server yet.'));
-      var t = getToken();
-      if (!t) return Promise.reject(new Error('Enter the access token in Settings first.'));
-      return fetch(base() + path, { method: 'POST', headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}), cache: 'no-store' }).then(function (r) {
+      return fetch(base() + path, { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}), cache: 'no-store' }).then(function (r) {
         return r.json().catch(function () { return null; }).then(function (j) {
           if (r.ok && j) return j;
-          if (r.status === 401) throw new Error('The access token was not accepted. Check it in Settings.');
+          if (r.status === 403) throw new Error('The shop server refused. Sign in to the portal first (the server door), then try again.');
           if (r.status === 429) throw new Error('Too many tries. Wait a few minutes.');
           throw new Error((j && typeof j.error === 'string' && j.error) || 'The shop server answered with an error (' + r.status + ').');
         });
@@ -102,7 +97,6 @@
     status: function () {
       var st = state();
       if (!api.configured()) return { kind: 'quiet', text: 'Website form not connected', detail: 'Requests from the website will not show up here until the portal is pointed at the shop server.' };
-      if (!api.hasToken()) return { kind: 'warn', text: 'Website form: enter the access token', detail: 'Open Settings, then Website connection.' };
       if (st.lastError) return { kind: 'bad', text: 'Last check failed', detail: st.lastError };
       if (st.lastOk) return { kind: 'ok', text: 'Checked ' + OA.ago(st.lastOk), detail: '' };
       return { kind: 'quiet', text: 'Not checked yet', detail: '' };

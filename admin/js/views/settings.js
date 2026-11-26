@@ -17,7 +17,17 @@
     Object.keys(f).forEach(function (k) { f[k].addEventListener('change', save); });
     root.appendChild(h('section', { class: 'card narrow' }, h('h2', { text: 'Deposit' }), h('div', { class: 'form-grid' }, ui.field('Deposit amount', f.dep, 'Fills {deposit} in texts.'), ui.field('How clients pay it', f.how, 'Fills {depositHow}. The portal does not take payments.', 'span2')), saved,
       h('div', { class: 'row' }, h('span', { class: 'note', text: 'Google review link: set in Site > Reviews. It fills {reviewLink} in texts.' }), ui.link('Open Reviews', '#/site/reviews', 'btn small quiet'))));
-    var list = h('section', { class: 'card narrow' }, h('h2', { text: 'Text templates' }), h('p', { class: 'note', text: 'Blanks in curly braces fill in when you open a message: ' + VARS.map(function (v) { return '{' + v + '}'; }).join(' ') + '.' }));
+    var VAR_MEANINGS = [
+      ['first', 'the client’s first name'], ['shop', 'the shop’s name'], ['artist', 'the artist for that request or appointment'],
+      ['quote', 'the price quoted for the piece'], ['deposit', 'the deposit amount, set under Deposit above'],
+      ['depositHow', 'how the client pays the deposit, set under Deposit above'], ['date', 'the appointment date'],
+      ['time', 'the appointment start time'], ['address', 'the shop’s address'], ['reviewLink', 'your Google review link, set in Site, Reviews']
+    ];
+    var varList = h('div', { class: 'hint tip-text', hidden: true }, VAR_MEANINGS.map(function (vm) {
+      return h('p', { class: 'var-row' }, h('code', { text: '{' + vm[0] + '}' }), h('span', { text: ' — ' + vm[1] }));
+    }));
+    var varBtn = ui.btn('What the {blanks} mean', function () { varList.hidden = !varList.hidden; varBtn.setAttribute('aria-expanded', String(!varList.hidden)); }, 'small quiet', { 'aria-expanded': 'false' });
+    var list = h('section', { class: 'card narrow' }, h('h2', { text: 'Text templates' }), h('p', { class: 'note', text: 'Blanks in curly braces fill in when you open a message.' }), h('div', { class: 'row tight' }, varBtn), varList);
     Object.keys(OA.TEMPLATES).filter(function (k) { return k !== 'blank'; }).forEach(function (k) {
       var ta = ui.area(set.templates[k] || OA.TEMPLATES[k].body, { rows: 3, 'aria-label': OA.TEMPLATES[k].name }), st = h('div', { class: 'saved', 'aria-live': 'polite' });
       ta.addEventListener('change', function () {
@@ -69,20 +79,16 @@
 
   function connection() {
     var root = h('div', {}), api = OA.api, st = api.state(), out = h('div', { class: 'saved', 'aria-live': 'polite' });
+    var feed = api.status();
     var card = h('section', { class: 'card narrow' }, h('h2', { text: 'Website connection' }),
-      h('p', { text: 'The shop server saves what people send through the website form and reads Cloudflare for traffic and speed. This portal asks it for both.' }));
-    card.appendChild(h('div', { class: 'row' }, ui.chip(api.configured() ? 'Server set' : 'No server set', api.configured() ? 'ok' : 'quiet'), h('span', { class: 'note', text: api.configured() ? api.base() : 'The server address is set when the portal is deployed (the portal-api line in index.html). It is not set on this portal.' })));
-    var tok = ui.input('', { type: 'password', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Access token', placeholder: api.hasToken() ? 'A token is saved for this tab' : 'Paste the access token' });
-    card.appendChild(ui.field('Access token', tok, 'Kept only while this tab is open. It is never saved on the computer or shown on the page. Ask whoever runs the server for it.', null, 'This connects the portal to the shop’s server, which is where bookings, requests and the analytics counts live. Without it, the portal can only edit the website draft.'));
+      h('p', { text: 'What people send through the website form is saved on the shop server. This portal checks that server for new requests on its own, and you can check any time. There is no token to type here: the server sits behind the same sign-in wall as the calendar, and this browser carries its sign-in.' }));
+    card.appendChild(h('div', { class: 'row' }, ui.chip(feed.text, feed.kind), feed.detail ? h('span', { class: 'note', text: feed.detail }) : null));
     var row = h('div', { class: 'row' });
-    row.appendChild(ui.btn('Save and test', function () {
-      if (!api.configured()) { note(out, 'There is no server address to test. Nothing was saved.', true); return; }
-      var v = tok.value.trim(); if (!v && !api.hasToken()) { note(out, 'Paste the token first.', true); return; }
-      if (v) { if (!api.setToken(v)) { note(out, 'This browser would not keep the token for the tab. Nothing was saved.', true); return; } tok.value = ''; }
-      note(out, 'Testing\u2026'); 
-      api.call('/api/requests?limit=1').then(function () { note(out, 'Connected. The token works.'); }, function (e) { api.clearToken(); note(out, e.message + ' The token was not kept.', true); });
+    row.appendChild(ui.btn('Check for new requests', function () {
+      if (!api.configured()) { note(out, 'There is no server address set on this portal. Nothing was checked.', true); return; }
+      note(out, 'Checking\u2026');
+      api.pull().then(function (r) { note(out, r.added ? OA.plural(r.added, 'new website request') + ' came in.' : 'No new requests from the website.'); OA.rerender(); }, function (e) { note(out, e.message, true); });
     }, 'primary'));
-    row.appendChild(ui.btn('Forget the token', function () { api.clearToken(); tok.value = ''; note(out, 'The token was forgotten.'); }, ''));
     card.appendChild(row); card.appendChild(out);
     card.appendChild(h('p', { class: 'note', text: st.lastOk ? 'Last checked for new requests ' + OA.ago(st.lastOk) + '.' : 'Not checked for new requests yet.' }));
     if (st.lastError) card.appendChild(h('p', { class: 'note', text: 'Last problem: ' + st.lastError }));

@@ -70,7 +70,10 @@
     connect: function () {
       if (!base()) { probe = { done: true, connected: false, reason: NOT_CONNECTED + ' The portal has no calendar server address yet.' }; return Promise.reject(new Error(probe.reason)); }
       var day = (OA.todayISO ? OA.todayISO() : new Date().toISOString().slice(0, 10));
-      return request('/bookings?date=' + encodeURIComponent(day)).then(function () {
+      return request('/bookings?date=' + encodeURIComponent(day)).then(function (j) {
+        /* A sign-in page can answer 200 in place of the server; only the
+           server's own answer (an object with a bookings list) counts. */
+        if (!j || !Array.isArray(j.appointments)) throw new Error('The sign-in page answered instead of the calendar server. Sign in to the portal first (the server door), then check again.');
         gcal.connected = true; probe = { done: true, connected: true, reason: '' };
         return gcal.status();
       }, function (e) {

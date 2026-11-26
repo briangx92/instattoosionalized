@@ -148,10 +148,9 @@
     var dur = ui.select(DURS.map(function (x) { return [String(x[0]), x[1]]; }), String(p.dur), { 'aria-label': 'How long' });
     var durTouched = !!o.pref && !!o.pref.dur;
     var exact = h('div', { class: 'timing-exact' }, ui.field('Date', date), ui.field('Starts', start), ui.field('Length', dur));
-    var status = h('div', { class: 'timing-status', 'aria-live': 'polite' }), gfmt = h('pre', { class: 'code' });
-    var google = h('details', { class: 'an-table' }, h('summary', { text: 'How this goes to Google Calendar' }), gfmt);
+    var status = h('div', { class: 'timing-status', 'aria-live': 'polite' });
     var legacy = o.legacyText ? h('p', { class: 'note', text: 'The website form said: “' + o.legacyText + '”. Choosing a time here replaces it.' }) : null;
-    var el = h('div', { class: 'timing' }, h('div', { class: 'row' }, mode, part), days, exact, status, google, legacy);
+    var el = h('div', { class: 'timing' }, h('div', { class: 'row' }, mode, part), days, exact, status, legacy);
 
     function read() {
       var vals = { mode: mode.value, part: part.value, days: [].slice.call(days.querySelectorAll('input:checked')).map(function (i) { return +i.value; }), date: date.value, start: start.value, dur: +dur.value };
@@ -181,8 +180,6 @@
           res.warns.forEach(function (m) { status.appendChild(h('div', { class: 'hint warn', text: m })); });
         }
       } else if (res.errors.length && touched) res.errors.forEach(function (m) { status.appendChild(h('div', { class: 'hint bad', text: m })); });
-      var wins = OA.prefWindows(v, 3);
-      gfmt.textContent = wins.length ? JSON.stringify({ note: 'freebusy.query body, first ' + wins.length + ' window' + (wins.length === 1 ? '' : 's'), timeZone: wins[0].timeZone, items: wins.map(function (w) { return { timeMin: w.timeMin, timeMax: w.timeMax }; }) }, null, 2) : 'Nothing to send yet.';
     }
     function changed() { touched = true; paint(); o.onChange && o.onChange(); }
     mode.addEventListener('change', changed); part.addEventListener('change', changed); date.addEventListener('change', changed); start.addEventListener('change', changed);
