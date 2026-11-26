@@ -484,6 +484,29 @@
   }
   window.addEventListener('load', function () { resolveIdbImgs(document); });
 
+  /* The server copy of the published content: the portal stores it on the shop's
+     server at publish time, and every visit fetches it, caches it in the same key
+     read() uses, and reloads once when it is newer than what the page has. The
+     session stamp keeps a failed cache write from looping the reload. */
+  function refreshFromServer() {
+    if (PREVIEW) return;
+    try {
+      fetch('https://api.instattoosionalized.net/content', { mode: 'cors' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (c) {
+        if (!c || c.v !== 1 || typeof c.at !== 'number') return;
+        var cur = null;
+        try { cur = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { /* no cache yet */ }
+        if (cur && typeof cur.at === 'number' && cur.at >= c.at) return;
+        try {
+          if (sessionStorage.getItem('oa2:server-at') === String(c.at)) return;
+          sessionStorage.setItem('oa2:server-at', String(c.at));
+        } catch (e) { /* session storage unavailable: the cache write below still guards */ }
+        try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) { return; }
+        location.reload();
+      }).catch(function () { /* nothing published yet, or offline: keep what the page has */ });
+    } catch (e) { /* fetch unavailable: keep what the page has */ }
+  }
+  refreshFromServer();
+
   window.SiteContent = { navNames: navNames, homePolicies: homePolicies, cleanPolicies: cleanPolicies, withPreview: withPreview, PREVIEW: PREVIEW, KINDS: KINDS, read: read, shopToday: shopToday, active: active, cleanNews: cleanNews, cleanArtists: cleanArtists, mergeHome: mergeHome, mergeSite: mergeSite, cleanShop: cleanShop, cleanHours: cleanHours, cleanPrices: cleanPrices, cleanServices: cleanServices, applyDepositLine: applyDepositLine, applyReviews: applyReviews, previewBar: previewBar, stickyRequest: stickyRequest, el: el, warn: warn, resolveIdbImgs: resolveIdbImgs };
 
   var me = document.currentScript;

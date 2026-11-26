@@ -222,15 +222,18 @@
       var row = h('div', { class: 'row' });
       if (owner) {
         var btn = ui.btn('Publish ' + OA.plural(ch.length, 'change'), function () {
-          var r = act.publish('Shop owner'); if (!r.ok) { ui.fail(r.reason); return; }
-          OA.gcImages && OA.gcImages();
-          ui.toast('Published ' + OA.plural(r.count, 'change') + '. The website in this browser now shows your changes.'); OA.rerender();
+          btn.disabled = true;
+          act.publish('Shop owner').then(function (r) {
+            if (!r.ok) { btn.disabled = false; ui.fail(r.reason); return; }
+            OA.gcImages && OA.gcImages();
+            ui.toast('Published ' + OA.plural(r.count, 'change') + '. Your website now shows your changes.'); OA.rerender();
+          });
         }, 'primary', blLive.length ? { disabled: 'disabled' } : {});
         row.appendChild(btn); row.appendChild(ui.btn('Discard everything', function () { ui.confirm('Discard all draft changes?', 'The draft goes back to what is live. This cannot be undone.', 'Discard all', true).then(function (ok) { if (ok) { act.discard(); ui.toast('Draft reset to the live version'); OA.rerender(); } }); }, 'quiet danger-quiet'));
       } else row.appendChild(h('p', { class: 'note', text: 'Only the shop owner can publish.' }));
       row.appendChild(OA.previewLink('btn'));
       card.appendChild(row);
-      card.appendChild(h('p', { class: 'note', text: 'Publishing updates the website in this browser: the banner, announcements, hours, prices, services, phone, policies and artist details. Preview site changes opens the website with your draft changes in a new tab. Visitors never see a preview.' }));
+      card.appendChild(h('p', { class: 'note', text: 'Publishing updates the website for everyone: the banner, announcements, hours, prices, services, phone, policies and artist details. Preview site changes opens the website with your draft changes in a new tab. Visitors never see a preview.' }));
       root.appendChild(card);
     }
     var hist = S.state.history;

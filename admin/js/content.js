@@ -133,6 +133,23 @@
   };
   OA.clearLive = function () { try { localStorage.removeItem(OA.PUBLIC_KEY); localStorage.removeItem(OA.PREVIEW_KEY); } catch (e) { /* nothing to clear */ } };
 
+  /* The server copy: publishing also sends the content to the shop's server, so the
+     public website can fetch it on any device, not just this browser. Resolves ''
+     when the server stored it, or a sentence saying what went wrong. The local copy
+     above stays as the fallback this browser reads. */
+  OA.pushLive = function (content) {
+    var base = '';
+    var m = document.querySelector('meta[name="gcal-api"]'), v = m ? (m.getAttribute('content') || '').trim() : '';
+    if (v) base = v.replace(/\/+$/, '');
+    else if (typeof location !== 'undefined' && location.hostname && location.hostname.indexOf('portal.') === 0) base = location.origin;
+    if (!base) return Promise.resolve('No server address is set, so this update only lives in this browser.');
+    return fetch(base + '/content', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(content) }).then(function (r) {
+      if (r.ok) return '';
+      if (r.status === 403) return 'The server refused the update. Sign in to the portal first, then publish again.';
+      return 'The server answered with an error (' + r.status + '), so visitors do not have this update yet.';
+    }, function () { return 'The server could not be reached, so visitors do not have this update yet.'; });
+  };
+
   /* A preview is the draft, saved apart from the live copy, so looking never changes what visitors see. */
   OA.writePreview = function (content) {
     var json = JSON.stringify(content);

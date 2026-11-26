@@ -356,14 +356,17 @@
   };
   act.publish = function (who) {
     var s = st(), ch = OA.pendingChanges();
-    if (!ch.length) return { ok: false, reason: 'There is nothing to publish.' };
-    var bl = OA.liveBlockers(); if (bl.length) return { ok: false, reason: bl[0], blockers: bl };
-    var at = Date.now(), bad = OA.writeLive(OA.publicContent(s.site, at));
-    if (bad) return { ok: false, reason: bad };
-    s.history.unshift({ id: OA.uid('h'), at: at, by: who, summary: ch.map(function (c) { return c.text; }) });
-    s.history = s.history.slice(0, 30);
-    s.published = { at: at, by: who, site: OA.clone(s.site), reviewLink: s.settings.reviewLink || '' };
-    S.commit(); return { ok: true, count: ch.length };
+    if (!ch.length) return Promise.resolve({ ok: false, reason: 'There is nothing to publish.' });
+    var bl = OA.liveBlockers(); if (bl.length) return Promise.resolve({ ok: false, reason: bl[0], blockers: bl });
+    var at = Date.now(), content = OA.publicContent(s.site, at), bad = OA.writeLive(content);
+    if (bad) return Promise.resolve({ ok: false, reason: bad });
+    return OA.pushLive(content).then(function (pushBad) {
+      if (pushBad) return { ok: false, reason: pushBad };
+      s.history.unshift({ id: OA.uid('h'), at: at, by: who, summary: ch.map(function (c) { return c.text; }) });
+      s.history = s.history.slice(0, 30);
+      s.published = { at: at, by: who, site: OA.clone(s.site), reviewLink: s.settings.reviewLink || '' };
+      S.commit(); return { ok: true, count: ch.length };
+    });
   };
   act.discard = function (key) {
     var s = st(), p = s.published.site;
