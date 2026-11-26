@@ -224,6 +224,11 @@
         </form>
       </div>
 
+      <div class="s-captcha" id="ts-box" hidden>
+        <div id="ts-widget"></div>
+        <p class="s-captcha__note" id="ts-note" role="alert" hidden></p>
+      </div>
+
       <div class="s-result" id="result" hidden>
         <h3 id="result-title" tabindex="-1">Your request is ready</h3>
         <div class="s-result__text" id="result-text"></div>
@@ -306,6 +311,7 @@
 </div>
 
 <script src="scripts/site-content.js"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 <script src="scripts/home.js"></script>
 
 <script type="application/ld+json" id="schema-ld" data-module="schema"></script>

@@ -1,3 +1,4 @@
+const TURNSTILE_SITE_KEY = "0x4AAAAAAGUSsdQqWpUsmajE";
 const SITE = {
   slug: "instattoosionalized-tattoos-and-piercings",
   name: "Instattoosionalized Tattoos and Piercings",
@@ -567,12 +568,15 @@ const MODULES = {
     const panels = { quick: $("panel-quick"), guided: $("panel-guided") };
     const result = $("result");
     const pathsBox = $("paths");
+    const tsBox = $("ts-box"), tsNote = $("ts-note");
+    let tsToken = "", tsWidget = null, tsRendered = false;
 
     function selectPath(p, focusTab){
       st.path = p;
       tabs.forEach(t => { const on = t.dataset.path === p; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; });
       panels.quick.hidden = p !== "quick";
       panels.guided.hidden = p !== "guided";
+      if (tsRendered) tsBox.hidden = false;
       result.hidden = true;
       pathsBox.hidden = false;
       if (focusTab) tabs.find(t => t.dataset.path === p).focus();
@@ -991,6 +995,33 @@ const MODULES = {
       if (sel) sel.value = st.artist || "";
     }
 
+    function tsShowNote(msg){
+      tsBox.hidden = false;
+      tsNote.textContent = msg;
+      tsNote.hidden = false;
+    }
+    function tsRender(){
+      if (tsRendered || !window.turnstile) return;
+      tsRendered = true;
+      tsWidget = window.turnstile.render($("ts-widget"), {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: "dark",
+        callback: t => { tsToken = t; tsNote.hidden = true; },
+        "expired-callback": () => { tsToken = ""; },
+        "error-callback": () => { tsToken = ""; }
+      });
+      tsBox.hidden = false;
+    }
+    (function tsWait(n){
+      if (window.turnstile) { tsRender(); return; }
+      if (n > 60) return;
+      setTimeout(() => tsWait(n + 1), 250);
+    })(0);
+    function tsReset(){
+      tsToken = "";
+      if (tsWidget !== null && window.turnstile) { try { window.turnstile.reset(tsWidget); } catch (e) {} }
+    }
+
     const overlay = $("send-overlay");
     const REQUEST_API = "https://api.instattoosionalized.net/requests";
     let requestId = null;
@@ -1007,7 +1038,8 @@ const MODULES = {
         name: guided ? a.name.trim() : qName.value.trim(),
         phone: guided ? a.phone : T.fmtPhone(qPhone.value),
         text: text,
-        page: location.href
+        page: location.href,
+        turnstile_token: tsToken
       };
     }
     async function sendRequest(path, text){
@@ -1023,6 +1055,7 @@ const MODULES = {
     function showResult(text, sent){
       overlay.hidden = true;
       overlay.classList.remove("is-run");
+      tsBox.hidden = true;
       pathsBox.hidden = true;
       panels.quick.hidden = true;
       panels.guided.hidden = true;
@@ -1041,6 +1074,11 @@ const MODULES = {
       $("result-title").focus({ preventScroll: true });
     }
     async function finish(path, text){
+      if (!tsToken) {
+        tsShowNote(tsRendered ? "Please finish the quick check above, then send again." : "The quick check could not load. Check your connection, then try again.");
+        tsBox.scrollIntoView({ block: "center", behavior: T.reduced() ? "auto" : "smooth" });
+        return;
+      }
       st.lastPath = path;
       overlay.hidden = false;
       overlay.classList.remove("is-run");
@@ -1048,6 +1086,7 @@ const MODULES = {
       overlay.classList.add("is-run");
       const wait = new Promise(res => setTimeout(res, T.reduced() ? 900 : 2000));
       const sent = await sendRequest(path, text);
+      tsReset();
       await wait;
       showResult(text, sent);
     }
