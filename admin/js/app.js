@@ -138,5 +138,10 @@
     try { var t = localStorage.getItem(THEME) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.setAttribute('data-theme', t); } catch (e) { /* default theme */ }
     start();
     OA.api.startPolling();
+    /* The calendar connection is live or it is not; find out on load
+       instead of waiting for someone to press a button in Settings.
+       A failed probe only sets the status reason, it never blocks. */
+    if (OA.gcal) OA.gcal.connect().then(refreshView, refreshView);
   });
+  function refreshView() { if (OA.role && main) render(true); }
 })();
