@@ -18,14 +18,32 @@
 <body>
 <div id="app"></div>
 <div id="lock" class="lock" role="dialog" aria-modal="true" aria-labelledby="lock-title">
-  <form id="lock-form" class="lock-card">
+  <form id="lock-form" class="lock-card" hidden>
     <p class="lock-kicker">Instattoosionalized</p>
     <h1 id="lock-title" class="lock-title">Owner portal</h1>
-    <p class="lock-sub">This portal is private. Type the shop passcode to open it.</p>
-    <label class="lock-label" for="lock-code">Passcode</label>
-    <input id="lock-code" class="lock-input" type="password" autocomplete="current-password" placeholder="Shop passcode">
+    <p class="lock-sub">This portal is private. Sign in with your own username and password.</p>
+    <label class="lock-label" for="lock-user">Username</label>
+    <input id="lock-user" class="lock-input" type="text" autocomplete="username" placeholder="Your username">
+    <label class="lock-label" for="lock-code">Password</label>
+    <input id="lock-code" class="lock-input" type="password" autocomplete="current-password" placeholder="Your password">
     <button id="lock-btn" class="lock-btn" type="submit">Open the portal</button>
     <p id="lock-note" class="lock-note" aria-live="polite"></p>
+    <p class="lock-sub">Forgot your password? Ask Brian and he will reset it.</p>
+  </form>
+  <form id="lock-setupform" class="lock-card" hidden>
+    <p class="lock-kicker">Instattoosionalized</p>
+    <h1 class="lock-title">Create the owner account</h1>
+    <p class="lock-sub">First sign-in. The shop passcode Brian gave you proves this is the shop. Then pick the username and password you will use from now on.</p>
+    <label class="lock-label" for="lock-setup-code">Shop passcode</label>
+    <input id="lock-setup-code" class="lock-input" type="password" autocomplete="off" placeholder="The passcode from Brian">
+    <label class="lock-label" for="lock-setup-user">Choose a username</label>
+    <input id="lock-setup-user" class="lock-input" type="text" autocomplete="username" placeholder="For example: johnny">
+    <label class="lock-label" for="lock-setup-pass">Choose a password</label>
+    <input id="lock-setup-pass" class="lock-input" type="password" autocomplete="new-password" placeholder="At least 10 characters">
+    <label class="lock-label" for="lock-setup-pass2">Type it again</label>
+    <input id="lock-setup-pass2" class="lock-input" type="password" autocomplete="new-password" placeholder="Same password again">
+    <button id="lock-setup-btn" class="lock-btn" type="submit">Create my account</button>
+    <p id="lock-setup-note" class="lock-note" aria-live="polite"></p>
   </form>
 </div>
 <noscript><p style="padding:2rem;font:16px system-ui">The owner portal needs JavaScript. Turn it on in your browser and reload.</p></noscript>
