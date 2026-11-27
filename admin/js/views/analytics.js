@@ -37,7 +37,7 @@
   /* ---------- the daily chart (inline SVG, drawn here) ----------
      OA.h builds HTML elements only; SVG needs its own namespace, so
      the chart uses this small builder on the same conventions (the
-     qr.js module builds its SVG the same way). Pageviews are bars in
+     qr.js module builds its SVG the same way). Page views are bars in
      the accent; visits ride over them as a dot-and-line series in a
      second color, on the same scale, because the two counts answer
      the same question per day and a second axis would invite a false
@@ -79,7 +79,7 @@
       var cx = LEFT + i * slot + slot / 2;
       var bh = (d.pageviews / axisTop) * PLOT;
       kids.push(s('rect', { x: cx - barW / 2, y: base - bh, width: barW, height: bh, class: 'ch-bar' },
-        s('title', { text: OA.fmtShort(d.date) + ': ' + d.pageviews + (d.pageviews === 1 ? ' pageview' : ' pageviews') + ', ' + d.visits + (d.visits === 1 ? ' visit' : ' visits') })));
+        s('title', { text: OA.fmtShort(d.date) + ': ' + d.pageviews + (d.pageviews === 1 ? ' page view' : ' page views') + ', ' + d.visits + (d.visits === 1 ? ' visit' : ' visits') })));
       pts.push((Math.round(cx * 10) / 10) + ',' + (Math.round(y(d.visits) * 10) / 10));
       if (i % 5 === 0 || i === series.length - 1) {
         kids.push(s('text', { x: cx, y: base + 18, 'text-anchor': 'middle', class: 'ch-lab', text: OA.fmtShort(d.date) }));
@@ -93,15 +93,15 @@
     var busiest = series.reduce(function (a, b) { return b.pageviews > a.pageviews ? b : a; }, series[0]);
     return s('svg', {
       viewBox: '0 0 ' + W + ' ' + H, class: 'chart', role: 'img',
-      'aria-label': 'Daily chart for the last 30 days. Busiest day: ' + OA.fmtShort(busiest.date) + ', ' + busiest.pageviews + (busiest.pageviews === 1 ? ' pageview' : ' pageviews') + '.'
+      'aria-label': 'Daily chart for the last 30 days. Busiest day: ' + OA.fmtShort(busiest.date) + ', ' + busiest.pageviews + (busiest.pageviews === 1 ? ' page view' : ' page views') + '.'
     }, kids);
   }
 
   function chartBlock(series) {
     var wrap = h('div', {});
-    wrap.appendChild(h('h3', { text: 'Pageviews and visits, last 30 days' }));
+    wrap.appendChild(h('h3', { text: 'Page views and visits, last 30 days' }));
     wrap.appendChild(h('div', { class: 'row tight ch-keys' },
-      h('span', { class: 'ch-key' }, h('i', { class: 'ch-sw pv' }), 'Pageviews'),
+      h('span', { class: 'ch-key' }, h('i', { class: 'ch-sw pv' }), 'Page views'),
       h('span', { class: 'ch-key' }, h('i', { class: 'ch-sw vt' }), 'Visits')));
     wrap.appendChild(dayChart(series));
     return wrap;
@@ -144,9 +144,9 @@
     }
     var j = visits.data, v = j.visits, p = j.pageviews;
     var stats = h('dl', { class: 'stats' });
-    statInto(stats, 'Visits today', v.today, p.today + (p.today === 1 ? ' pageview' : ' pageviews'));
-    statInto(stats, 'Visits, last 7 days', v.d7, p.d7 + (p.d7 === 1 ? ' pageview' : ' pageviews'));
-    statInto(stats, 'Visits, last 30 days', v.d30, p.d30 + (p.d30 === 1 ? ' pageview' : ' pageviews'));
+    statInto(stats, 'Visits today', v.today, p.today + (p.today === 1 ? ' page view' : ' page views'));
+    statInto(stats, 'Visits, last 7 days', v.d7, p.d7 + (p.d7 === 1 ? ' page view' : ' page views'));
+    statInto(stats, 'Visits, last 30 days', v.d30, p.d30 + (p.d30 === 1 ? ' page view' : ' page views'));
     card.appendChild(stats);
     var hasData = j.pages30.length > 0 || j.series.some(function (d) { return d.pageviews > 0 || d.visits > 0; });
     if (!hasData) {
