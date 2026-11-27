@@ -662,7 +662,7 @@ const MODULES = {
     let qNeed = null;
     function qApplyNeed(){
       const rest = qNote.value.replace(/^(Tattoo|Piercing)(: |\s*$)/, "");
-      qNote.value = qNeed ? (rest ? qNeed + ": " + rest : qNeed) : rest;
+      qNote.value = qNeed ? (rest ? qNeed + ": " + rest : qNeed + ": ") : rest;
       Object.keys(qTiles).forEach(k => { if (qTiles[k]) qTiles[k].setAttribute("aria-pressed", k === qNeed ? "true" : "false"); });
     }
     Object.keys(qTiles).forEach(k => { if (qTiles[k]) qTiles[k].addEventListener("click", () => { qNeed = qNeed === k ? null : k; qApplyNeed(); }); });
