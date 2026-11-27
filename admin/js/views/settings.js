@@ -98,8 +98,13 @@
      artist leaves, Deactivate is the revocation: no sign-in, no live
      session, and the tap here can undo it. Their appointments stay on
      the calendar for the shop to reassign or cancel. Reset password is
-     the forgotten-password path: the owner sets a new one, the old
-     sessions end, and the person signs back in with it. */
+     the owner-driven path: the owner sets a new one, the old
+     sessions end, and the person signs back in with it. The reset
+     codes list is the person's own path: someone who forgot asks
+     from the sign-in screen, the code waits here with the code
+     itself showing (the owner reads it out in the shop; there is no
+     email channel), and it leaves the list when it is spent, runs
+     out, or the owner cancels it. */
   function accountsBlock() {
     var API = 'https://api.instattoosionalized.net';
     var WROLE = { owner: 'Shop owner', manager: 'Front desk', artist: 'Artist' };
@@ -111,6 +116,9 @@
     wrap.appendChild(h('h3', { text: 'Accounts' }));
     var list = h('div', { class: 'ledger' });
     wrap.appendChild(list);
+    wrap.appendChild(h('h3', { text: 'Password reset codes' }));
+    var codeList = h('div', { class: 'ledger' });
+    wrap.appendChild(codeList);
     var out = h('div', { class: 'saved', 'aria-live': 'polite' });
     wrap.appendChild(out);
     function token() { return window.OA_LOCK && OA_LOCK.token ? OA_LOCK.token() : ''; }
@@ -157,8 +165,14 @@
         load();
       });
     }
-    function paint(users) {
-      OA.clear(reqList); OA.clear(list);
+    function codeLeft(expires) {
+      var ms = Date.parse(expires) - Date.now();
+      if (!(ms > 0)) return 'about to run out';
+      var mins = Math.round(ms / 60000);
+      return mins <= 1 ? 'under a minute left' : 'about ' + mins + ' minutes left';
+    }
+    function paint(users, resetCodes) {
+      OA.clear(reqList); OA.clear(list); OA.clear(codeList);
       var pending = users.filter(function (u) { return u.status === 'pending'; });
       if (!pending.length) reqList.appendChild(h('p', { class: 'note', text: 'No accounts are waiting for approval.' }));
       pending.forEach(function (u) {
@@ -187,11 +201,19 @@
         if (u.status === 'active' || u.status === 'paused') side.appendChild(ui.btn('Reset password', function () { resetPassword(u); }, 'small'));
         list.appendChild(row);
       });
+      if (!resetCodes.length) codeList.appendChild(h('p', { class: 'note', text: 'No one is waiting on a reset code.' }));
+      resetCodes.forEach(function (rc) {
+        var side = h('div', { class: 'row tight' },
+          ui.btn('Cancel', function () { decide({ username: rc.username, decision: 'cancel_reset' }, 'The reset code for ' + rc.username + ' is cancelled.'); }, 'small danger-quiet'));
+        codeList.appendChild(h('div', { class: 'ledger-row acct' },
+          h('div', { class: 'lr-main' }, h('strong', { text: rc.username }), h('span', { text: 'Code ' + rc.code + ' · ' + codeLeft(rc.expires_at) })),
+          side));
+      });
     }
     function load() {
       if (!token()) { note(out, 'Sign-in information is not available on this screen.', true); return; }
       call('/portal-users', { token: token() }).then(function (res) {
-        if (res.status === 200 && res.data && res.data.ok) { paint(res.data.users || []); return; }
+        if (res.status === 200 && res.data && res.data.ok) { paint(res.data.users || [], res.data.reset_codes || []); return; }
         note(out, 'Could not load the account list.', true);
       }, function () { note(out, 'Could not reach the server.', true); });
     }

@@ -16,7 +16,7 @@
 <!-- Every portal script and the stylesheet carry the same ?v= stamp. The portal loads its code once and
      renders views from memory, so an unstamped URL can leave an open or cached tab running old code after
      a deploy. Bump the stamp (every occurrence, this file only) on any deploy that changes admin code. -->
-<link rel="stylesheet" href="css/portal.css?v=20261127-6">
+<link rel="stylesheet" href="css/portal.css?v=20261127-7">
 </head>
 <body>
 <div id="app"></div>
@@ -33,7 +33,7 @@
     <div id="lock-ts" class="lock-ts" hidden></div>
     <button id="lock-btn" class="lock-btn" type="submit">Open the portal</button>
     <p id="lock-note" class="lock-note" aria-live="polite"></p>
-    <p class="lock-sub">Forgot your password? Ask Brian and he will reset it.</p>
+    <p class="lock-sub" id="lock-forgot-line"><button id="lock-forgot-toggle" class="lock-toggle" type="button">Forgot your password?</button></p>
     <p class="lock-sub"><button id="lock-request-toggle" class="lock-toggle" type="button">New here? Request an account</button></p>
   </form>
   <form id="lock-requestform" class="lock-card" hidden>
@@ -50,6 +50,27 @@
     <button id="lock-req-btn" class="lock-btn" type="submit">Send the request</button>
     <p id="lock-req-note" class="lock-note" aria-live="polite"></p>
     <p class="lock-sub"><button id="lock-request-back" class="lock-toggle" type="button">Back to sign in</button></p>
+  </form>
+  <form id="lock-forgotform" class="lock-card" hidden>
+    <p class="lock-kicker">Instattoosionalized</p>
+    <h1 class="lock-title">Forgot your password</h1>
+    <p class="lock-sub">Type your username and ask for a code. The shop owner can see the code in Settings and will read it to you. Then type the code here with a new password.</p>
+    <label class="lock-label" for="lock-forgot-user">Username</label>
+    <input id="lock-forgot-user" name="username" class="lock-input" type="text" autocomplete="username" placeholder="Your username">
+    <div id="lock-forgot-ts" class="lock-ts" hidden></div>
+    <button id="lock-forgot-btn" class="lock-btn" type="button">Ask for a code</button>
+    <div id="lock-forgot-step2" hidden>
+      <label class="lock-label" for="lock-forgot-code">The 6-digit code</label>
+      <input id="lock-forgot-code" class="lock-input" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6 digits">
+      <label class="lock-label" for="lock-forgot-pass">Choose a new password</label>
+      <input id="lock-forgot-pass" name="password" class="lock-input" type="password" autocomplete="new-password" placeholder="At least 10 characters">
+      <label class="lock-label" for="lock-forgot-pass2">Type it again</label>
+      <input id="lock-forgot-pass2" class="lock-input" type="password" autocomplete="new-password" placeholder="Same password again">
+      <button id="lock-forgot-set-btn" class="lock-btn" type="button">Set my new password</button>
+    </div>
+    <p id="lock-forgot-note" class="lock-note" aria-live="polite"></p>
+    <p class="lock-sub" id="lock-forgot-have-line"><button id="lock-forgot-have" class="lock-toggle" type="button">I already have a code</button></p>
+    <p class="lock-sub"><button id="lock-forgot-back" class="lock-toggle" type="button">Back to sign in</button></p>
   </form>
   <form id="lock-setupform" class="lock-card" hidden>
     <p class="lock-kicker">Instattoosionalized</p>
@@ -69,29 +90,29 @@
 </div>
 <noscript><p style="padding:2rem;font:16px system-ui">The owner portal needs JavaScript. Turn it on in your browser and reload.</p></noscript>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-<script src="js/lock.js?v=20261127-6"></script>
-<script src="js/util.js?v=20261127-6"></script>
-<script src="js/seed-data.js?v=20261127-6"></script>
-<script src="js/social.js?v=20261127-6"></script>
-<script src="js/content.js?v=20261127-6"></script>
-<script src="js/schedule.js?v=20261127-6"></script>
-<script src="js/store.js?v=20261127-6"></script>
-<script src="js/actions.js?v=20261127-6"></script>
-<script src="js/vendor/qrcode.js?v=20261127-6"></script>
-<script src="js/ui.js?v=20261127-6"></script>
-<script src="js/qr.js?v=20261127-6"></script>
-<script src="js/timing.js?v=20261127-6"></script>
-<script src="js/shared.js?v=20261127-6"></script>
-<script src="js/gcal.js?v=20261127-6"></script>
-<script src="js/api.js?v=20261127-6"></script>
-<script src="js/views/today.js?v=20261127-6"></script>
-<script src="js/views/requests.js?v=20261127-6"></script>
-<script src="js/views/calendar.js?v=20261127-6"></script>
-<script src="js/views/clients.js?v=20261127-6"></script>
-<script src="js/views/artists.js?v=20261127-6"></script>
-<script src="js/views/analytics.js?v=20261127-6"></script>
-<script src="js/views/site.js?v=20261127-6"></script>
-<script src="js/views/settings.js?v=20261127-6"></script>
-<script src="js/app.js?v=20261127-6"></script>
+<script src="js/lock.js?v=20261127-7"></script>
+<script src="js/util.js?v=20261127-7"></script>
+<script src="js/seed-data.js?v=20261127-7"></script>
+<script src="js/social.js?v=20261127-7"></script>
+<script src="js/content.js?v=20261127-7"></script>
+<script src="js/schedule.js?v=20261127-7"></script>
+<script src="js/store.js?v=20261127-7"></script>
+<script src="js/actions.js?v=20261127-7"></script>
+<script src="js/vendor/qrcode.js?v=20261127-7"></script>
+<script src="js/ui.js?v=20261127-7"></script>
+<script src="js/qr.js?v=20261127-7"></script>
+<script src="js/timing.js?v=20261127-7"></script>
+<script src="js/shared.js?v=20261127-7"></script>
+<script src="js/gcal.js?v=20261127-7"></script>
+<script src="js/api.js?v=20261127-7"></script>
+<script src="js/views/today.js?v=20261127-7"></script>
+<script src="js/views/requests.js?v=20261127-7"></script>
+<script src="js/views/calendar.js?v=20261127-7"></script>
+<script src="js/views/clients.js?v=20261127-7"></script>
+<script src="js/views/artists.js?v=20261127-7"></script>
+<script src="js/views/analytics.js?v=20261127-7"></script>
+<script src="js/views/site.js?v=20261127-7"></script>
+<script src="js/views/settings.js?v=20261127-7"></script>
+<script src="js/app.js?v=20261127-7"></script>
 </body>
 </html>

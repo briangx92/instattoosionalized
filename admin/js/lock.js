@@ -15,7 +15,10 @@
    also carries the same Cloudflare Turnstile human check the public
    form uses; the server verifies it before it looks at the password.
    The account request carries the same check, verified before the
-   server records the request. Bookings and request data stay behind
+   server records the request. The forgot-password card carries it
+   too: the person asks for a reset code, the owner reads it to them
+   from Settings (there is no email channel), and the code plus a new
+   password, typed here, is what changes the password. Bookings and request data stay behind
    their own sign-in as before; this screen guards the portal itself. */
 (function () {
   "use strict";
@@ -125,6 +128,7 @@
 
   var tsSignin = makeTs("lock-ts");
   var tsRequest = makeTs("lock-req-ts");
+  var tsForgot = makeTs("lock-forgot-ts");
 
   function rememberChecked() {
     var box = el("lock-remember");
@@ -180,6 +184,8 @@
     var note = el("lock-note");
     var sub = form.querySelector(".lock-sub");
     var labels = form.querySelectorAll(".lock-label");
+    var forgotLine = el("lock-forgot-line");
+    if (forgotLine) forgotLine.hidden = true;
     if (user) user.hidden = true;
     if (labels[0]) labels[0].hidden = true;
     if (labels[1]) labels[1].textContent = "Passcode";
@@ -257,6 +263,7 @@
       });
     });
     wireRequest();
+    wireForgot();
     user.focus();
   }
 
@@ -318,6 +325,114 @@
         tsRequest.reset();
         say("Could not reach the server. Check your connection and try again.");
       });
+    });
+  }
+
+  /* "Forgot your password" swaps the sign-in card for a reset card.
+     The person asks for a code with their username (the card carries
+     its own human-check widget, tsForgot, started when the card
+     opens); the server answers the same whether or not the username
+     has an account, so the note never confirms one exists. The owner
+     sees the code in Settings and reads it out; the person types it
+     here with a new password, and the server swaps the password,
+     ends their other sessions, and spends the code. Someone who
+     already holds a code can skip straight to that step. Both action
+     buttons are plain buttons with click handlers; the form's own
+     submit (the Enter key) routes to whichever step is showing, so
+     nothing ever fires twice. */
+  function wireForgot() {
+    var toggle = el("lock-forgot-toggle");
+    var form = el("lock-forgotform");
+    var login = el("lock-form");
+    if (!toggle || !form) return;
+    var back = el("lock-forgot-back");
+    var have = el("lock-forgot-have");
+    var haveLine = el("lock-forgot-have-line");
+    var step2 = el("lock-forgot-step2");
+    var user = el("lock-forgot-user");
+    var askBtn = el("lock-forgot-btn");
+    var setBtn = el("lock-forgot-set-btn");
+    var code = el("lock-forgot-code");
+    var a = el("lock-forgot-pass");
+    var b = el("lock-forgot-pass2");
+    var note = el("lock-forgot-note");
+    function say(t) { if (note) note.textContent = t || ""; }
+    function showStep2() {
+      step2.hidden = false;
+      if (haveLine) haveLine.hidden = true;
+      code.focus();
+    }
+    toggle.addEventListener("click", function () {
+      login.hidden = true;
+      form.hidden = false;
+      tsForgot.start();
+      user.focus();
+    });
+    if (back) back.addEventListener("click", function () {
+      form.hidden = true;
+      login.hidden = false;
+    });
+    if (have) have.addEventListener("click", showStep2);
+    function ask() {
+      var username = user.value.trim();
+      if (!username) { say("Type your username."); return; }
+      askBtn.disabled = true;
+      say("Asking for a code...");
+      post("/portal-reset-request", { username: username, turnstile_token: tsForgot.token() }).then(function (res) {
+        askBtn.disabled = false;
+        // The token is spent either way; reset the widget for the
+        // next try, like the other cards.
+        tsForgot.reset();
+        if (res.status === 200 && res.data && res.data.ok) {
+          say("If that username has an account, a code is waiting. Ask the shop owner for it (they can see it in Settings), then type it below with a new password. Codes last 30 minutes.");
+          showStep2();
+          return;
+        }
+        if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
+        if (res.data && res.data.error === "captcha_failed") { say("Please finish the human check and try again."); return; }
+        say("That did not work. Try again.");
+      }).catch(function () {
+        askBtn.disabled = false;
+        tsForgot.reset();
+        say("Could not reach the server. Check your connection and try again.");
+      });
+    }
+    function complete() {
+      var username = user.value.trim();
+      if (!username) { say("Type your username."); return; }
+      if (!code.value.trim()) { say("Type the 6-digit code the owner gave you."); return; }
+      if (a.value.length < 10) { say("Use at least 10 characters for the password."); return; }
+      if (a.value !== b.value) { say("The two passwords do not match."); return; }
+      setBtn.disabled = true;
+      say("Setting your new password...");
+      post("/portal-reset-complete", { username: username, code: code.value.trim(), password: a.value }).then(function (res) {
+        setBtn.disabled = false;
+        if (res.status === 200 && res.data && res.data.ok) {
+          code.value = "";
+          a.value = "";
+          b.value = "";
+          form.hidden = true;
+          login.hidden = false;
+          var ln = el("lock-note");
+          if (ln) ln.textContent = "Your password is changed. Sign in with the new one.";
+          return;
+        }
+        if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
+        if (res.data && res.data.error === "invalid_code") { say("That code did not work. Check it and try again, or ask for a new one."); return; }
+        if (res.data && res.data.error === "code_expired") { say("That code has expired. Ask for a new one."); return; }
+        if (res.data && res.data.error === "too_many_attempts") { say("Too many wrong tries, so that code no longer works. Ask for a new one."); return; }
+        if (res.data && res.data.error === "password_too_short") { say("Use at least 10 characters for the password."); return; }
+        say("That did not work. Try again.");
+      }).catch(function () {
+        setBtn.disabled = false;
+        say("Could not reach the server. Check your connection and try again.");
+      });
+    }
+    askBtn.addEventListener("click", ask);
+    setBtn.addEventListener("click", complete);
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (step2.hidden) ask(); else complete();
     });
   }
 
