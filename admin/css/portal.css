@@ -60,6 +60,10 @@ p { margin: 0 0 .7rem; }
 .badge { min-width: 1.35rem; padding: 0 .4rem; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .74rem; font-weight: 700; text-align: center; line-height: 1.35rem; }
 
 main { max-width: 1180px; margin: 0 auto; padding: 1.4rem 1rem 4rem; outline: 0; }
+/* View titles take programmatic focus on a view switch so assistive tech lands on the new page.
+   A title is not a control: no visible ring (same treatment as main above). Interactive
+   elements keep their :focus-visible ring. */
+h1[tabindex="-1"] { outline: 0; }
 .page { display: grid; gap: .8rem; }
 .pagehead { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; }
 .crumbs { margin-bottom: -.6rem; font-size: .88rem; }
