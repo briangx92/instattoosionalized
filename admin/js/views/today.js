@@ -25,7 +25,8 @@
       items.push({ pri: 4, kind: 'care', text: 'Ask ' + a.client + ' for a Google review', meta: 'Session finished ' + OA.fmtDow(a.date) + '. A review helps the shop get found.', cta: 'Write review ask', run: function (done) { OA.sendReviewAsk(a, done); } });
     });
     OA.scopeAppts(OA.gcal.needsAttention()).forEach(function (a) {
-      items.push({ pri: 2, kind: 'warn', text: a.client + '\u2019s appointment is not on Google Calendar', meta: OA.fmtDow(a.date) + ' at ' + OA.fmtTime(a.start) + ' with ' + OA.chairName(a.artist) + '. ' + ((a.sync && a.sync.error) || 'The last push failed.'), cta: 'Open', run: function (done) { OA.apptDialog(a).then(function () { done(); }); } });
+      var cancelled = a.status === 'cancelled';
+      items.push({ pri: 2, kind: 'warn', text: cancelled ? a.client + '\u2019s cancelled appointment is still on Google Calendar' : a.client + '\u2019s appointment is not on Google Calendar', meta: OA.fmtDow(a.date) + ' at ' + OA.fmtTime(a.start) + ' with ' + OA.chairName(a.artist) + '. ' + ((a.sync && a.sync.error) || 'The last push failed.'), cta: 'Open', run: function (done) { OA.apptDialog(a).then(function () { done(); }); } });
     });
     if (OA.role.kind !== 'artist') OA.orphanAppts().forEach(function (a) {
       items.push({ pri: 0, kind: 'bad', text: a.client + '\u2019s appointment needs a new artist', meta: OA.fmtDow(a.date) + ' at ' + OA.fmtTime(a.start) + '. ' + OA.chairName(a.artist) + ' is no longer here.', cta: 'Reassign', run: function (rer) { OA.apptDialog(a).then(function (r) { if (r) rer(); }); } });

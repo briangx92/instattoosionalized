@@ -83,11 +83,14 @@
      owner's yes, and every account with its standing. Approving sets
      the role (and the chair, for an artist) the account signs in with;
      denying deletes the request. An account that stays away 90 days
-     pauses itself and waits here for a tap to reactivate it. */
+     pauses itself and waits here for a tap to reactivate it. When an
+     artist leaves, Deactivate is the revocation: no sign-in, no live
+     session, and the tap here can undo it. Their appointments stay on
+     the calendar for the shop to reassign or cancel. */
   function accountsBlock() {
     var API = 'https://api.instattoosionalized.net';
     var WROLE = { owner: 'Shop owner', manager: 'Front desk', artist: 'Artist' };
-    var WSTATUS = { active: 'Active', pending: 'Waiting for approval', paused: 'Paused after 90 days away' };
+    var WSTATUS = { active: 'Active', pending: 'Waiting for approval', paused: 'Paused after 90 days away', removed: 'Deactivated' };
     var wrap = h('div', {});
     wrap.appendChild(h('h3', { text: 'Account requests' }));
     var reqList = h('div', { class: 'ledger' });
@@ -130,7 +133,10 @@
         var row = h('div', { class: 'ledger-row person' },
           h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: (WROLE[u.role] || u.role) + (u.artist ? ' · ' + OA.chairName(u.artist) : '') })),
           h('span', { class: 'note', text: (WSTATUS[u.status] || u.status) + ' · ' + last }));
-        if (u.status === 'paused') row.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
+        if (u.status === 'paused' || u.status === 'removed') row.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
+        if ((u.status === 'active' || u.status === 'paused') && u.role !== 'owner') row.appendChild(ui.btn('Deactivate', function () {
+          ui.confirm('Deactivate ' + u.username + '?', 'They cannot sign in, and a session they already have open stops working. Their appointments stay on the calendar for the shop to reassign or cancel. You can reactivate the account here.', 'Deactivate', true).then(function (ok) { if (ok) decide({ username: u.username, decision: 'deactivate' }, u.username + ' can no longer sign in.'); });
+        }, 'small danger-quiet'));
         list.appendChild(row);
       });
     }

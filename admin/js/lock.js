@@ -153,6 +153,7 @@
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
         if (res.data && res.data.error === "pending_approval") { say("Your account is waiting for the shop owner to approve it."); return; }
         if (res.data && res.data.error === "account_paused") { say("This account was paused after 90 days away. Ask the shop owner to reactivate it."); return; }
+        if (res.data && res.data.error === "account_removed") { say("This account was deactivated by the shop owner. Ask them if it should be turned back on."); return; }
         say("That username and password did not match. Try again.");
         pass.select();
       }).catch(function () {

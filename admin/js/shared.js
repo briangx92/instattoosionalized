@@ -113,8 +113,8 @@
       ui.field('Piece', f.piece, null, 'span2'), ui.field('Deposit', f.deposit), ui.field('Price', f.price), ui.field('Note', f.note, null, 'span2'), live);
     paintTimes(); check();
     if (existing && existing.sync && existing.sync.state === 'failed') {
-      body.appendChild(h('div', { class: 'form-live' }, h('div', { class: 'hint bad', text: 'This appointment is not on Google Calendar: ' + (existing.sync.error || 'the last push failed') + '. Tell the artist, or retry.' }),
-        ui.btn('Retry Google Calendar', function () { OA.gcal.push(existing).then(function () { ui.toast('Sent to Google Calendar'); }, function (e) { ui.fail(e.message); }); }, 'small')));
+      body.appendChild(h('div', { class: 'form-live' }, h('div', { class: 'hint bad', text: (existing.status === 'cancelled' ? 'This cancelled appointment is still on Google Calendar: ' : 'This appointment is not on Google Calendar: ') + (existing.sync.error || 'the last push failed') + '. Tell the artist, or retry.' }),
+        ui.btn('Retry Google Calendar', function () { OA.gcal.push(existing).then(function () { ui.toast(existing.status === 'cancelled' ? 'Removed from Google Calendar' : 'Sent to Google Calendar'); }, function (e) { ui.fail(e.message); }); }, 'small')));
     }
     if (existing && existing.id) {
       var liveAppt = OA.appt(existing.id), owner = (liveAppt && liveAppt.requestId && OA.req(liveAppt.requestId)) || liveAppt;
