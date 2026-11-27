@@ -208,6 +208,10 @@
           </div>
           <div class="c-field">
             <label class="c-field__label" for="q-note">What do you need? (optional)</label>
+            <div class="c-tiles" role="group" aria-label="Tattoo or piercing">
+              <button type="button" class="c-tile" id="q-need-tattoo" aria-pressed="false">Tattoo</button>
+              <button type="button" class="c-tile" id="q-need-piercing" aria-pressed="false">Piercing</button>
+            </div>
             <textarea class="c-input" id="q-note" placeholder="A quick line is plenty" autocapitalize="sentences"></textarea>
           </div>
           <button class="c-btn c-btn--big" id="q-send" type="button" disabled>Send request</button>

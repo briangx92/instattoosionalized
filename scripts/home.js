@@ -658,6 +658,14 @@ const MODULES = {
     function qClear(){ if (qName.value.trim()) { qErr.textContent = ""; qName.removeAttribute("aria-invalid"); } }
     qName.addEventListener("input", qClear);
     bindPhone(qPhone, v => { qSend.disabled = T.digits(v).length < L.minPhoneDigits; });
+    const qTiles = { Tattoo: $("q-need-tattoo"), Piercing: $("q-need-piercing") };
+    let qNeed = null;
+    function qApplyNeed(){
+      const rest = qNote.value.replace(/^(Tattoo|Piercing)(: |\s*$)/, "");
+      qNote.value = qNeed ? (rest ? qNeed + ": " + rest : qNeed) : rest;
+      Object.keys(qTiles).forEach(k => { if (qTiles[k]) qTiles[k].setAttribute("aria-pressed", k === qNeed ? "true" : "false"); });
+    }
+    Object.keys(qTiles).forEach(k => { if (qTiles[k]) qTiles[k].addEventListener("click", () => { qNeed = qNeed === k ? null : k; qApplyNeed(); }); });
     qName.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); qPhone.focus(); } });
     qPhone.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (!qSend.disabled) qSend.click(); else qNote.focus(); } });
     qSend.addEventListener("click", () => {
