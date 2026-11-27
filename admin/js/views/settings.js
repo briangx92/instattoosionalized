@@ -58,38 +58,6 @@
     root.appendChild(roleTipText);
     var acctLedger = h('div', { class: 'ledger' });
     if (isOwner) root.appendChild(acctLedger);
-    var owners = S.state.people.filter(function (p) { return p.role === 'owner'; }).length;
-    var table = h('div', { class: 'ledger' });
-    S.state.people.forEach(function (p) {
-      /* A person saved under the retired Front desk role shows as an
-         artist here until someone picks a role; the stored word is
-         only replaced when the picker actually changes. */
-      var effRole = p.role === 'owner' ? 'owner' : 'artist';
-      var role = ui.select([['owner', ROLE.owner], ['artist', ROLE.artist]], effRole, { 'aria-label': p.name + ' role' });
-      role.addEventListener('change', function () {
-        if (p.role === 'owner' && role.value !== 'owner' && owners <= 1) { ui.fail('There has to be at least one admin.'); role.value = 'owner'; return; }
-        p.role = role.value; if (p.role !== 'artist') p.artist = ''; S.commit(); OA.rerender();
-      });
-      var art = effRole === 'artist' ? ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), p.artist, { 'aria-label': p.name + ' chair' }) : null;
-      if (art) art.addEventListener('change', function () { p.artist = art.value; S.commit(); });
-      /* The email edits in place and saves on change, like the role
-         beside it: the same checks the Add person form runs (shape,
-         and not already on the list), and a refused edit puts the
-         saved address back in the field. */
-      var email = ui.input(p.email, { type: 'email', 'aria-label': p.name + ' email' });
-      email.addEventListener('change', function () {
-        var v = email.value.trim();
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { ui.fail('That does not look like an email address. Not saved.'); email.value = p.email; return; }
-        if (S.state.people.some(function (x) { return x !== p && x.email.toLowerCase() === v.toLowerCase(); })) { ui.fail('That email is already on the list. Not saved.'); email.value = p.email; return; }
-        if (v !== p.email) { p.email = v; S.commit(); OA.rerender(); }
-      });
-      table.appendChild(h('div', { class: 'ledger-row person' }, ui.avatar(p.name), h('div', { class: 'lr-main' }, h('strong', { text: p.name }), email), h('div', { class: 'row tight' }, role, art),
-        ui.btn('Remove', function () {
-          if (p.role === 'owner' && owners <= 1) { ui.fail('There has to be at least one admin.'); return; }
-          ui.confirm('Remove ' + p.name + '?', p.email + ' will no longer be able to sign in once this is live.', 'Remove', true).then(function (ok) { if (ok) { S.state.people = S.state.people.filter(function (x) { return x !== p; }); S.commit(); OA.rerender(); } });
-        }, 'small quiet')));
-    });
-    root.appendChild(table);
     var name = ui.input(''), em = ui.input('', { type: 'email' }), saved = h('div', { class: 'saved', 'aria-live': 'polite' });
     root.appendChild(h('h3', { text: 'Add someone' }));
     root.appendChild(h('div', { class: 'form-grid' }, ui.field('Name', name), ui.field('Email', em)));
@@ -98,9 +66,16 @@
       if (S.state.people.some(function (p) { return p.email.toLowerCase() === em.value.trim().toLowerCase(); })) { note(saved, 'That email is already on the list.', true); return; }
       S.state.people.push({ id: OA.uid('p'), name: name.value.trim(), email: em.value.trim(), role: 'artist', artist: '' }); S.commit(); OA.rerender();
     }, 'primary'), saved));
-    /* Server accounts live in the same list, above the local people,
-       and only an admin account ever sees them: the server enforces
-       that too. */
+    /* The accounts ARE the list (Brian, 2026-11-27, voice call): one
+       row per signed-up person carrying their role, chair, email,
+       password change and remove. The old local people ledger that
+       sat under the accounts listed the same faces a second time and
+       drove nothing else in the portal, so its rows are gone from
+       this card. Add someone stays (Brian, same call): it still
+       writes to that local list, it just no longer renders rows
+       here. Only an
+       admin account ever sees this block: the server enforces that
+       too. */
     if (isOwner) root.appendChild(accountsBlock(acctLedger));
     return root;
   }
