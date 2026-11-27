@@ -744,7 +744,7 @@ const MODULES = {
       $("btn-back").hidden = st.step === 0;
       $("btn-next").textContent = st.step === list.length - 1 ? "Write it up" : "Next";
       const next = $("btn-next");
-      if (s.id === "contact") { next.disabled = T.digits(st.a.phone).length < L.minPhoneDigits; next.setAttribute("aria-describedby", "c-phone-hint"); }
+      if (s.id === "contact") { next.disabled = T.digits(st.a.phone).length < L.minPhoneDigits; }
       else { next.disabled = false; next.removeAttribute("aria-describedby"); }
     }
 
@@ -887,11 +887,10 @@ const MODULES = {
         const a = st.a;
         body.append(...q("How can the shop reach you?", null).filter(Boolean));
         body.append(textField("c-name", "Name", a.name, v => { a.name = v; }, { autocomplete: "name", autocapitalize: "words", "aria-describedby": "step-error" }));
-        const phone = T.el("input", { class: "c-input", id: "c-phone", type: "tel", inputmode: "tel", autocomplete: "tel", enterkeyhint: "next", "data-key": "c-phone", "aria-describedby": "c-phone-hint step-error", value: a.phone });
+        const phone = T.el("input", { class: "c-input", id: "c-phone", type: "tel", inputmode: "tel", autocomplete: "tel", enterkeyhint: "next", "data-key": "c-phone", "aria-describedby": "step-error", value: a.phone });
         bindPhone(phone, v => { a.phone = v; header(); recheck(); renderSummary(); });
         body.append(T.el("div", { class: "c-field" }, [
-          T.el("label", { class: "c-field__label", for: "c-phone", text: "Phone" }), phone,
-          T.el("p", { class: "c-field__hint", id: "c-phone-hint", text: "At least 7 digits so the shop can reach you." })
+          T.el("label", { class: "c-field__label", for: "c-phone", text: "Phone" }), phone
         ]));
         body.append(textField("c-note", "Anything else? (optional)", a.note, v => { a.note = v; }, { placeholder: "A quick line is plenty" }));
       },
