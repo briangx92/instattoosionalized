@@ -52,6 +52,7 @@
         actions: [{ label: 'Close', kind: 'primary', value: null }] });
     }, 'small'));
     actions.push(ui.btn('New appointment', function () { OA.apptDialog(null, { client: c.name, phone: c.phone }).then(function (r) { if (r) rer(); }); }, 'small primary'));
+    if (OA.role.kind === 'owner') actions.push(ui.btn('Delete client', function () { deleteClient(); }, 'small danger-quiet'));
     root.appendChild(ui.pageHead(c.name, c.phone ? OA.fmtPhone(c.phone) : 'No phone number on file', actions));
 
     var f = { name: ui.input(c.name), phone: OA.phoneInput(c.phone), email: ui.input(c.email, { type: 'email' }), notes: ui.area(c.notes, { rows: 4, placeholder: 'Allergies the client told you about, preferences, what to remember. Only the shop sees this.' }) };
@@ -67,6 +68,15 @@
       saved.className = 'saved'; saved.textContent = 'Saved';
     }
     Object.keys(f).forEach(function (k) { f[k].addEventListener('change', save); });
+    function deleteClient() {
+      ui.confirm('Delete ' + c.name + '’s client record?', 'Their appointments and requests stay in the shop’s history. Only the client record is deleted: contact details, notes, and consent status. If they get in touch again, they will be added back as a new client.', 'Delete client', true).then(function (ok) {
+        if (!ok) return;
+        var rec = act.deleteClient(c);
+        if (!rec) return;
+        ui.toast(c.name + '’s client record deleted', { action: { label: 'Undo', run: function () { act.restoreClient(rec); OA.rerender(); } } });
+        OA.go('clients');
+      });
+    }
     var consent = h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!c.consentAt, on: { change: function (e) { act.saveClient(c, { consentAt: e.target.checked ? Date.now() : null }); rer(); } } }), h('span', { text: c.consentAt ? 'Consent form on file since ' + OA.fmtStamp(c.consentAt) : 'Consent form signed and on file' }));
     var idc = h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: !!c.idChecked, on: { change: function (e) { act.saveClient(c, { idChecked: e.target.checked }); rer(); } } }), h('span', { text: 'Photo ID checked (age 18+)' }));
     root.appendChild(h('div', { class: 'two' },

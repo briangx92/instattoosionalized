@@ -48,6 +48,22 @@
     st().clients.push(c); return c;
   };
   act.saveClient = function (c, patch) { Object.keys(patch).forEach(function (k) { c[k] = patch[k]; }); S.commit(); };
+  /* Deleting a client removes only the record: contact details, notes,
+     consent and ID status. Their appointments and requests stay in the
+     shop's history untouched; those rows keep the old clientId, and every
+     reader of OA.client() already handles a record that is not there.
+     If the person gets in touch again, ensureClient adds them back as a
+     fresh record, so a deletion never blacklists anyone. */
+  act.deleteClient = function (c) {
+    var i = st().clients.indexOf(c);
+    if (i < 0) return null;
+    st().clients.splice(i, 1); S.commit();
+    return { client: c, index: i };
+  };
+  act.restoreClient = function (rec) {
+    if (!rec || OA.client(rec.client.id)) return;
+    st().clients.splice(Math.min(rec.index, st().clients.length), 0, rec.client); S.commit();
+  };
 
   /* ---------- requests ---------- */
   function log(r, text, extra) { var e = { t: Date.now(), text: text }; if (extra) Object.keys(extra).forEach(function (k) { e[k] = extra[k]; }); r.log.unshift(e); }
