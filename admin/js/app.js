@@ -123,7 +123,37 @@
     OA.$$('.tab', nav).forEach(function (a) { var on = a.getAttribute('data-tab') === tab; a.classList.toggle('on', on); if (on) { a.setAttribute('aria-current', 'page'); a.scrollIntoView && a.scrollIntoView({ block: 'nearest', inline: 'center' }); } else a.removeAttribute('aria-current'); });
   }
 
+  /* The lock screen's account decides the view: the server's role
+     words map to the portal's (manager is the front desk), and an
+     artist lands in their own chair. No picking. */
+  function accountRole(user) {
+    if (!user || !user.role) return null;
+    if (user.role === 'owner') return ['owner', ''];
+    if (user.role === 'manager') return ['frontdesk', ''];
+    if (user.role === 'artist') return ['artist', user.artist || ''];
+    return null;
+  }
   function start() {
+    if (window.OA_LOCK && OA_LOCK.ready) {
+      OA_LOCK.ready().then(function (user) {
+        var r = accountRole(user);
+        if (r) {
+          OA.setRole(r[0], r[1]); buildChrome(); updateChrome(); render();
+          /* The boot-time calendar probe ran before the sign-in, so it
+             carried no session token. Probe again now that the portal's
+             own sign-in can open the calendar door. */
+          if (OA.gcal) OA.gcal.connect().then(refreshView, refreshView);
+          return;
+        }
+        startPicked();
+      });
+      return;
+    }
+    startPicked();
+  }
+  /* Fallback for a sign-in that carries no account (the legacy
+     passcode lock): the role picker, as before. */
+  function startPicked() {
     var s = readSession();
     if (!s) { signIn(); return; }
     OA.role = s; buildChrome(); updateChrome(); render();

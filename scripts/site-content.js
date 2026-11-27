@@ -68,10 +68,14 @@
 
   /* Artists: returns a map of slug to a checked record, or null when the content has no artists. */
   /* A photo reference the site can use: an upload id from the portal's photo store,
-     or a plain relative path inside the repo. */
+     a plain relative path inside the repo, or a photo-library URL (the shop
+     server's /photo/<artist>/<file> address for a photo the portal uploaded).
+     Only that one path on an https host counts; any other absolute URL is
+     still refused. */
   function refOk(r) {
     if (typeof r !== 'string' || !r || r.length > 320) return false;
     if (/^idb:[a-z0-9_-]+$/i.test(r)) return true;
+    if (/^https:\/\//i.test(r)) { var u = parseUrl(r); return !!u && u.pathname.indexOf('/photo/') === 0; }
     return /^[a-z0-9][a-z0-9._/-]*$/i.test(r) && r.indexOf('..') < 0;
   }
 

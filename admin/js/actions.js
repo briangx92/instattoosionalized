@@ -390,6 +390,28 @@
       return { added: added.length, failed: failed };
     });
   };
+  /* The same, but the photo goes to the shop's server library instead of
+     this browser's photo store: the work carries the photo's public URL,
+     so publishing shows it to every visitor. Files are checked here
+     first (image, 25 MB) so a bad pick fails before anything is sent;
+     the server checks again. One failure never stops the rest. */
+  act.uploadPhotos = function (slug, files) {
+    var list = Array.prototype.slice.call(files || []), added = [], dates = [], failed = [];
+    return list.reduce(function (p, f) {
+      return p.then(function () {
+        if (!/^image\//.test(f.type || '')) { failed.push({ name: f.name, msg: '“' + (f.name || 'That file') + '” is not a photo. Use a JPEG, PNG, WebP, or GIF.' }); return null; }
+        if (f.size > 25 * 1024 * 1024) { failed.push({ name: f.name, msg: '“' + (f.name || 'That photo') + '” is over 25 MB. Send a smaller copy.' }); return null; }
+        return OA.img.exifDate(f).then(function (d) {
+          return OA.api.uploadPhoto(slug, f).then(function (j) { added.push(j.url); dates.push(d); });
+        }).catch(function (e) { failed.push({ name: f.name, msg: e.message }); });
+      });
+    }, Promise.resolve()).then(function () {
+      var items = OA.items(slug), top = items.reduce(function (m, p) { return Math.max(m, p.ord || 0); }, 0);
+      added.forEach(function (url, i) { items.push({ id: OA.uid('ph'), src: url, cap: '', sec: '', onSite: false, ord: top + (i + 1) * 10, date: dates[i] || OA.todayISO(), dateSource: dates[i] ? 'exif' : 'upload' }); });
+      if (added.length) S.commit();
+      return { added: added.length, failed: failed };
+    });
+  };
   /* ---------- reference art locker ----------
      Photos attached to a request or an appointment: the client's references, a placement photo
      (for a cover-up, the piece being covered), and the stencil. Blobs live in OA.img storage;
@@ -441,7 +463,18 @@
   };
   act.removePhoto = function (slug, id) {
     var items = OA.items(slug), i = items.findIndex(function (p) { return p.id === id; });
-    if (i < 0) return null; var it = items.splice(i, 1)[0]; S.commit(); return { item: it, index: i };
+    if (i < 0) return null; var it = items.splice(i, 1)[0]; S.commit();
+    /* A library photo (one whose src is a server photo URL) also leaves
+       the server store, best effort: the removal above already stands
+       either way, and a failed delete never blocks it. Undo restores the
+       work in the draft; if the file is already gone, the site hides the
+       broken tile. */
+    if (OA.api && OA.api.deletePhoto && OA.photoKeyOf) {
+      [it.src, it.pair && it.pair.b, it.pair && it.pair.a].forEach(function (src) {
+        if (src && OA.photoKeyOf(src)) OA.api.deletePhoto(src);
+      });
+    }
+    return { item: it, index: i };
   };
   act.restorePhoto = function (slug, rec) { OA.items(slug).splice(rec.index, 0, rec.item); S.commit(); };
   act.makePair = function (slug, beforeId, afterId) {

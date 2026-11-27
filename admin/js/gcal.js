@@ -38,7 +38,13 @@
   function request(path, options) {
     var b = base();
     if (!b) return Promise.reject(new Error(NOT_CONNECTED + ' The portal has no calendar server address yet.'));
-    return fetch(b + path, Object.assign({ credentials: 'include', cache: 'no-store' }, options || {})).then(function (r) {
+    var opts = Object.assign({ credentials: 'include', cache: 'no-store' }, options || {});
+    /* The portal's own session token opens this door too, so the
+       calendar works on the portal's sign-in alone; the Access cookie
+       still rides along where it exists. */
+    var tok = (window.OA_LOCK && OA_LOCK.token) ? OA_LOCK.token() : '';
+    if (tok) opts.headers = Object.assign({}, opts.headers || {}, { Authorization: 'Bearer ' + tok });
+    return fetch(b + path, opts).then(function (r) {
       return r.json().catch(function () { return null; }).then(function (j) {
         if (r.ok) return j;
         var code = (j && typeof j.error === 'string' && j.error) || '';
@@ -64,9 +70,10 @@
       if (gcal.connected) return { connected: true, text: 'Connected', reason: 'Appointments are added to the shop\u2019s master booking calendar. Changes and cancellations go through the same connection.' };
       return { connected: false, text: probe.done ? 'Not connected' : 'Not checked', reason: probe.reason };
     },
-    /* Probe, not OAuth: sign-in is Cloudflare Access on the portal hostname and Google
-       access is the Worker's service account. A 200 from GET /bookings is the only
-       thing that flips `connected` on; every other answer leaves it off. */
+    /* Probe, not OAuth: the door is Cloudflare Access on the portal hostname or the
+       portal's own session token, and Google access is the Worker's service account.
+       A 200 from GET /bookings is the only thing that flips `connected` on; every
+       other answer leaves it off. */
     connect: function () {
       if (!base()) { probe = { done: true, connected: false, reason: NOT_CONNECTED + ' The portal has no calendar server address yet.' }; return Promise.reject(new Error(probe.reason)); }
       var day = (OA.todayISO ? OA.todayISO() : new Date().toISOString().slice(0, 10));

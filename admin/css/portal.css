@@ -363,3 +363,4 @@ a.ledger-row:hover { background: var(--surface); }
 .lock-btn { font: inherit; font-size: 16px; font-weight: 700; padding: 13px 16px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); cursor: pointer; min-height: 48px; }
 .lock-btn:disabled { opacity: .6; cursor: wait; }
 .lock-note { margin: 12px 0 0; font-size: 13px; min-height: 18px; color: var(--bad); }
+.lock-toggle { font: inherit; font-size: 14px; padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }

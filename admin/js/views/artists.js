@@ -163,13 +163,28 @@
       }).catch(function (e) { t(); ui.fail('Photos could not be saved: ' + e.message); });
     }
     fileIn.addEventListener('change', function () { add(Array.prototype.slice.call(fileIn.files)); fileIn.value = ''; });
+    /* Upload photo: straight to the shop's server library, so the photo
+       can be published to every visitor (the drop box above keeps photos
+       in this browser only). Same landing as a local add: hidden until
+       it has a caption and is shown. */
+    var libIn = h('input', { type: 'file', accept: 'image/*', multiple: true, class: 'sr', id: 'ph-lib', 'aria-label': 'Choose photos to upload to the site library' });
+    function addLib(files) {
+      var n = files.length; if (!n) return;
+      var t = ui.toast('Uploading ' + OA.plural(n, 'photo') + ' to the site library...');
+      act.uploadPhotos(slug, files).then(function (r) {
+        t(); r.failed.forEach(function (x) { ui.fail(x.msg); });
+        if (r.added) ui.toast(OA.plural(r.added, 'photo') + ' uploaded, hidden until you show them and add a caption.');
+        OA.rerender();
+      }).catch(function (e) { t(); ui.fail('Photos could not be uploaded: ' + e.message); });
+    }
+    libIn.addEventListener('change', function () { addLib(Array.prototype.slice.call(libIn.files)); libIn.value = ''; });
     var drop = h('label', { class: 'dropzone', for: 'ph-up' }, h('strong', { text: 'Add photos' }), h('span', { text: 'Drop images here or choose them. They are resized and stay hidden until you show them.' }));
     ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') >= 0) { e.preventDefault(); drop.classList.add('over'); } }); });
     ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function () { drop.classList.remove('over'); }); });
     drop.addEventListener('drop', function (e) { e.preventDefault(); add(Array.prototype.slice.call(e.dataTransfer.files || [])); });
     var seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Show' });
     [['all', 'All'], ['on', 'On the site'], ['off', 'Hidden']].forEach(function (o) { seg.appendChild(h('button', { type: 'button', class: 'seg-b' + (o[0] === filter ? ' on' : ''), 'data-f': o[0], text: o[1], on: { click: function () { filter = o[0]; OA.$$('.seg-b', seg).forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-f') === filter); }); draw(); } } })); });
-    root.appendChild(h('div', { class: 'toolbar' }, drop, fileIn, seg)); root.appendChild(info); root.appendChild(grid);
+    root.appendChild(h('div', { class: 'toolbar' }, drop, fileIn, h('label', { class: 'btn small', for: 'ph-lib', text: 'Upload photo', title: 'Send photos to the website library on the shop server, so publishing shows them to every visitor.' }), libIn, seg)); root.appendChild(info); root.appendChild(grid);
 
     function tile(p, idx, all) {
       var cap = ui.input(p.cap, { placeholder: 'Describe the piece', 'aria-label': 'Caption' }), sec = ui.select((SECTIONS.indexOf(p.sec) >= 0 ? SECTIONS : SECTIONS.concat([p.sec])).map(function (x) { return [x, x || 'No section']; }), p.sec, { 'aria-label': 'Section' });

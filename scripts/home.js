@@ -489,6 +489,9 @@ const MODULES = {
         ]),
         T.el("figcaption", { text: w.ba ? ((w.ba.title || w.cap) + (w.ba.story ? " · " + w.ba.story : "")) : w.cap })
       ])));
+      /* A work photo that cannot load (a library file removed, a bad
+         path) hides its figure instead of leaving a broken frame. */
+      grid.querySelectorAll("img").forEach(im => im.addEventListener("error", () => { const f = im.closest("figure"); if (f) f.hidden = true; }));
       profile.replaceChildren(
         T.el("a", { href: artistPageHref(a), "aria-label": "See " + a.name + "'s full page" }, [
           T.el("img", { class: "pf", src: a.portrait, alt: a.portraitAlt })

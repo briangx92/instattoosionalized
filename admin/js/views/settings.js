@@ -73,7 +73,76 @@
       if (S.state.people.some(function (p) { return p.email.toLowerCase() === em.value.trim().toLowerCase(); })) { note(saved, 'That email is already on the list.', true); return; }
       S.state.people.push({ id: OA.uid('p'), name: name.value.trim(), email: em.value.trim(), role: 'frontdesk', artist: '' }); S.commit(); OA.rerender();
     }, 'primary'), saved));
+    /* Server accounts live below the local list, and only the owner
+       account ever sees them: the server enforces that too. */
+    if (window.OA_LOCK && OA_LOCK.user && OA_LOCK.user() && OA_LOCK.user().role === 'owner') root.appendChild(accountsBlock());
     return root;
+  }
+
+  /* Sign-in accounts on the shop server: requests waiting for the
+     owner's yes, and every account with its standing. Approving sets
+     the role (and the chair, for an artist) the account signs in with;
+     denying deletes the request. An account that stays away 90 days
+     pauses itself and waits here for a tap to reactivate it. */
+  function accountsBlock() {
+    var API = 'https://api.instattoosionalized.net';
+    var WROLE = { owner: 'Shop owner', manager: 'Front desk', artist: 'Artist' };
+    var WSTATUS = { active: 'Active', pending: 'Waiting for approval', paused: 'Paused after 90 days away' };
+    var wrap = h('div', {});
+    wrap.appendChild(h('h3', { text: 'Account requests' }));
+    var reqList = h('div', { class: 'ledger' });
+    wrap.appendChild(reqList);
+    wrap.appendChild(h('h3', { text: 'Accounts' }));
+    var list = h('div', { class: 'ledger' });
+    wrap.appendChild(list);
+    var out = h('div', { class: 'saved', 'aria-live': 'polite' });
+    wrap.appendChild(out);
+    function token() { return window.OA_LOCK && OA_LOCK.token ? OA_LOCK.token() : ''; }
+    function call(path, body) {
+      return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, data: d }; }); });
+    }
+    function decide(body, okMsg) {
+      call('/portal-users-decide', Object.assign({ token: token() }, body)).then(function (res) {
+        if (res.status === 200 && res.data && res.data.ok) { ui.toast(okMsg); load(); return; }
+        note(out, 'That did not go through. Try again.', true);
+      }, function () { note(out, 'Could not reach the server. Try again.', true); });
+    }
+    function paint(users) {
+      OA.clear(reqList); OA.clear(list);
+      var pending = users.filter(function (u) { return u.status === 'pending'; });
+      if (!pending.length) reqList.appendChild(h('p', { class: 'note', text: 'No accounts are waiting for approval.' }));
+      pending.forEach(function (u) {
+        var role = ui.select([['artist', WROLE.artist], ['manager', WROLE.manager], ['owner', WROLE.owner]], 'artist', { 'aria-label': u.username + ' role' });
+        var art = ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), '', { 'aria-label': u.username + ' chair' });
+        role.addEventListener('change', function () { art.disabled = role.value !== 'artist'; });
+        reqList.appendChild(h('div', { class: 'ledger-row person' },
+          h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: 'Asked ' + (u.created_at ? OA.ago(Date.parse(u.created_at)) : '') })),
+          h('div', { class: 'row tight' }, role, art,
+            ui.btn('Approve', function () { decide({ username: u.username, decision: 'approve', role: role.value, artist: role.value === 'artist' ? art.value : '' }, u.username + ' can sign in now.'); }, 'small primary'),
+            ui.btn('Deny', function () {
+              ui.confirm('Deny ' + u.username + '?', 'Their request is deleted and they cannot sign in. They can ask again from the sign-in screen.', 'Deny', true).then(function (ok) { if (ok) decide({ username: u.username, decision: 'deny' }, 'Request from ' + u.username + ' denied.'); });
+            }, 'small quiet'))));
+      });
+      if (!users.length) list.appendChild(h('p', { class: 'note', text: 'No accounts yet.' }));
+      users.forEach(function (u) {
+        var last = u.last_login_at ? 'Last sign-in ' + OA.ago(Date.parse(u.last_login_at)) : 'Never signed in';
+        var row = h('div', { class: 'ledger-row person' },
+          h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: (WROLE[u.role] || u.role) + (u.artist ? ' · ' + OA.chairName(u.artist) : '') })),
+          h('span', { class: 'note', text: (WSTATUS[u.status] || u.status) + ' · ' + last }));
+        if (u.status === 'paused') row.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
+        list.appendChild(row);
+      });
+    }
+    function load() {
+      if (!token()) { note(out, 'Sign-in information is not available on this screen.', true); return; }
+      call('/portal-users', { token: token() }).then(function (res) {
+        if (res.status === 200 && res.data && res.data.ok) { paint(res.data.users || []); return; }
+        note(out, 'Could not load the account list.', true);
+      }, function () { note(out, 'Could not reach the server.', true); });
+    }
+    load();
+    return wrap;
   }
 
 

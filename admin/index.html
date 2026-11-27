@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <!-- Scripts may only come from this folder. If you set portal-api below, add its origin to connect-src here too. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://portal.instattoosionalized.net https://api.instattoosionalized.net; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://api.instattoosionalized.net; connect-src 'self' https://portal.instattoosionalized.net https://api.instattoosionalized.net; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <!-- Address of the shop server (for example https://portal.example.com). Empty means the portal runs on its own data only. -->
 <meta name="portal-api" content="https://portal.instattoosionalized.net">
 <!-- Address of the calendar Worker (portal hostname). Separate from portal-api on purpose: different backend, different auth (Access cookie, no token). -->
@@ -29,6 +29,21 @@
     <button id="lock-btn" class="lock-btn" type="submit">Open the portal</button>
     <p id="lock-note" class="lock-note" aria-live="polite"></p>
     <p class="lock-sub">Forgot your password? Ask Brian and he will reset it.</p>
+    <p class="lock-sub"><button id="lock-request-toggle" class="lock-toggle" type="button">New here? Request an account</button></p>
+  </form>
+  <form id="lock-requestform" class="lock-card" hidden>
+    <p class="lock-kicker">Instattoosionalized</p>
+    <h1 class="lock-title">Request an account</h1>
+    <p class="lock-sub">Pick a username and password. The shop owner approves new accounts, so you will be able to sign in once yours is approved.</p>
+    <label class="lock-label" for="lock-req-user">Choose a username</label>
+    <input id="lock-req-user" class="lock-input" type="text" autocomplete="username" placeholder="For example: mia">
+    <label class="lock-label" for="lock-req-pass">Choose a password</label>
+    <input id="lock-req-pass" class="lock-input" type="password" autocomplete="new-password" placeholder="At least 10 characters">
+    <label class="lock-label" for="lock-req-pass2">Type it again</label>
+    <input id="lock-req-pass2" class="lock-input" type="password" autocomplete="new-password" placeholder="Same password again">
+    <button id="lock-req-btn" class="lock-btn" type="submit">Send the request</button>
+    <p id="lock-req-note" class="lock-note" aria-live="polite"></p>
+    <p class="lock-sub"><button id="lock-request-back" class="lock-toggle" type="button">Back to sign in</button></p>
   </form>
   <form id="lock-setupform" class="lock-card" hidden>
     <p class="lock-kicker">Instattoosionalized</p>

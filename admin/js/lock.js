@@ -5,13 +5,25 @@
    by the shop server, never here; passwords are stored server-side as
    salted hashes. The first account (the owner) is claimed with the shop
    passcode Brian hands over once; after that the passcode only resets
-   passwords. A good sign-in earns a session token (12 hours) kept in
-   this browser. Bookings and request data stay behind their own sign-in
-   as before; this screen guards the portal itself. */
+   passwords. New people ask for an account from this screen and wait
+   for the owner to approve them. A good sign-in earns a session token
+   (12 hours) kept in this browser, and the answer names who signed in
+   and their role, so the portal opens straight into their view
+   (OA_LOCK.user() / OA_LOCK.ready()). Bookings and request data stay
+   behind their own sign-in as before; this screen guards the portal
+   itself. */
 (function () {
   "use strict";
   var API = "https://api.instattoosionalized.net";
   var KEY = "oa2:unlock:v1";
+
+  /* Who the server says is signed in: {username, role, artist} with the
+     server's role words (owner | manager | artist), or null when the
+     sign-in carries no account (legacy passcode mode). app.js waits on
+     ready() before it builds anything. */
+  var currentUser = null;
+  var opened = false;
+  var waiters = [];
 
   function el(id) { return document.getElementById(id); }
 
@@ -37,6 +49,17 @@
   function open() {
     var lock = el("lock");
     if (lock) lock.remove();
+  }
+
+  /* The lock is open: remember who signed in (null in legacy mode),
+     wake anyone waiting on ready(), and take the screen away. */
+  function finishOpen(user) {
+    currentUser = user || null;
+    opened = true;
+    var ws = waiters;
+    waiters = [];
+    ws.forEach(function (fn) { fn(currentUser); });
+    open();
   }
 
   function post(path, body) {
@@ -89,7 +112,7 @@
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
           store(res.data.token);
-          open();
+          finishOpen(null);
           return;
         }
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
@@ -124,10 +147,12 @@
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
           store(res.data.token);
-          open();
+          finishOpen({ username: res.data.username || username, role: res.data.role || "", artist: res.data.artist || "" });
           return;
         }
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
+        if (res.data && res.data.error === "pending_approval") { say("Your account is waiting for the shop owner to approve it."); return; }
+        if (res.data && res.data.error === "account_paused") { say("This account was paused after 90 days away. Ask the shop owner to reactivate it."); return; }
         say("That username and password did not match. Try again.");
         pass.select();
       }).catch(function () {
@@ -135,7 +160,61 @@
         say("Could not reach the server. Check your connection and try again.");
       });
     });
+    wireRequest();
     user.focus();
+  }
+
+  /* "Request an account" swaps the sign-in card for a request card.
+     The request lands on the server as a pending account; the owner
+     approves it in Settings before it can sign in. */
+  function wireRequest() {
+    var toggle = el("lock-request-toggle");
+    var form = el("lock-requestform");
+    var login = el("lock-form");
+    if (!toggle || !form) return;
+    var back = el("lock-request-back");
+    var user = el("lock-req-user");
+    var a = el("lock-req-pass");
+    var b = el("lock-req-pass2");
+    var btn = el("lock-req-btn");
+    var note = el("lock-req-note");
+    function say(t) { if (note) note.textContent = t || ""; }
+    toggle.addEventListener("click", function () {
+      login.hidden = true;
+      form.hidden = false;
+      user.focus();
+    });
+    if (back) back.addEventListener("click", function () {
+      form.hidden = true;
+      login.hidden = false;
+    });
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var username = user.value.trim();
+      if (!username) { say("Pick a username."); return; }
+      if (a.value.length < 10) { say("Use at least 10 characters for the password."); return; }
+      if (a.value !== b.value) { say("The two passwords do not match."); return; }
+      btn.disabled = true;
+      say("Sending your request...");
+      post("/portal-register-request", { username: username, password: a.value }).then(function (res) {
+        btn.disabled = false;
+        if (res.status === 200 && res.data && res.data.ok) {
+          say("Request sent. The shop owner approves new accounts, so you will be able to sign in once yours is approved.");
+          user.value = "";
+          a.value = "";
+          b.value = "";
+          return;
+        }
+        if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
+        if (res.data && res.data.error === "username_taken") { say("That username is taken. Pick another one."); return; }
+        if (res.data && res.data.error === "invalid_username") { say("Usernames use letters, numbers, dots, dashes or underscores, at least 3 characters."); return; }
+        if (res.data && res.data.error === "password_too_short") { say("Use at least 10 characters for the password."); return; }
+        say("That did not work. Try again.");
+      }).catch(function () {
+        btn.disabled = false;
+        say("Could not reach the server. Check your connection and try again.");
+      });
+    });
   }
 
   function wireSetup() {
@@ -162,7 +241,7 @@
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
           store(res.data.token);
-          open();
+          finishOpen({ username: res.data.username || username, role: res.data.role || "owner", artist: res.data.artist || "" });
           return;
         }
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
@@ -190,7 +269,10 @@
       var note = el("lock-note");
       if (note) note.textContent = "Checking your sign-in...";
       post("/portal-session", { token: token }).then(function (res) {
-        if (res.data && res.data.ok) { open(); return; }
+        if (res.data && res.data.ok) {
+          finishOpen({ username: res.data.username || "", role: res.data.role || "", artist: res.data.artist || "" });
+          return;
+        }
         clear();
         if (note) note.textContent = "";
         authState().then(showMode);
@@ -201,9 +283,19 @@
   }
 
   /* The portal's Sign out button calls this: drop the session here too,
-     then reload so the lock screen is what comes back. */
+     then reload so the lock screen is what comes back. user() names the
+     account the server signed in (null in legacy mode); token() hands
+     the session token to signed-in screens that call the server (the
+     Settings account list); ready() resolves with user() once the lock
+     opens, so the portal can open straight into the account's view. */
   window.OA_LOCK = {
     signOut: function () { clear(); location.reload(); },
+    user: function () { return currentUser; },
+    token: function () { return saved(); },
+    ready: function () {
+      if (opened) return Promise.resolve(currentUser);
+      return new Promise(function (resolve) { waiters.push(resolve); });
+    },
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", main);

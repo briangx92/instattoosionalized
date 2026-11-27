@@ -136,14 +136,19 @@
   /* The server copy: publishing also sends the content to the shop's server, so the
      public website can fetch it on any device, not just this browser. Resolves ''
      when the server stored it, or a sentence saying what went wrong. The local copy
-     above stays as the fallback this browser reads. */
+     above stays as the fallback this browser reads. The portal's own session token
+     rides along (Authorization: Bearer ...) and opens the server door on its own;
+     the Access cookie still works where it exists. */
   OA.pushLive = function (content) {
     var base = '';
     var m = document.querySelector('meta[name="gcal-api"]'), v = m ? (m.getAttribute('content') || '').trim() : '';
     if (v) base = v.replace(/\/+$/, '');
     else if (typeof location !== 'undefined' && location.hostname && location.hostname.indexOf('portal.') === 0) base = location.origin;
     if (!base) return Promise.resolve('No server address is set, so this update only lives in this browser.');
-    return fetch(base + '/content', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(content) }).then(function (r) {
+    var headers = { 'Content-Type': 'application/json' };
+    var tok = (window.OA_LOCK && OA_LOCK.token) ? OA_LOCK.token() : '';
+    if (tok) headers.Authorization = 'Bearer ' + tok;
+    return fetch(base + '/content', { method: 'PUT', credentials: 'include', headers: headers, body: JSON.stringify(content) }).then(function (r) {
       return r.json().catch(function () { return null; }).then(function (j) {
         if (r.ok && j && j.ok) return '';
         if (r.status === 403 || (j && j.error === 'access_required')) return 'The server refused the update. Sign in to the portal first (the server door in Settings), then publish again.';

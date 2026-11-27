@@ -501,6 +501,10 @@
           var stage = document.createElement('div'); stage.className = 'ba-stage';
           var aft = document.createElement('img'); aft.loading = 'lazy'; aft.src = w.ba.a; aft.alt = w.ba.acap || w.ba.title || ''; aft.draggable = false;
           var bef = document.createElement('img'); bef.className = 'ba-before'; bef.src = w.ba.b; bef.alt = w.ba.bcap || ''; bef.draggable = false;
+          /* A photo that cannot load (a library file removed, a bad path)
+             hides its figure instead of leaving a broken frame. */
+          aft.addEventListener('error', function () { f.hidden = true; });
+          bef.addEventListener('error', function () { f.hidden = true; });
           var lb = document.createElement('span'); lb.className = 'ba-lab b'; lb.textContent = 'Before';
           var la = document.createElement('span'); la.className = 'ba-lab a'; la.textContent = 'After';
           var hd = document.createElement('span'); hd.className = 'ba-handle';
@@ -508,6 +512,7 @@
           var c2 = document.createElement('figcaption'); c2.textContent = (w.ba.title || w.cap || '') + (w.ba.story ? ' \u00b7 ' + w.ba.story : ''); f.appendChild(c2);
         } else {
           var im = document.createElement('img'); im.loading = 'lazy'; im.src = srcFor(w.src); im.alt = w.alt || w.cap || '';
+          im.addEventListener('error', function () { f.hidden = true; });
           var c = document.createElement('figcaption'); c.textContent = w.cap || '';
           f.append(im, c);
         }
