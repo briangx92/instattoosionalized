@@ -333,7 +333,22 @@ const MODULES = {
       document.getElementById("proof-count").textContent = "from " + r.count + " " + r.source + " reviews" + (r.asOf ? ", as of " + r.asOf : "");
     } else document.querySelector(".s-proof__score").remove();
     const box = document.getElementById("proof-quotes");
-    if (!box.dataset.pub) SITE.reviews.forEach(rv => box.append(T.el("blockquote", { text: rv.text }, [T.el("footer", { text: rv.name })])));
+    if (!box.dataset.pub) {
+      const revCard = (text, who, i) => {
+        const parts = String(who || "").split(",");
+        const name = (parts.shift() || "").trim();
+        const detail = parts.join(",").trim();
+        const card = T.el("article", { class: "rev-card" }, [
+          T.el("div", { class: "rev-card__stars", "aria-hidden": "true", text: "★★★★★" }),
+          T.el("p", { class: "rev-card__text", text })
+        ]);
+        card.style.setProperty("--i", i);
+        if (name) card.append(T.el("div", { class: "rev-card__who" }, [T.el("b", { text: name }), detail ? T.el("span", { text: detail }) : null]));
+        return card;
+      };
+      SITE.reviews.forEach((rv, i) => box.append(revCard(rv.text, rv.name, i)));
+      if (window.RevCards) RevCards.watch(box);
+    }
   },
   work(el){
     const live = bookSheets(SITE.artists);

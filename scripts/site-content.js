@@ -252,8 +252,78 @@
 
   function cleanQuotes(c) {
     if (!c || !Array.isArray(c.quotes)) return null;
-    return c.quotes.map(function (q) { return { text: String((q && q.text) || '').trim().slice(0, 280), who: String((q && q.who) || '').trim().slice(0, 40) }; }).filter(function (q) { return q.text; }).slice(0, 6);
+    return c.quotes.map(function (q) { return { text: String((q && q.text) || '').trim().slice(0, 1600), who: String((q && q.who) || '').trim().slice(0, 40) }; }).filter(function (q) { return q.text; }).slice(0, 12);
   }
+
+  /* One review card, the same markup the baked renderer in home.js emits: gold stars,
+     the verbatim text, and the attribution split into a bold name plus a muted detail. */
+  function splitWho(who) {
+    var i = who.indexOf(',');
+    if (i < 0) return { name: who, detail: '' };
+    return { name: who.slice(0, i).trim(), detail: who.slice(i + 1).trim() };
+  }
+
+  function quoteCard(q, idx) {
+    var card = document.createElement('article');
+    card.className = 'rev-card';
+    card.style.setProperty('--i', idx);
+    var stars = document.createElement('div');
+    stars.className = 'rev-card__stars';
+    stars.setAttribute('aria-hidden', 'true');
+    stars.textContent = '★★★★★';
+    var text = document.createElement('p');
+    text.className = 'rev-card__text';
+    text.textContent = q.text;
+    card.appendChild(stars);
+    card.appendChild(text);
+    if (q.who) {
+      var w = splitWho(q.who);
+      var who = document.createElement('div');
+      who.className = 'rev-card__who';
+      var b = document.createElement('b');
+      b.textContent = w.name;
+      who.appendChild(b);
+      if (w.detail) { var d = document.createElement('span'); d.textContent = w.detail; who.appendChild(d); }
+      card.appendChild(who);
+    }
+    return card;
+  }
+
+  /* Review card motion: cards fade in as they scroll into view; at phone width the row
+     becomes a carousel that advances on its own and pauses while the visitor uses it. */
+  var RevCards = (function () {
+    var io = null;
+    function reveal(cards) {
+      if (!('IntersectionObserver' in window)) { cards.forEach(function (c) { c.classList.add('in'); }); return; }
+      if (!io) io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0.12 });
+      cards.forEach(function (c) { io.observe(c); });
+    }
+    function carousel(box, cards) {
+      if (box._revAuto || cards.length < 2) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      box._revAuto = true;
+      var resumeAt = 0;
+      ['pointerdown', 'touchstart', 'wheel'].forEach(function (ev) { box.addEventListener(ev, function () { resumeAt = Date.now() + 8000; }, { passive: true }); });
+      setInterval(function () {
+        if (document.hidden || Date.now() < resumeAt) return;
+        if (!window.matchMedia('(max-width: 699px)').matches) return;
+        var step = cards[1].offsetLeft - cards[0].offsetLeft;
+        if (step <= 0) return;
+        var idx = Math.round(box.scrollLeft / step) + 1;
+        if (idx >= cards.length) idx = 0;
+        box.scrollTo({ left: cards[idx].offsetLeft - cards[0].offsetLeft, behavior: 'smooth' });
+      }, 4200);
+    }
+    function watch(box) {
+      if (!box) return;
+      var cards = Array.prototype.slice.call(box.querySelectorAll('.rev-card'));
+      if (!cards.length) return;
+      reveal(cards);
+      carousel(box, cards);
+    }
+    return { watch: watch };
+  })();
+  window.RevCards = RevCards;
 
   /* Published review quotes replace the page's baked ones in the proof section, and the published
      review link drives its Google button. An old payload with no quotes key leaves the page alone. */
@@ -265,7 +335,8 @@
     var qs = cleanQuotes(c); if (!qs) return;
     box.dataset.pub = '1';
     while (box.firstChild) box.removeChild(box.firstChild);
-    qs.forEach(function (q) { var bq = el('blockquote', null, q.text); if (q.who) bq.appendChild(el('footer', null, q.who)); box.appendChild(bq); });
+    qs.forEach(function (q, i) { box.appendChild(quoteCard(q, i)); });
+    RevCards.watch(box);
   }
 
   function mergeHome(list) {

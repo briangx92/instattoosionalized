@@ -233,8 +233,15 @@
      columns (the old auto/1fr/auto row squeezed them into a ribbon once
      real, full-length reviews replaced the short baked ones). */
   #proof-quotes{ display:grid; gap:var(--sp-3); }
-  #proof-quotes blockquote{ margin:0; background:var(--surface); border:1px solid var(--line-2); border-radius:var(--radius); padding:var(--sp-3); line-height:1.55; }
-  #proof-quotes blockquote footer{ margin-top:var(--sp-2); color:var(--ink-soft); font-size:var(--text-small); font-weight:600; }
+  .rev-card{ margin:0; background:var(--surface); border:1px solid var(--line-2); border-radius:var(--radius); padding:1.2rem 1.25rem; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:.55rem; opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; transition-delay:calc(var(--i, 0) * 70ms); }
+  .rev-card.in{ opacity:1; transform:none; }
+  .rev-card__stars{ color:#FFC94D; letter-spacing:.18em; font-size:.95rem; line-height:1; }
+  .rev-card__text{ margin:0; font-size:.96rem; line-height:1.55; overflow-wrap:anywhere; }
+  .rev-card__who{ margin-top:auto; font-size:.85rem; color:var(--ink-soft); }
+  .rev-card__who b{ color:var(--ink); font-size:.92rem; margin-right:.45em; }
+  @media (prefers-reduced-motion: reduce){ .rev-card{ opacity:1; transform:none; transition:none; } }
+  @media (min-width:700px) and (max-width:1023px){ #proof-quotes{ grid-template-columns:repeat(2,1fr); align-items:start; } }
+  @media (max-width:699px){ #proof-quotes{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:var(--sp-1); scrollbar-width:none; } #proof-quotes::-webkit-scrollbar{ display:none; } .rev-card{ flex:0 0 86%; scroll-snap-align:start; } }
   @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:1fr auto; grid-template-areas:"score link" "quotes quotes"; gap:var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } .s-proof__score{ grid-area:score; } #proof-link{ grid-area:link; } #proof-quotes{ grid-area:quotes; grid-template-columns:repeat(3,1fr); align-items:start; } }
   @media (min-width:1024px){ .s-prices .l-wrap, #work .l-wrap{ max-width:880px; } .s-proof .l-wrap{ max-width:1120px; } .s-visit .l-wrap, .s-ask .l-wrap{ max-width:1020px; } }
   @media (min-width:1024px){ .s-artists .l-wrap{ max-width:1140px; } .s-rail.is-fit{ overflow-x:visible; scroll-snap-type:none; justify-content:center; padding-inline:var(--sp-2); } .s-rail.is-fit .s-rail__card{ flex-basis:320px; scroll-snap-align:none; } }
