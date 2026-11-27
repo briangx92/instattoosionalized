@@ -246,6 +246,17 @@
   @media (max-width:699px){ .rev-nav{ display:flex; justify-content:center; gap:var(--sp-3); margin-top:var(--sp-3); } .rev-nav button{ width:48px; height:48px; border-radius:50%; border:1px solid var(--line-2); background:var(--surface); color:var(--ink); font-size:1.6rem; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow); padding:0 0 .2em; } }
   .rev-card__who{ margin-top:auto; font-size:.85rem; color:var(--ink-soft); }
   .rev-card__who b{ color:var(--ink); font-size:.92rem; margin-right:.45em; }
+  /* A rotation swap fades the outgoing card before the incoming one takes
+     its slot (see RevCards.rotate in site-content.js). */
+  .rev-card.rev-fade{ opacity:0; transform:translateY(10px); }
+  /* One fixed card size in the grid presentations (Brian, 2026-11-27):
+     every card is the same height no matter how long its review is, so a
+     rotation swap never resizes a card, its row, or the grid. Long text
+     clamps inside the fixed card; expanded text scrolls inside it. */
+  @media (min-width:700px){
+    .rev-card{ height:336px; overflow:hidden; }
+    .rev-card--open .rev-card__text--clamp{ flex:1 1 auto; min-height:0; overflow-y:auto; }
+  }
   @media (prefers-reduced-motion: reduce){ .rev-card{ opacity:1; transform:none; transition:none; } }
   @media (min-width:700px) and (max-width:1023px){ #proof-quotes{ grid-template-columns:repeat(2,1fr); align-items:start; } }
   @media (max-width:699px){ #proof-quotes{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:var(--sp-1); scrollbar-width:none; } #proof-quotes::-webkit-scrollbar{ display:none; } .rev-card{ flex:0 0 calc(50% - var(--sp-3) / 2); scroll-snap-align:start; } }

@@ -381,6 +381,75 @@
         });
       });
     }
+    /* Desktop rotation (Brian, 2026-11-27): the grid shows a strict 3x3,
+       nine cards at a time, and individual slots reload with other reviews
+       from the set on a staggered random schedule, never two at once and
+       never the whole grid at once. Below 700px the phone carousel keeps
+       the full set instead. Every card is one fixed size (see home.css),
+       so a swap changes only a slot's content, never a dimension. A slot
+       whose review the visitor has expanded does not swap until it is
+       collapsed again. Rotation pauses while the section is off-screen
+       or the tab is hidden, and never runs under reduced motion (the
+       strict nine still show, they just stay put). */
+    function rotate(box, cards) {
+      if (box._revRotate || cards.length <= 9) return;
+      box._revRotate = true;
+      var mq = window.matchMedia('(min-width: 700px)');
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var visible = cards.slice(0, 9);
+      var pool = cards.slice(9);
+      var active = false, busy = false, timer = null, inView = false;
+      if ('IntersectionObserver' in window) {
+        var io2 = new IntersectionObserver(function (es) { es.forEach(function (e) { inView = e.isIntersecting; }); }, { threshold: 0.05 });
+        io2.observe(box);
+      } else inView = true;
+      function schedule() {
+        clearTimeout(timer);
+        timer = setTimeout(swap, 3000 + Math.random() * 3000);
+      }
+      function swap() {
+        if (!active) return;
+        if (busy || document.hidden || !inView) { schedule(); return; }
+        var free = visible.filter(function (c) { return !c.classList.contains('rev-card--open'); });
+        if (!free.length || !pool.length) { schedule(); return; }
+        var slot = free[Math.floor(Math.random() * free.length)];
+        var incoming = pool[Math.floor(Math.random() * pool.length)];
+        busy = true;
+        slot.style.setProperty('--i', 0);
+        incoming.style.setProperty('--i', 0);
+        slot.classList.add('rev-fade');
+        setTimeout(function () {
+          incoming.classList.add('in');
+          incoming.classList.add('rev-fade');
+          box.replaceChild(incoming, slot);
+          visible[visible.indexOf(slot)] = incoming;
+          pool[pool.indexOf(incoming)] = slot;
+          slot.classList.remove('rev-fade');
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              incoming.classList.remove('rev-fade');
+              busy = false;
+            });
+          });
+          schedule();
+        }, 550);
+      }
+      function enter() {
+        if (active) return;
+        active = true;
+        pool.forEach(function (c) { if (c.parentNode === box) box.removeChild(c); });
+        if (!reduced) schedule();
+      }
+      function leave() {
+        if (!active) return;
+        active = false;
+        clearTimeout(timer);
+        cards.forEach(function (c) { box.appendChild(c); });
+      }
+      function apply() { if (mq.matches) enter(); else leave(); }
+      if (mq.addEventListener) mq.addEventListener('change', apply); else if (mq.addListener) mq.addListener(apply);
+      apply();
+    }
     function watch(box) {
       if (!box) return;
       var cards = Array.prototype.slice.call(box.querySelectorAll('.rev-card'));
@@ -388,6 +457,7 @@
       clamp(box, cards);
       reveal(cards);
       carousel(box, cards);
+      rotate(box, cards);
     }
     return { watch: watch };
   })();
