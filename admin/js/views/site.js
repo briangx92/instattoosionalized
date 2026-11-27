@@ -107,8 +107,8 @@
       }
       var rows = h('div', { class: 'price-rows' });
       g.items.forEach(function (it, i) {
-        var n = ui.input(it[0], { 'aria-label': 'Service' }), p = ui.input(it[1], { 'aria-label': 'Price', placeholder: '$80' });
-        function upd() { if (!n.value.trim() || !p.value.trim()) { draftNote(saved, 'Each price needs a name and an amount. Not saved.', true); return; } it[0] = n.value.trim(); it[1] = p.value.trim(); save(); }
+        var n = ui.input(it[0], { 'aria-label': 'Service' }), p = OA.moneyInput(it[1], { 'aria-label': 'Price', placeholder: '$80' });
+        function upd() { var amt = OA.money(p.value); if (!n.value.trim() || !OA.moneyOk(p.value)) { draftNote(saved, 'Each price needs a name and an amount. Not saved.', true); return; } it[0] = n.value.trim(); it[1] = amt; save(); }
         n.addEventListener('change', upd); p.addEventListener('change', upd);
         rows.appendChild(h('div', { class: 'prow' }, n, p, ui.btn('Remove', function () { g.items.splice(i, 1); save(); OA.rerender(); }, 'small quiet')));
       });

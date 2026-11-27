@@ -30,7 +30,7 @@
       date: ui.input(d.date, { type: 'date' }), start: ui.input(d.start, { type: 'time', step: 900 }), end: ui.input(d.end, { type: 'time', step: 900 }),
       piece: ui.input(d.piece, { placeholder: 'What is being done' }),
       deposit: ui.select([['none', 'No deposit asked'], ['asked', 'Deposit asked, not paid'], ['paid', 'Deposit paid']], d.deposit),
-      price: ui.input(d.price, { placeholder: 'e.g. $140' }), note: ui.area(d.note, { rows: 2 })
+      price: OA.moneyInput(d.price, { inputmode: 'text' }), note: ui.area(d.note, { rows: 2 })
     };
     var live = h('div', { class: 'form-live', 'aria-live': 'polite' });
     var times = h('div', { class: 'opentimes' }), pref = defaults.pref || null, agendaDays = null, onlyMatch = false;
@@ -87,7 +87,7 @@
       times.appendChild(box);
       syncSel();
     }
-    function read() { return { client: f.client.value, phone: f.phone.value, type: f.type.value, artist: f.artist.value, date: f.date.value, start: f.start.value, end: f.end.value, piece: f.piece.value, deposit: f.deposit.value, price: f.price.value, note: f.note.value, requestId: a.requestId || defaults.requestId || '' }; }
+    function read() { return { client: f.client.value, phone: f.phone.value, type: f.type.value, artist: f.artist.value, date: f.date.value, start: f.start.value, end: f.end.value, piece: f.piece.value, deposit: f.deposit.value, price: OA.money(f.price.value), note: f.note.value, requestId: a.requestId || defaults.requestId || '' }; }
     function check() {
       OA.clear(live); var v = read(), msgs = [];
       if (OA.validISO(v.date) && v.start && v.end && OA.mins(v.end) > OA.mins(v.start) && v.artist) {

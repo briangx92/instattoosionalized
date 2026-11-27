@@ -114,7 +114,7 @@
     var qrp = OA.qrPanel({
       title: 'Scan to text from your phone', help: 'Point your phone\u2019s camera at the code. Messages opens with this text and the number filled in. You press send.',
       href: function () { return phone && OA.phoneOk(phone) && !OA.blanks(area.value).length && area.value.trim() ? OA.smsHref(phone, area.value) : null; },
-      why: function () { return !phone || !OA.phoneOk(phone) ? 'Add a phone number for this client to get a code.' : OA.blanks(area.value).length ? 'Fill in the blanks first, then the code appears.' : 'Write a message to get a code.'; }
+      why: function () { return !String(phone || '').trim() ? 'Add a phone number for this client to get a code.' : !OA.phoneOk(phone) ? 'That number does not look like a real US number. Fix it and the code appears.' : OA.blanks(area.value).length ? 'Fill in the blanks first, then the code appears.' : 'Write a message to get a code.'; }
     });
     area.addEventListener('input', function () { qrp.update(); });
     var body = h('div', {},

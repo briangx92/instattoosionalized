@@ -59,7 +59,7 @@
       var parts = parseHash().parts; if (!parts.length || !OA.can(parts[0])) location.hash = '#/today'; else OA.rerender(); updateChrome();
     });
     var theme = ui.btn('Dark', function () { var d = document.documentElement.getAttribute('data-theme') === 'dark'; setTheme(d ? 'light' : 'dark'); }, 'quiet small', { 'aria-pressed': 'false' }); chrome.theme = theme;
-    var out = ui.btn('Sign out', function () { writeSession(null); OA.role = null; if (window.OA_LOCK) { OA_LOCK.signOut(); return; } location.hash = ''; start(); }, 'quiet small');
+    var out = ui.btn('Sign out', function () { if (OA.live) OA.live.stop(); writeSession(null); OA.role = null; if (window.OA_LOCK) { OA_LOCK.signOut(); return; } location.hash = ''; start(); }, 'quiet small');
     nav = h('nav', { class: 'tabs', 'aria-label': 'Portal sections' });
     TABS.forEach(function (t) { var a = h('a', { class: 'tab', href: '#/' + t.key, 'data-tab': t.key }, h('span', { text: t.label }), h('span', { class: 'badge', hidden: true })); nav.appendChild(a); });
     main = h('main', { id: 'main', tabindex: '-1' });
@@ -143,6 +143,7 @@
              carried no session token. Probe again now that the portal's
              own sign-in can open the calendar door. */
           if (OA.gcal) OA.gcal.connect().then(refreshView, refreshView);
+          if (OA.live) OA.live.start();
           return;
         }
         startPicked();
@@ -157,6 +158,7 @@
     var s = readSession();
     if (!s) { signIn(); return; }
     OA.role = s; buildChrome(); updateChrome(); render();
+    if (OA.live) OA.live.start();
   }
   window.addEventListener('hashchange', function () { if (OA.role) { render(); } });
   S.subscribe(function () { if (OA.role && main) { updateChrome(); } });
@@ -167,7 +169,6 @@
     if (S.error) console.warn(S.error);
     try { var t = localStorage.getItem(THEME) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.setAttribute('data-theme', t); } catch (e) { /* default theme */ }
     start();
-    OA.api.startPolling();
     /* The calendar connection is live or it is not; find out on load
        instead of waiting for someone to press a button in Settings.
        A failed probe only sets the status reason, it never blocks. */

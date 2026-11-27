@@ -153,13 +153,13 @@
         h('div', { class: 'row tight' }, ui.btn('Change or cancel', function () { OA.apptDialog(a).then(function (x) { if (x) rer(); }); }, 'small'), ui.link('See on calendar', '#/calendar/' + a.date, 'btn small quiet')));
     }
     function quoteBlock() {
-      var q = ui.input(r.quote, { placeholder: 'e.g. $140', 'aria-label': 'Quote' });
+      var q = OA.moneyInput(r.quote, { 'aria-label': 'Quote', inputmode: 'text' });
       var depo = OA.depositAmount();
       var wrap = h('div', {}, ui.field('Quote for the piece', q, depo ? 'The shop deposit in Settings is ' + depo + '.' : 'Set the shop deposit in Settings so the message can include it.'));
       wrap.appendChild(h('div', { class: 'row' },
         ui.btn(r.askedAt ? 'Resend quote and deposit message' : 'Write quote and deposit message', function () {
-          if (!q.value.trim()) { ui.fail('Add the quote first. The message needs a price.'); q.focus(); return; }
-          var quote = q.value.trim(), c = OA.client(r.clientId);
+          if (!OA.moneyOk(q.value)) { ui.fail('Add the quote first. The message needs a price.'); q.focus(); return; }
+          var quote = OA.money(q.value), c = OA.client(r.clientId);
           ui.message({ key: 'quote', ctx: { name: r.name, artist: r.artist, quote: quote }, phone: r.phone || (c && c.phone), onOpened: function () { act.markAsked(r, quote); } }).then(function (v) { if (v) rer(); });
         }, 'primary')));
       return wrap;

@@ -86,10 +86,10 @@
     return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
   };
   OA.digits = function (s) { return String(s || '').replace(/\D/g, ''); };
-  /* US numbers: ten digits, with a leading 1 (country code) dropped. Area codes never start with 0 or 1. */
+  /* US numbers: ten digits. When a number has exactly eleven digits, one leading 1 (country code) or 0 (trunk) is dropped; the ten digits themselves are never eaten into. Anything longer keeps its first ten digits for display; the check below counts the raw digits, so a longer number still fails there. */
   OA.phoneDigits = function (s) {
-    var d = OA.digits(s); if (d.length >= 11 && d[0] === '1') d = d.slice(1);
-    while (d && (d[0] === '0' || d[0] === '1')) d = d.slice(1);
+    var d = OA.digits(s);
+    if (d.length === 11 && (d[0] === '0' || d[0] === '1')) d = d.slice(1);
     return d.slice(0, 10);
   };
   OA.phoneFormat = function (d) {
@@ -100,8 +100,12 @@
     var d = OA.digits(s); if (d.length === 11 && d[0] === '1') d = d.slice(1);
     return d.length === 10 ? '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6) : String(s || '');
   };
-  /* A phone is good when it has ten digits. A number saved earlier that has not been changed is left alone (pass what was saved as prev). */
-  OA.phoneOk = function (s, prev) { return OA.phoneDigits(s).length === 10 || (prev != null && prev !== '' && String(s).trim() === String(prev).trim()); };
+  /* A phone is good when the number as typed is exactly ten digits (after dropping one leading 1 or 0 from an eleven-digit number) and the area code starts 2-9 (real US area codes never start with 0 or 1). The count is taken on the raw digits, not on phoneDigits: a number with an extra digit, an extension, or a second number in the field is not good, even when its first ten digits look fine. A number saved earlier that has not been changed is left alone (pass what was saved as prev; the two are compared by their digits, so a saved number the phone box shows reformatted still matches itself). */
+  OA.phoneOk = function (s, prev) {
+    var r = OA.digits(s);
+    if (r.length === 11 && (r[0] === '0' || r[0] === '1')) r = r.slice(1);
+    return (r.length === 10 && r[0] >= '2' && r[0] <= '9') || (prev != null && prev !== '' && OA.phoneDigits(prev) !== '' && OA.phoneDigits(s) === OA.phoneDigits(prev));
+  };
   OA.PHONE_MSG = 'The phone number needs 10 digits, like (610) 555-0100.';
   /* An input that takes digits only, formats as you type, stops at ten digits, and copes with pasted +1 numbers and deleting over the dashes. */
   OA.phoneInput = function (value, attrs) {
@@ -133,7 +137,54 @@
   OA.smsHref = function (s, body) { return 'sms:' + OA.e164(s) + '?&body=' + encodeURIComponent(body || ''); };
   OA.slug = function (s) { return String(s || '').toLowerCase().replace(/["“”']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'artist'; };
   OA.plural = function (n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); };
-  OA.money = function (s) { return String(s == null ? '' : s).trim(); };
+  /* One amount, cleaned: commas out, the first decimal point kept, cents padded ("140.5" reads back "140.50"), leading zeros dropped. */
+  function amt(t) {
+    t = String(t).replace(/[^0-9.]/g, '');
+    var i = t.indexOf('.');
+    if (i >= 0) t = t.slice(0, i + 1) + t.slice(i + 1).replace(/\./g, '');
+    if (!t || t === '.') return '';
+    if (t[0] === '.') t = '0' + t;
+    t = t.replace(/\.$/, '').replace(/^0+(?=\d)/, '');
+    if (/\.\d$/.test(t)) t += '0';
+    return t;
+  }
+  var AMT = '\\s*\\$*\\s*(?:\\d[\\d,]*(?:\\.\\d*)?|\\.\\d+)\\s*';
+  var AMT_ONE = new RegExp('^' + AMT + '$'), AMT_RANGE = new RegExp('^' + AMT + '(?:-|–|—|to)' + AMT + '$', 'i');
+  /* Money is stored as one canonical string with the dollar sign on ("$140"), the way the deposit and the price list already keep it, so every screen and text that shows the stored value shows the sign exactly once. Only a string that is clearly one amount, or a range of two, is rewritten; anything else (words, "per hour", a percent) is kept exactly as typed, so a saved value is never silently changed by being loaded or sent. Ranges store with a plain hyphen ("$100-$150"): an en dash is outside the basic SMS character set and would split a long text into extra parts. Empty stays empty: no price entered, no sign stored. */
+  OA.money = function (s) {
+    var str = String(s == null ? '' : s).trim();
+    if (!str || str === '$') return '';
+    if (AMT_ONE.test(str)) return '$' + amt(str);
+    if (AMT_RANGE.test(str)) { var p = str.split(/-|–|—|to/i); return '$' + amt(p[0]) + '-$' + amt(p[1]); }
+    return str;
+  };
+  /* Is this a real price (one amount, or a range of two)? Gates that need a price use this, never the truthiness of OA.money: free text like "TBD" passes through OA.money unchanged, so it is truthy without being a price. */
+  OA.moneyOk = function (s) { return /^\$\d/.test(OA.money(s)); };
+  /* A money box: the shop types a number and the dollar sign is added for them. The sign rides as a fixed prefix while typing (the caret counts digits, the point and the hyphen, the way the phone box counts digits), a typed or pasted $ is absorbed into the one sign, a range shows as "$100-$150" while it is typed, and leaving the box settles what is shown to the stored form. A second decimal point in one amount restores what was there before, instead of quietly changing the number. */
+  OA.moneyInput = function (value, attrs) {
+    var el = OA.h('input', Object.assign({ type: 'text', inputmode: 'decimal', autocomplete: 'off', spellcheck: 'false', placeholder: 'e.g. $140', value: value == null ? '' : value }, attrs || {}));
+    el.value = OA.money(el.value);
+    var last = el.value;
+    el.addEventListener('input', function () {
+      var raw = el.value, pos = el.selectionStart == null ? raw.length : el.selectionStart, atEnd = pos >= raw.length;
+      var body = raw.replace(/[^0-9.\-]/g, ''), hi = body.indexOf('-');
+      var left = hi >= 0 ? body.slice(0, hi) : body, right = hi >= 0 ? body.slice(hi + 1).replace(/-/g, '') : null;
+      if ((left.match(/\./g) || []).length > 1 || (right != null && (right.match(/\./g) || []).length > 1)) {
+        var p = Math.max(0, pos - 1); el.value = last; if (el.setSelectionRange) el.setSelectionRange(p, p); return;
+      }
+      var out = '';
+      if (body || raw.indexOf('$') >= 0) { out = '$' + left; if (right != null) out += '-' + (right ? '$' + right : ''); }
+      el.value = out; last = out;
+      if (!atEnd && el.setSelectionRange) {
+        var want = (raw.slice(0, pos).match(/[0-9.\-]/g) || []).length, at = 0, seen = 0;
+        while (at < out.length && seen < want) { if (/[0-9.\-]/.test(out[at])) seen++; at++; }
+        if (want === 0 && out.charAt(0) === '$') at = 1;
+        el.setSelectionRange(at, at);
+      }
+    });
+    el.addEventListener('blur', function () { el.value = OA.money(el.value); last = el.value; });
+    return el;
+  };
 
   /* ---------- misc ---------- */
   OA.debounce = function (fn, ms) { var t; return function () { var a = arguments, c = this; clearTimeout(t); t = setTimeout(function () { fn.apply(c, a); }, ms); }; };

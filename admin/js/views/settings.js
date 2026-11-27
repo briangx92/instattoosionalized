@@ -10,9 +10,9 @@
 
   function messages() {
     var set = S.state.settings, root = h('div', {}), saved = h('div', { class: 'saved', 'aria-live': 'polite' });
-    var f = { dep: ui.input(set.depositAmount, { placeholder: '$40' }), how: ui.input(set.depositHow, { placeholder: 'e.g. Pay by Venmo @shop or at the counter.' }) };
+    var f = { dep: OA.moneyInput(set.depositAmount, { placeholder: '$40' }), how: ui.input(set.depositHow, { placeholder: 'e.g. Pay by Venmo @shop or at the counter.' }) };
     function save() {
-      set.depositAmount = f.dep.value.trim(); set.depositHow = f.how.value.trim(); OA.syncPolicyFromAmount(); S.commit(); note(saved, 'Saved');
+      set.depositAmount = OA.money(f.dep.value); set.depositHow = f.how.value.trim(); OA.syncPolicyFromAmount(); S.commit(); note(saved, 'Saved');
     }
     Object.keys(f).forEach(function (k) { f[k].addEventListener('change', save); });
     root.appendChild(h('section', { class: 'card narrow' }, h('h2', { text: 'Deposit' }), h('div', { class: 'form-grid' }, ui.field('Deposit amount', f.dep, 'Fills {deposit} in texts.'), ui.field('How clients pay it', f.how, 'Fills {depositHow}. The portal does not take payments.', 'span2')), saved,

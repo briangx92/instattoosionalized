@@ -8,7 +8,8 @@
 (function () {
   'use strict';
   var OA = window.OA, S = OA.store, act = OA.act, ui = OA.ui;
-  var POLL_MS = 90000, MAX_PAGES = 20, busy = null, timer = null;
+  var LIVE_MS = 25000, MAX_PAGES = 20, busy = null;
+  var liveTimer = null, liveSynced = false;
 
   function authHeaders(extra) {
     var hdrs = extra || {};
@@ -151,16 +152,47 @@
       if (st.lastError) return { kind: 'bad', text: 'Last check failed', detail: st.lastError };
       if (st.lastOk) return { kind: 'ok', text: 'Checked ' + OA.ago(st.lastOk), detail: '' };
       return { kind: 'quiet', text: 'Not checked yet', detail: '' };
-    },
+    }
+  };
 
-    startPolling: function () {
-      if (timer) return;
-      timer = setInterval(function () {
-        if (document.hidden || !api.ready()) return;
-        api.pull().then(function (r) {
-          if (r.added) { ui.toast(OA.plural(r.added, 'new website request') + ' came in.'); var t = (location.hash.split('/')[1] || '').split('?')[0]; if (t === 'requests' || t === 'today') OA.rerender(); }
-        }, function () { /* the failure shows in the Requests header */ });
-      }, POLL_MS);
+  /* ---------- near-live request watch ----------
+     While the portal is signed in, check the shop server every 25
+     seconds (visible tabs only), and the moment the tab comes back
+     into view or the window regains focus. The first check after
+     sign-in is the initial sync and stays quiet; anything newer
+     after that gets one toast. A failed check stays silent too:
+     the Requests header shows the failure, and the next tick tries
+     again. app.js starts and stops this with the sign-in. */
+  function livePull() {
+    if (busy || !api.ready()) return;
+    api.pull().then(function (r) {
+      var first = !liveSynced; liveSynced = true;
+      if (first || !r.added) return;
+      ui.toast(OA.plural(r.added, 'new website request') + ' came in.', { action: { label: 'View', run: function () { OA.go('requests'); } } });
+      var t = (location.hash.split('/')[1] || '').split('?')[0];
+      /* A re-render rebuilds the tab and would wipe a quote or note
+         being typed into it; while a field in the main area has focus,
+         the toast (with its View action) is the whole notification. */
+      var a = document.activeElement, m = document.getElementById('main');
+      var typing = a && m && m.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);
+      if ((t === 'requests' || t === 'today') && !typing) OA.rerender();
+    }, function () { /* silent: the failure shows in the Requests header */ });
+  }
+  function liveTick() { if (!document.hidden) livePull(); }
+  function liveWake() { if (!document.hidden) livePull(); }
+  OA.live = {
+    start: function () {
+      if (liveTimer) return;
+      livePull();
+      liveTimer = setInterval(liveTick, LIVE_MS);
+      document.addEventListener('visibilitychange', liveWake);
+      window.addEventListener('focus', liveWake);
+    },
+    stop: function () {
+      if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+      liveSynced = false;
+      document.removeEventListener('visibilitychange', liveWake);
+      window.removeEventListener('focus', liveWake);
     }
   };
 })();

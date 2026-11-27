@@ -209,7 +209,7 @@
     ctx = ctx || {};
     var map = {
       first: OA.first(ctx.name), shop: shop.short, artist: ctx.artist ? OA.chairName(ctx.artist) : 'one of our artists',
-      quote: ctx.quote || '', deposit: set.depositAmount || '', depositHow: set.depositHow || '',
+      quote: OA.money(ctx.quote || ''), deposit: OA.money(set.depositAmount || ''), depositHow: set.depositHow || '',
       date: ctx.date ? OA.fmtLong(ctx.date) : '', time: ctx.start ? OA.fmtTime(ctx.start) : '', address: OA.addressLine(), reviewLink: set.reviewLink || ''
     };
     return body.replace(/\{(\w+)\}/g, function (m, k) { return map[k] ? map[k] : m; }).replace(/\s+$/g, '');
