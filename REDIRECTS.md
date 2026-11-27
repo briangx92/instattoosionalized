@@ -1,4 +1,16 @@
-# Redirect rules to apply in the Cloudflare zone (spec only, not yet applied)
+# Redirect rules in the Cloudflare zone
+
+APPLIED 2026-11-27 (rule set 1): all six rules are live in the zone's
+http_request_dynamic_redirect ruleset and verified (every old value 301s
+to its slot, tagged variants included). One deviation from the original
+spec: the zone's plan does not allow the regex "matches" operator (a
+Business plan feature), so each rule is per-value and matches the artist
+parameter without regex: sole parameter (query eq "artist=<v>"), first
+parameter (query contains "artist=<v>&"), or later parameter (query
+contains "&artist=<v>"), inside the two old path spellings. Applied by
+~/workspace/scratch-navfix/api-setup/cf_apply_redirects.py (idempotent,
+appends only missing rules). Rule set 2 below remains a template for
+future use. The original spec text follows.
 
 The artist pages moved to stable slot addresses (`/artist1/`, `/artist2/`,
 `/artist3/`; see README-slots.md). The old addresses carry the artist in a
