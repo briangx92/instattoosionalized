@@ -7,19 +7,28 @@
 
   OA.NOTIFY_MODES = [
     ['manager', 'Management'],
-    ['feed', 'Calendar link on their phone'],
-    ['google', 'Their Google Calendar'],
-    ['digest', 'Automatic daily or weekly text or email']
+    ['email', 'Email'],
+    ['calendar', 'Calendar']
   ];
   /* Only the manager route works without the server. The others are saved as a choice and say so. */
-  OA.NOTIFY_LIVE = { manager: true, feed: false, google: false, digest: false };
+  OA.NOTIFY_LIVE = { manager: true, email: false, calendar: false };
   OA.NOTIFY_WHY = 'Needs the server. Until then, management uses Send schedule.';
   OA.emailOk = function (s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim()); };
 
   /* Private to the shop: lives in settings, never in the site content that gets published. */
+  /* The mode list was cut to three (Brian, 2026-11-27: email,
+     calendar, or management; the texting and automatic-digest ideas
+     were scope beyond the job). A choice saved under the old list
+     maps to the closest survivor: both calendar flavors become
+     Calendar, the digest becomes Email, anything unknown falls
+     back to Management. */
   OA.notify = function (slug) {
     var n = (OA.store.state.settings.notify || {})[slug] || {};
-    return { mode: n.mode || 'manager', phone: n.phone || '', email: n.email || '' };
+    var mode = n.mode || 'manager';
+    if (mode === 'feed' || mode === 'google') mode = 'calendar';
+    else if (mode === 'digest') mode = 'email';
+    if (mode !== 'manager' && mode !== 'email' && mode !== 'calendar') mode = 'manager';
+    return { mode: mode, phone: n.phone || '', email: n.email || '' };
   };
   OA.setNotify = function (slug, patch) {
     var s = OA.store.state.settings; if (!s.notify) s.notify = {};

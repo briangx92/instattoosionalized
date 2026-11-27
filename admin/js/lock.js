@@ -6,10 +6,9 @@
    salted hashes. The first account (the owner) is claimed with the shop
    passcode Brian hands over once; after that the passcode only resets
    passwords. New people ask for an account from this screen and wait
-   for the owner to approve them. A good sign-in earns a session token
-   kept in this browser (12 hours, or 30 days when "Remember me on
-   this device" is checked at sign-in; unchecked, the token lives in
-   sessionStorage and dies with the browser session), and the answer
+   for an admin to approve them. A good sign-in earns a session token
+   kept in this browser for 72 hours (Brian, 2026-11-27: one length
+   for every sign-in, no remember-me split), and the answer
    names who signed in and their role, so the portal opens straight
    into their view (OA_LOCK.user() / OA_LOCK.ready()). The sign-in
    also carries the same Cloudflare Turnstile human check the public
@@ -26,7 +25,7 @@
   var KEY = "oa2:unlock:v1";
 
   /* Who the server says is signed in: {username, role, artist} with the
-     server's role words (owner | manager | artist), or null when the
+     server's role words (owner | artist), or null when the
      sign-in carries no account (legacy passcode mode). app.js waits on
      ready() before it builds anything. */
   var currentUser = null;
@@ -36,10 +35,11 @@
   function el(id) { return document.getElementById(id); }
 
   /* The stored sign-in: {token, at, ttl} (ttl in seconds, the lifetime
-     the server issued). A remembered sign-in lives in localStorage;
-     an unremembered one lives in sessionStorage, so it ends with the
-     browser session. Entries saved before ttl was recorded carry the
-     original 12-hour cap. Only one copy ever exists: storing clears
+     the server issued). It lives in localStorage, so it survives the
+     browser closing and reopening inside its 72 hours. Entries saved
+     before ttl was recorded carry the original 12-hour cap, and an
+     entry an older build left in sessionStorage is still honored
+     until it runs out. Only one copy ever exists: storing clears
      both homes first, and sign-out clears both too. */
   function readSaved() {
     try {
@@ -61,12 +61,11 @@
     return data.token;
   }
 
-  function store(token, ttlSeconds, remember) {
+  function store(token, ttlSeconds) {
     clear();
     try {
-      var data = JSON.stringify({ token: token, at: Date.now(), ttl: ttlSeconds || 12 * 3600 });
-      if (remember === false) sessionStorage.setItem(KEY, data);
-      else localStorage.setItem(KEY, data);
+      var data = JSON.stringify({ token: token, at: Date.now(), ttl: ttlSeconds || 72 * 3600 });
+      localStorage.setItem(KEY, data);
     } catch (e) {}
   }
 
@@ -129,11 +128,6 @@
   var tsSignin = makeTs("lock-ts");
   var tsRequest = makeTs("lock-req-ts");
   var tsForgot = makeTs("lock-forgot-ts");
-
-  function rememberChecked() {
-    var box = el("lock-remember");
-    return !!(box && box.checked);
-  }
 
   function open() {
     var lock = el("lock");
@@ -198,13 +192,12 @@
       ev.preventDefault();
       var code = pass.value.trim();
       if (!code) { say("Type the shop passcode."); return; }
-      var remember = rememberChecked();
       btn.disabled = true;
       say("Checking...");
-      post("/portal-unlock", { code: code, turnstile_token: tsSignin.token(), remember: remember }).then(function (res) {
+      post("/portal-unlock", { code: code, turnstile_token: tsSignin.token() }).then(function (res) {
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
-          store(res.data.token, res.data.ttl, remember);
+          store(res.data.token, res.data.ttl);
           finishOpen(null);
           return;
         }
@@ -238,22 +231,21 @@
       var username = user.value.trim();
       var password = pass.value;
       if (!username || !password) { say("Type your username and password."); return; }
-      var remember = rememberChecked();
       btn.disabled = true;
       say("Checking...");
-      post("/portal-unlock", { username: username, password: password, turnstile_token: tsSignin.token(), remember: remember }).then(function (res) {
+      post("/portal-unlock", { username: username, password: password, turnstile_token: tsSignin.token() }).then(function (res) {
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
-          store(res.data.token, res.data.ttl, remember);
+          store(res.data.token, res.data.ttl);
           finishOpen({ username: res.data.username || username, role: res.data.role || "", artist: res.data.artist || "" });
           return;
         }
         tsSignin.reset();
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
         if (res.data && res.data.error === "captcha_failed") { say("Please finish the human check and try again."); return; }
-        if (res.data && res.data.error === "pending_approval") { say("Your account is waiting for the shop owner to approve it."); return; }
-        if (res.data && res.data.error === "account_paused") { say("This account was paused after 90 days away. Ask the shop owner to reactivate it."); return; }
-        if (res.data && res.data.error === "account_removed") { say("This account was deactivated by the shop owner. Ask them if it should be turned back on."); return; }
+        if (res.data && res.data.error === "pending_approval") { say("Your account is waiting for an admin to approve it."); return; }
+        if (res.data && res.data.error === "account_paused") { say("This account was paused after 90 days away. Ask an admin to reactivate it."); return; }
+        if (res.data && res.data.error === "account_removed") { say("This account was deactivated by an admin. Ask them if it should be turned back on."); return; }
         say("That username and password did not match. Try again.");
         pass.select();
       }).catch(function () {

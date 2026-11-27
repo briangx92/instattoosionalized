@@ -223,7 +223,8 @@
       if (owner) {
         var btn = ui.btn('Publish ' + OA.plural(ch.length, 'change'), function () {
           btn.disabled = true;
-          act.publish('Shop owner').then(function (r) {
+          var me = window.OA_LOCK && OA_LOCK.user && OA_LOCK.user();
+          act.publish(me && me.username ? me.username : 'Admin').then(function (r) {
             if (!r.ok) { btn.disabled = false; ui.fail(r.reason); return; }
             OA.gcImages && OA.gcImages();
             ui.toast('Published ' + OA.plural(r.count, 'change') + '. Your website now shows your changes.'); OA.rerender();

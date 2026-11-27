@@ -296,6 +296,7 @@ a.ledger-row:hover { background: var(--surface); }
   .two { grid-template-columns: 1fr; }
   .ledger-row { grid-template-columns: 36px minmax(0, 1fr) auto; } .ledger-row .lr-next { grid-column: 2 / 4; grid-row: 2; font-size: .86rem; color: var(--ink2); }
   .ledger-row.acct { grid-template-columns: minmax(0, 1fr); } .ledger-row.acct > .row { grid-column: 1; }
+  .ledger-row.person { grid-template-columns: 36px minmax(0, 1fr); } .ledger-row.person > .row, .ledger-row.person > .btn { grid-column: 2; justify-self: start; }
   .weekgrid { grid-template-columns: 1fr; overflow: visible; } .weekday { min-height: 0; } .weekday.closed { display: none; }
   .mhead { gap: .25rem; } .mhead span { padding: 0 .3rem; font-size: .72rem; }
   .monthgrid { gap: .25rem; }

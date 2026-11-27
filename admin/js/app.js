@@ -36,7 +36,7 @@
     document.title = 'Sign in | ' + shop.short + ' portal';
     OA.clear(document.body.querySelector('#app'));
     var chooser = h('div', { class: 'signin-roles' });
-    [['owner', '', 'Shop owner', 'Everything, including the site and settings'], ['frontdesk', '', 'Front desk', 'Requests, calendar, clients'], ['artist', 'lex', 'Lex', 'Her own chair, clients and portfolio'], ['artist', 'liv', 'Liv', 'Her own chair, clients and portfolio'], ['artist', 'dawlface', 'Dawlface', 'Her own chair, clients and portfolio']].forEach(function (r) {
+    [['owner', '', 'Admin', 'Everything, including the site and settings'], ['artist', 'lex', 'Lex', 'Her own chair, clients and portfolio'], ['artist', 'liv', 'Liv', 'Her own chair, clients and portfolio'], ['artist', 'dawlface', 'Dawlface', 'Her own chair, clients and portfolio']].forEach(function (r) {
       chooser.appendChild(h('button', { type: 'button', class: 'role-btn', on: { click: function () { OA.setRole(r[0], r[1]); start(); } } }, h('strong', { text: r[2] }), h('span', { text: r[3] })));
     });
     document.querySelector('#app').appendChild(h('div', { class: 'signin' },
@@ -52,12 +52,6 @@
     var shop = S.state.site.shop;
     chrome.err = h('div', { class: 'bar bad', role: 'alert', hidden: true });
     chrome.publish = h('a', { class: 'btn publish', href: '#/site/publish', hidden: true });
-    chrome.who = ui.select([], '', { 'aria-label': 'Preview as' });
-    [['owner:', 'Shop owner'], ['frontdesk:', 'Front desk']].concat(S.state.site.artists.filter(function (a) { return !a.removedAt; }).map(function (a) { return ['artist:' + a.slug, OA.nick(a)]; })).forEach(function (o) { chrome.who.appendChild(h('option', { value: o[0], text: o[1] })); });
-    chrome.who.addEventListener('change', function () {
-      var p = chrome.who.value.split(':'); OA.setRole(p[0], p[1]);
-      var parts = parseHash().parts; if (!parts.length || !OA.can(parts[0])) location.hash = '#/today'; else OA.rerender(); updateChrome();
-    });
     var theme = ui.btn('Dark', function () { var d = document.documentElement.getAttribute('data-theme') === 'dark'; setTheme(d ? 'light' : 'dark'); }, 'quiet small', { 'aria-pressed': 'false' }); chrome.theme = theme;
     var out = ui.btn('Sign out', function () { if (OA.live) OA.live.stop(); writeSession(null); OA.role = null; if (window.OA_LOCK) { OA_LOCK.signOut(); return; } location.hash = ''; start(); }, 'quiet small');
     nav = h('nav', { class: 'tabs', 'aria-label': 'Portal sections' });
@@ -68,7 +62,7 @@
     app.appendChild(h('header', { class: 'top' },
       h('div', { class: 'top-in' },
         h('a', { class: 'brand', href: '#/today' }, h('img', { src: '../assets/instattoosionalized-logo.jpg', alt: '' }), h('span', { class: 'brand-name' }, h('b', { text: shop.short || shop.name }), h('i', { text: 'Owner portal' }))),
-        h('div', { class: 'top-tools' }, OA.liveLink('btn small quiet'), chrome.publish, h('label', { class: 'who' }, h('span', { text: 'Preview as' }), chrome.who), theme, out)),
+        h('div', { class: 'top-tools' }, OA.liveLink('btn small quiet'), chrome.publish, theme, out)),
       nav));
     app.appendChild(main);
     syncTheme();
@@ -82,8 +76,6 @@
   }
   function updateChrome() {
     if (!main) return;
-    chrome.who.value = OA.role.kind + ':' + OA.role.slug;
-    if (!chrome.who.value) chrome.who.value = 'owner:';
     OA.$$('.tab', nav).forEach(function (a) {
       var k = a.getAttribute('data-tab'), ok = OA.can(k); a.hidden = !ok;
       var b = OA.$('.badge', a), n = 0;
@@ -103,7 +95,7 @@
     current = r;
     if (!tab) { location.replace('#/today'); return; }
     if (!PERMS[tab]) { show('Not found', ui.empty('That page does not exist', 'The address may be old or mistyped.', ui.link('Go to Today', '#/today', 'btn primary'))); markTab(''); return; }
-    if (!OA.can(tab)) { show('No access', ui.empty('This section is for the shop owner', 'You are previewing as ' + roleLabel() + '. Switch the preview to the owner to open it.', ui.link('Back to Today', '#/today', 'btn primary'))); markTab(''); return; }
+    if (!OA.can(tab)) { show('No access', ui.empty('This section is for an admin', 'You are signed in as ' + roleLabel() + '.', ui.link('Back to Today', '#/today', 'btn primary'))); markTab(''); return; }
     var v = OA.views[tab], y = window.scrollY, node;
     try { node = v.render(r.parts.slice(1), r.q); } catch (e) {
       console.error(e);
@@ -112,7 +104,7 @@
     show(v.title ? v.title(r.parts.slice(1)) : tab, node, keepScroll ? y : 0);
     markTab(tab); updateChrome();
   }
-  function roleLabel() { return OA.role.kind === 'owner' ? 'the shop owner' : OA.role.kind === 'frontdesk' ? 'front desk' : OA.chairName(OA.role.slug); }
+  function roleLabel() { return OA.role.kind === 'owner' ? 'the admin' : OA.chairName(OA.role.slug); }
   function show(title, node, y) {
     document.title = title + ' | ' + S.state.site.shop.short + ' portal';
     OA.clear(main); main.appendChild(node);
@@ -124,12 +116,11 @@
   }
 
   /* The lock screen's account decides the view: the server's role
-     words map to the portal's (manager is the front desk), and an
-     artist lands in their own chair. No picking. */
+     words map to the portal's, and an artist lands in their own
+     chair. No picking. */
   function accountRole(user) {
     if (!user || !user.role) return null;
     if (user.role === 'owner') return ['owner', ''];
-    if (user.role === 'manager') return ['frontdesk', ''];
     if (user.role === 'artist') return ['artist', user.artist || ''];
     return null;
   }
@@ -146,6 +137,11 @@
           if (OA.live) OA.live.start();
           return;
         }
+        /* A real account whose stored role maps to nothing (a word
+           the portal no longer uses) signs out rather than falling
+           into the legacy picker: the picker is only for sign-ins
+           that carry no account at all. */
+        if (user) { OA_LOCK.signOut(); return; }
         startPicked();
       });
       return;
@@ -156,6 +152,7 @@
      passcode lock): the role picker, as before. */
   function startPicked() {
     var s = readSession();
+    if (s && s.kind !== 'owner' && s.kind !== 'artist') { writeSession(null); s = null; }
     if (!s) { signIn(); return; }
     OA.role = s; buildChrome(); updateChrome(); render();
     if (OA.live) OA.live.start();

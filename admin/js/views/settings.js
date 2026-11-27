@@ -2,9 +2,9 @@
 (function () {
   'use strict';
   var OA = window.OA, h = OA.h, S = OA.store, ui = OA.ui, act = OA.act;
-  var TABS = [['messages', 'Messages'], ['people', 'People and roles'], ['connection', 'Website connection'], ['integrations', 'Schedules'], ['data', 'Data and backup']];
+  var TABS = [['messages', 'Messages'], ['people', 'Accounts'], ['connection', 'Website connection'], ['integrations', 'Schedules'], ['data', 'Data and backup']];
   var VARS = ['first', 'shop', 'artist', 'quote', 'deposit', 'depositHow', 'date', 'time', 'address', 'reviewLink'];
-  var ROLE = { owner: 'Shop owner', frontdesk: 'Front desk', artist: 'Artist' };
+  var ROLE = { owner: 'Admin', artist: 'Artist' };
 
   function note(el, msg, bad) { el.className = 'saved' + (bad ? ' bad' : ''); el.textContent = msg; }
 
@@ -41,22 +41,36 @@
     root.appendChild(list); return root;
   }
 
+  /* One Accounts list (Brian's sketch + roles wizard, 2026-11-27):
+     the shop's server accounts and its local people in one card,
+     under one heading, with what each role can do behind the info
+     button. A new account, once approved below, appears in the list
+     with everyone else. The roles are Admin and Artist; the Front
+     desk role is retired. */
   function people() {
-    var root = h('section', { class: 'card' }, h('h2', { text: 'Who can sign in' }));
-    root.appendChild(h('p', { class: 'note', text: 'Each person signs in with their own username and password. What a person can see and change follows their role.' }));
-    var roleTipText = h('div', { class: 'hint tip-text', hidden: true, text: 'Owner: everything, including the site and settings. Front desk: requests, calendar and clients. Artist: only their own chair, their clients and their portfolio.' });
+    var isOwner = !!(window.OA_LOCK && OA_LOCK.user && OA_LOCK.user() && OA_LOCK.user().role === 'owner');
+    var root = h('section', { class: 'card' });
+    var roleTipText = h('div', { class: 'hint tip-text', hidden: true, text: 'Admin: everything, including the site and settings. Artist: only their own chair, their clients and their portfolio.' });
     var roleTipBtn = h('button', { type: 'button', class: 'tip-btn', 'aria-expanded': 'false', 'aria-label': 'What can each role do?', text: '?', on: { click: function () { roleTipText.hidden = !roleTipText.hidden; roleTipBtn.setAttribute('aria-expanded', String(!roleTipText.hidden)); } } });
-    root.appendChild(h('div', { class: 'flab' }, h('span', { class: 'note', text: 'What can each role do?' }), roleTipBtn));
+    var head = h('h2', { text: 'Accounts' });
+    head.appendChild(roleTipBtn);
+    root.appendChild(head);
     root.appendChild(roleTipText);
+    var acctLedger = h('div', { class: 'ledger' });
+    if (isOwner) root.appendChild(acctLedger);
     var owners = S.state.people.filter(function (p) { return p.role === 'owner'; }).length;
     var table = h('div', { class: 'ledger' });
     S.state.people.forEach(function (p) {
-      var role = ui.select([['owner', ROLE.owner], ['frontdesk', ROLE.frontdesk], ['artist', ROLE.artist]], p.role, { 'aria-label': p.name + ' role' });
+      /* A person saved under the retired Front desk role shows as an
+         artist here until someone picks a role; the stored word is
+         only replaced when the picker actually changes. */
+      var effRole = p.role === 'owner' ? 'owner' : 'artist';
+      var role = ui.select([['owner', ROLE.owner], ['artist', ROLE.artist]], effRole, { 'aria-label': p.name + ' role' });
       role.addEventListener('change', function () {
-        if (p.role === 'owner' && role.value !== 'owner' && owners <= 1) { ui.fail('There has to be at least one owner.'); role.value = 'owner'; return; }
+        if (p.role === 'owner' && role.value !== 'owner' && owners <= 1) { ui.fail('There has to be at least one admin.'); role.value = 'owner'; return; }
         p.role = role.value; if (p.role !== 'artist') p.artist = ''; S.commit(); OA.rerender();
       });
-      var art = p.role === 'artist' ? ui.select(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; }), p.artist, { 'aria-label': p.name + ' chair' }) : null;
+      var art = effRole === 'artist' ? ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), p.artist, { 'aria-label': p.name + ' chair' }) : null;
       if (art) art.addEventListener('change', function () { p.artist = art.value; S.commit(); });
       /* The email edits in place and saves on change, like the role
          beside it: the same checks the Add person form runs (shape,
@@ -65,13 +79,13 @@
       var email = ui.input(p.email, { type: 'email', 'aria-label': p.name + ' email' });
       email.addEventListener('change', function () {
         var v = email.value.trim();
-        if (!/^\S+@\S+\.\S+$/.test(v)) { ui.fail('That does not look like an email address. Not saved.'); email.value = p.email; return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { ui.fail('That does not look like an email address. Not saved.'); email.value = p.email; return; }
         if (S.state.people.some(function (x) { return x !== p && x.email.toLowerCase() === v.toLowerCase(); })) { ui.fail('That email is already on the list. Not saved.'); email.value = p.email; return; }
         if (v !== p.email) { p.email = v; S.commit(); OA.rerender(); }
       });
       table.appendChild(h('div', { class: 'ledger-row person' }, ui.avatar(p.name), h('div', { class: 'lr-main' }, h('strong', { text: p.name }), email), h('div', { class: 'row tight' }, role, art),
         ui.btn('Remove', function () {
-          if (p.role === 'owner' && owners <= 1) { ui.fail('There has to be at least one owner.'); return; }
+          if (p.role === 'owner' && owners <= 1) { ui.fail('There has to be at least one admin.'); return; }
           ui.confirm('Remove ' + p.name + '?', p.email + ' will no longer be able to sign in once this is live.', 'Remove', true).then(function (ok) { if (ok) { S.state.people = S.state.people.filter(function (x) { return x !== p; }); S.commit(); OA.rerender(); } });
         }, 'small quiet')));
     });
@@ -80,47 +94,46 @@
     root.appendChild(h('h3', { text: 'Add someone' }));
     root.appendChild(h('div', { class: 'form-grid' }, ui.field('Name', name), ui.field('Email', em)));
     root.appendChild(h('div', { class: 'row' }, ui.btn('Add person', function () {
-      if (!name.value.trim() || !/^\S+@\S+\.\S+$/.test(em.value)) { note(saved, 'Add a name and a valid email address.', true); return; }
+      if (!name.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value)) { note(saved, 'Add a name and a valid email address.', true); return; }
       if (S.state.people.some(function (p) { return p.email.toLowerCase() === em.value.trim().toLowerCase(); })) { note(saved, 'That email is already on the list.', true); return; }
-      S.state.people.push({ id: OA.uid('p'), name: name.value.trim(), email: em.value.trim(), role: 'frontdesk', artist: '' }); S.commit(); OA.rerender();
+      S.state.people.push({ id: OA.uid('p'), name: name.value.trim(), email: em.value.trim(), role: 'artist', artist: '' }); S.commit(); OA.rerender();
     }, 'primary'), saved));
-    /* Server accounts live below the local list, and only the owner
-       account ever sees them: the server enforces that too. */
-    if (window.OA_LOCK && OA_LOCK.user && OA_LOCK.user() && OA_LOCK.user().role === 'owner') root.appendChild(accountsBlock());
+    /* Server accounts live in the same list, above the local people,
+       and only an admin account ever sees them: the server enforces
+       that too. */
+    if (isOwner) root.appendChild(accountsBlock(acctLedger));
     return root;
   }
 
-  /* Sign-in accounts on the shop server: requests waiting for the
-     owner's yes, and every account with its standing. Approving sets
-     the role (and the chair, for an artist) the account signs in with;
+  /* Sign-in accounts on the shop server: requests waiting for an
+     admin's yes, and every account with its standing, painted into
+     the Accounts list at the top of the card. Approving sets the
+     role (and the chair, for an artist) the account signs in with;
      denying deletes the request. An account that stays away 90 days
      pauses itself and waits here for a tap to reactivate it. When an
-     artist leaves, Deactivate is the revocation: no sign-in, no live
-     session, and the tap here can undo it. Their appointments stay on
-     the calendar for the shop to reassign or cancel. Reset password is
-     the owner-driven path: the owner sets a new one, the old
-     sessions end, and the person signs back in with it. The reset
-     codes list is the person's own path: someone who forgot asks
-     from the sign-in screen, the code waits here with the code
-     itself showing (the owner reads it out in the shop; there is no
+     artist leaves, Remove is the revocation: no sign-in, no live
+     session, and the tap here can undo it. Their appointments stay
+     on the calendar for the shop to reassign or cancel. Change
+     password is the admin-driven path: the admin sets a new one,
+     the old sessions end, and the person signs back in with it. The
+     reset codes list is the person's own path: someone who forgot
+     asks from the sign-in screen, the code waits here with the code
+     itself showing (the admin reads it out in the shop; there is no
      email channel), and it leaves the list when it is spent, runs
-     out, or the owner cancels it. */
-  function accountsBlock() {
+     out, or the admin cancels it. */
+  function accountsBlock(acctLedger) {
     var API = 'https://api.instattoosionalized.net';
-    var WROLE = { owner: 'Shop owner', manager: 'Front desk', artist: 'Artist' };
-    var WSTATUS = { active: 'Active', pending: 'Waiting for approval', paused: 'Paused after 90 days away', removed: 'Deactivated' };
+    var WSTATUS = { active: 'Active', paused: 'Paused after 90 days away', removed: 'Deactivated' };
     var wrap = h('div', {});
     wrap.appendChild(h('h3', { text: 'Account requests' }));
     var reqList = h('div', { class: 'ledger' });
     wrap.appendChild(reqList);
-    wrap.appendChild(h('h3', { text: 'Accounts' }));
-    var list = h('div', { class: 'ledger' });
-    wrap.appendChild(list);
     wrap.appendChild(h('h3', { text: 'Password reset codes' }));
     var codeList = h('div', { class: 'ledger' });
     wrap.appendChild(codeList);
     var out = h('div', { class: 'saved', 'aria-live': 'polite' });
     wrap.appendChild(out);
+    var lastUsers = [];
     function token() { return window.OA_LOCK && OA_LOCK.token ? OA_LOCK.token() : ''; }
     function call(path, body) {
       return fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -129,20 +142,48 @@
     function decide(body, okMsg) {
       call('/portal-users-decide', Object.assign({ token: token() }, body)).then(function (res) {
         if (res.status === 200 && res.data && res.data.ok) { ui.toast(okMsg); load(); return; }
+        if (res.data && res.data.error === 'artist_required') { note(out, 'Pick a chair for the artist first.', true); return; }
         note(out, 'That did not go through. Try again.', true);
       }, function () { note(out, 'Could not reach the server. Try again.', true); });
     }
-    /* Resetting a password is a decide call with its own errors worth
+    /* Role changes and email edits get their own errors worth naming,
+       so they do not ride decide(): the list repaints from the server
+       either way, and a refusal says what happened. */
+    function decideRole(u, role, artist) {
+      call('/portal-users-decide', { token: token(), username: u.username, decision: 'set_role', role: role, artist: artist }).then(function (res) {
+        if (res.status === 200 && res.data && res.data.ok) {
+          var me = window.OA_LOCK && OA_LOCK.user && OA_LOCK.user();
+          if (me && me.username === u.username && role !== (u.role === 'artist' ? 'artist' : 'owner')) {
+            ui.toast('Your role changed. Sign back in to use it.');
+            if (window.OA_LOCK && OA_LOCK.signOut) OA_LOCK.signOut();
+            return;
+          }
+          ui.toast(u.username + ' is now ' + (role === 'owner' ? 'an admin' : 'an artist') + '.'); load(); return;
+        }
+        var errs = { last_owner: 'There has to be at least one admin.', invalid_role: 'That role is not one the portal uses.', not_active: 'That account is not active, so its role cannot change.', artist_required: 'Pick a chair for the artist first.' };
+        ui.fail(errs[res.data && res.data.error] || 'That did not go through. Try again.');
+        load();
+      }, function () { ui.fail('Could not reach the server. Try again.'); load(); });
+    }
+    function decideEmail(u, email, field) {
+      call('/portal-users-decide', { token: token(), username: u.username, decision: 'set_email', email: email }).then(function (res) {
+        if (res.status === 200 && res.data && res.data.ok) { u.email = email; ui.toast('Email saved for ' + u.username + '.'); return; }
+        var errs = { invalid_email: 'That does not look like an email address. Not saved.', email_unavailable: 'Email cannot be saved for accounts yet. Tell Brian.' };
+        ui.fail(errs[res.data && res.data.error] || 'That did not go through. Try again.');
+        field.value = u.email || '';
+      }, function () { ui.fail('Could not reach the server. Try again.'); field.value = u.email || ''; });
+    }
+    /* Changing a password is a decide call with its own errors worth
        naming (too short, not active), so it does not ride decide():
        the dialog stays open on a refusal and says what happened. A
-       reset signs the person out everywhere, including the owner
-       resetting their own: the toast says so and there is no reload
+       change signs the person out everywhere, including the admin
+       changing their own: the toast says so and there is no reload
        to attempt with the dead session. */
     function resetPassword(u) {
       var pw = ui.input('', { type: 'password', autocomplete: 'new-password', 'aria-label': 'New password for ' + u.username });
       var pw2 = ui.input('', { type: 'password', autocomplete: 'new-password', 'aria-label': 'New password for ' + u.username + ', typed again' });
       ui.dialog({
-        title: 'Reset password for ' + u.username,
+        title: 'Change password for ' + u.username,
         body: h('div', { class: 'form-grid' },
           ui.field('New password', pw, 'At least 10 characters. ' + u.username + ' is signed out everywhere and signs back in with this password.'),
           ui.field('Type it again', pw2)),
@@ -152,7 +193,7 @@
             if (pw.value !== pw2.value) return { error: 'The two passwords do not match.' };
             return call('/portal-users-decide', { token: token(), username: u.username, decision: 'reset_password', password: pw.value }).then(function (res) {
               if (res.status === 200 && res.data && res.data.ok) return 'reset';
-              var errs = { password_too_short: 'Passwords need at least 10 characters.', not_active: 'That account is not active, so its password cannot be reset.', no_such_user: 'That account is no longer there.', not_authorized: 'Only an owner can reset a password.' };
+              var errs = { password_too_short: 'Passwords need at least 10 characters.', not_active: 'That account is not active, so its password cannot be changed.', no_such_user: 'That account is no longer there.', not_authorized: 'Only an admin can change a password.' };
               return { error: errs[res.data && res.data.error] || 'That did not go through. Try again.' };
             }, function () { return { error: 'Could not reach the server. Try again.' }; });
           } }
@@ -171,12 +212,14 @@
       var mins = Math.round(ms / 60000);
       return mins <= 1 ? 'under a minute left' : 'about ' + mins + ' minutes left';
     }
+    function justAdded(u) { return !!u.created_at && (Date.now() - Date.parse(u.created_at)) < 24 * 3600 * 1000; }
     function paint(users, resetCodes) {
-      OA.clear(reqList); OA.clear(list); OA.clear(codeList);
+      lastUsers = users;
+      OA.clear(reqList); OA.clear(acctLedger); OA.clear(codeList);
       var pending = users.filter(function (u) { return u.status === 'pending'; });
       if (!pending.length) reqList.appendChild(h('p', { class: 'note', text: 'No accounts are waiting for approval.' }));
       pending.forEach(function (u) {
-        var role = ui.select([['artist', WROLE.artist], ['manager', WROLE.manager], ['owner', WROLE.owner]], 'artist', { 'aria-label': u.username + ' role' });
+        var role = ui.select([['artist', ROLE.artist], ['owner', ROLE.owner]], 'artist', { 'aria-label': u.username + ' role' });
         var art = ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), '', { 'aria-label': u.username + ' chair' });
         role.addEventListener('change', function () { art.disabled = role.value !== 'artist'; });
         reqList.appendChild(h('div', { class: 'ledger-row acct' },
@@ -187,19 +230,44 @@
               ui.confirm('Deny ' + u.username + '?', 'Their request is deleted and they cannot sign in. They can ask again from the sign-in screen.', 'Deny', true).then(function (ok) { if (ok) decide({ username: u.username, decision: 'deny' }, 'Request from ' + u.username + ' denied.'); });
             }, 'small quiet'))));
       });
-      if (!users.length) list.appendChild(h('p', { class: 'note', text: 'No accounts yet.' }));
-      users.forEach(function (u) {
+      var accounts = users.filter(function (u) { return u.status !== 'pending'; });
+      if (!accounts.length) acctLedger.appendChild(h('p', { class: 'note', text: 'No accounts yet.' }));
+      accounts.forEach(function (u) {
         var last = u.last_login_at ? 'Last sign-in ' + OA.ago(Date.parse(u.last_login_at)) : 'Never signed in';
-        var side = h('div', { class: 'row tight' }, h('span', { class: 'note', text: (WSTATUS[u.status] || u.status) + ' · ' + last }));
-        var row = h('div', { class: 'ledger-row acct' },
-          h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: (WROLE[u.role] || u.role) + (u.artist ? ' · ' + OA.chairName(u.artist) : '') })),
-          side);
-        if (u.status === 'paused' || u.status === 'removed') side.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
-        if ((u.status === 'active' || u.status === 'paused') && u.role !== 'owner') side.appendChild(ui.btn('Deactivate', function () {
-          ui.confirm('Deactivate ' + u.username + '?', 'They cannot sign in, and a session they already have open stops working. Their appointments stay on the calendar for the shop to reassign or cancel. You can reactivate the account here.', 'Deactivate', true).then(function (ok) { if (ok) decide({ username: u.username, decision: 'deactivate' }, u.username + ' can no longer sign in.'); });
+        var role = ui.select([['owner', ROLE.owner], ['artist', ROLE.artist]], u.role === 'artist' ? 'artist' : 'owner', { 'aria-label': u.username + ' role' });
+        var art = ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), u.artist || '', { 'aria-label': u.username + ' chair' });
+        art.disabled = role.value !== 'artist';
+        function sendRole() {
+          var next = role.value;
+          if (next === 'artist' && !art.value) { ui.fail('Pick their chair first. The role changes once a chair is chosen.'); return; }
+          if (u.role === 'owner' && next !== 'owner' && lastUsers.filter(function (x) { return x.role === 'owner' && x.status === 'active'; }).length <= 1) { ui.fail('There has to be at least one admin.'); load(); return; }
+          if (u.role === 'owner' && next === 'artist') {
+            ui.confirm('Make ' + u.username + ' an artist?', 'They lose admin access: no Settings, no site controls, no accounts. They sign back in as an artist.', 'Make artist', false).then(function (ok) { if (ok) decideRole(u, next, art.value); });
+            return;
+          }
+          decideRole(u, next, next === 'artist' ? art.value : '');
+        }
+        role.addEventListener('change', function () { art.disabled = role.value !== 'artist'; if (role.value === 'artist' && !art.value) { ui.fail('Pick their chair. The role changes once a chair is chosen.'); return; } sendRole(); });
+        art.addEventListener('change', function () { if (role.value === 'artist') sendRole(); });
+        var email = ui.input(u.email || '', { type: 'email', 'aria-label': u.username + ' email' });
+        email.addEventListener('change', function () {
+          var v = email.value.trim();
+          if (v === (u.email || '')) return;
+          if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { ui.fail('That does not look like an email address. Not saved.'); email.value = u.email || ''; return; }
+          decideEmail(u, v, email);
+        });
+        var main = h('div', { class: 'lr-main' }, h('strong', { text: u.username }), email,
+          h('span', { text: (WSTATUS[u.status] || u.status) + ' · ' + last }));
+        if (justAdded(u)) main.appendChild(ui.chip('Just added', 'ok'));
+        var side = h('div', { class: 'row tight' }, role, art);
+        var btns = h('div', { class: 'row tight' });
+        var row = h('div', { class: 'ledger-row acct' }, main, side, btns);
+        if (u.status === 'paused' || u.status === 'removed') btns.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
+        if ((u.status === 'active' || u.status === 'paused') && u.role !== 'owner') btns.appendChild(ui.btn('Remove', function () {
+          ui.confirm('Remove ' + u.username + '?', 'They cannot sign in, and a session they already have open stops working. Their appointments stay on the calendar for the shop to reassign or cancel. You can bring the account back here.', 'Remove', true).then(function (ok) { if (ok) decide({ username: u.username, decision: 'deactivate' }, u.username + ' can no longer sign in.'); });
         }, 'small danger-quiet'));
-        if (u.status === 'active' || u.status === 'paused') side.appendChild(ui.btn('Reset password', function () { resetPassword(u); }, 'small'));
-        list.appendChild(row);
+        if (u.status === 'active' || u.status === 'paused') btns.appendChild(ui.btn('Change password', function () { resetPassword(u); }, 'small'));
+        acctLedger.appendChild(row);
       });
       if (!resetCodes.length) codeList.appendChild(h('p', { class: 'note', text: 'No one is waiting on a reset code.' }));
       resetCodes.forEach(function (rc) {
@@ -220,7 +288,6 @@
     load();
     return wrap;
   }
-
 
   function connection() {
     var root = h('div', {}), api = OA.api, st = api.state(), out = h('div', { class: 'saved', 'aria-live': 'polite' });
@@ -269,7 +336,7 @@
       phone.addEventListener('change', function () { var v = phone.value.trim(); if (v && !OA.phoneOk(v)) { note(saved, OA.PHONE_MSG + ' Not saved.', true); return; } OA.setNotify(c.slug, { phone: v }); note(saved, 'Saved.'); });
       email.addEventListener('change', function () { var v = email.value.trim(); if (v && !OA.emailOk(v)) { note(saved, 'That does not look like an email address. Not saved.', true); return; } OA.setNotify(c.slug, { email: v }); note(saved, 'Saved.'); });
       paintWhy(); paintSummary();
-      var editor = h('div', { class: 'form-grid', hidden: 'hidden' }, ui.field('How they hear', mode, null, 'span2'), ui.field('Phone for texts', phone), ui.field('Email', email), h('div', { class: 'span2' }, why));
+      var editor = h('div', { class: 'form-grid', hidden: 'hidden' }, ui.field('How they hear', mode, null, 'span2'), ui.field('Phone', phone), ui.field('Email', email), h('div', { class: 'span2' }, why));
       var btn = ui.btn('Edit', function () {
         var opening = !!editor.hidden;
         if (openEditor && openEditor !== editor) { openEditor.hidden = true; if (openBtn) openBtn.textContent = 'Edit'; }

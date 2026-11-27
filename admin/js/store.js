@@ -102,8 +102,7 @@
       requests: [], appts: [], clients: [], timeoff: [],
       settings: { depositAmount: '$40', depositHow: '', reviewLink: '', templates: tpl, rating: { stars: seed.rating.stars, count: seed.rating.count, source: seed.rating.source } },
       people: [
-        { id: 'p1', name: 'Shop owner', email: 'owner@example.com', role: 'owner', artist: '' },
-        { id: 'p2', name: 'Front desk', email: 'desk@example.com', role: 'frontdesk', artist: '' },
+        { id: 'p1', name: 'Admin', email: 'owner@example.com', role: 'owner', artist: '' },
         { id: 'p3', name: 'Lex', email: 'lex@example.com', role: 'artist', artist: 'lex' },
         { id: 'p4', name: 'Liv', email: 'liv@example.com', role: 'artist', artist: 'liv' },
         { id: 'p5', name: 'Dawlface', email: 'dawlface@example.com', role: 'artist', artist: 'dawlface' }

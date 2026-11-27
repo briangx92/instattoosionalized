@@ -167,6 +167,11 @@
       if (site && Array.isArray(site.artists)) site.artists.forEach(function (a) { if (!Array.isArray(a.socials)) a.socials = OA.seedSocials(a); });
     });
     ARTIST_RENAMES.forEach(function (row) { rekeyArtist(st, row); });
+    /* The Front desk role is retired (Brian, 2026-11-27): a person
+       saved under it becomes an artist, so the word cannot linger in
+       a stored list and trap the role picker (it displayed as Artist
+       while the stored word stayed frontdesk, unchangeable). */
+    if (Array.isArray(st.people)) st.people.forEach(function (pp) { if (pp.role === 'frontdesk') pp.role = 'artist'; });
     if (!Array.isArray(st.site.announcements)) st.site.announcements = [];
     if (st.published && st.published.site && !Array.isArray(st.published.site.announcements)) st.published.site.announcements = [];
     return st;
