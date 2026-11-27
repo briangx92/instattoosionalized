@@ -33,8 +33,8 @@ const SITE = {
     ] }
   },
   prices: [
-    { group: "Tattoos", sample: true, items: [ ["Shop minimum", "$60"], ["Small flash tattoo", "$80"] ] },
-    { group: "Piercing", sample: true, items: [ ["Standard body piercing", "$45"] ] }
+    { group: "Tattoos", items: [ ["Shop minimum", "$60"], ["Small flash tattoo", "$80"] ] },
+    { group: "Piercing", items: [ ["Standard body piercing", "$45"] ] }
   ],
   reviews: [],
   artists: [
@@ -140,7 +140,7 @@ const SITE = {
   copy: {
     heroLine: "Tattoos and body piercing on Main Street in Northampton.",
     servicesTitle: "Tattoos and piercing",
-    pricesNote: "These are samples for this demo, not the shop's price list. Call the shop for a real quote.",
+    pricesNote: "",
     workLine: "Flip through the binder, one sheet at a time."
   }
 };
