@@ -145,6 +145,10 @@ a.ledger-row:hover { background: var(--surface); }
 .lr-main { display: grid; min-width: 0; } .lr-main span { color: var(--ink2); font-size: .88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lr-next { font-size: .92rem; } .lr-side { display: grid; justify-items: end; gap: .2rem; } .when { font-size: .78rem; color: var(--ink2); }
 .ledger-row.person { grid-template-columns: 36px minmax(0, 1fr) auto auto; }
+/* Account rows (Settings, People and roles) have no avatar: name block
+   plus one controls row. Borrowing .person put the name in the 36px
+   avatar column and crushed it; this grid is theirs. */
+.ledger-row.acct { grid-template-columns: minmax(0, 1fr) auto; }
 .pips { display: flex; gap: .35rem; flex-wrap: wrap; }
 .pip { display: inline-flex; gap: .45rem; align-items: center; padding: .3rem .75rem; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink2); text-decoration: none; font-weight: 600; font-size: .88rem; }
 .pip b { font-size: .78rem; background: var(--line2); border-radius: 999px; padding: 0 .45rem; color: var(--ink); }
@@ -291,6 +295,7 @@ a.ledger-row:hover { background: var(--surface); }
 @media (max-width: 860px) {
   .two { grid-template-columns: 1fr; }
   .ledger-row { grid-template-columns: 36px minmax(0, 1fr) auto; } .ledger-row .lr-next { grid-column: 2 / 4; grid-row: 2; font-size: .86rem; color: var(--ink2); }
+  .ledger-row.acct { grid-template-columns: minmax(0, 1fr); } .ledger-row.acct > .row { grid-column: 1; }
   .weekgrid { grid-template-columns: 1fr; overflow: visible; } .weekday { min-height: 0; } .weekday.closed { display: none; }
   .mhead { gap: .25rem; } .mhead span { padding: 0 .3rem; font-size: .72rem; }
   .monthgrid { gap: .25rem; }

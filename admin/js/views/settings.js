@@ -58,7 +58,18 @@
       });
       var art = p.role === 'artist' ? ui.select(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; }), p.artist, { 'aria-label': p.name + ' chair' }) : null;
       if (art) art.addEventListener('change', function () { p.artist = art.value; S.commit(); });
-      table.appendChild(h('div', { class: 'ledger-row person' }, ui.avatar(p.name), h('div', { class: 'lr-main' }, h('strong', { text: p.name }), h('span', { text: p.email })), h('div', { class: 'row tight' }, role, art),
+      /* The email edits in place and saves on change, like the role
+         beside it: the same checks the Add person form runs (shape,
+         and not already on the list), and a refused edit puts the
+         saved address back in the field. */
+      var email = ui.input(p.email, { type: 'email', 'aria-label': p.name + ' email' });
+      email.addEventListener('change', function () {
+        var v = email.value.trim();
+        if (!/^\S+@\S+\.\S+$/.test(v)) { ui.fail('That does not look like an email address. Not saved.'); email.value = p.email; return; }
+        if (S.state.people.some(function (x) { return x !== p && x.email.toLowerCase() === v.toLowerCase(); })) { ui.fail('That email is already on the list. Not saved.'); email.value = p.email; return; }
+        if (v !== p.email) { p.email = v; S.commit(); OA.rerender(); }
+      });
+      table.appendChild(h('div', { class: 'ledger-row person' }, ui.avatar(p.name), h('div', { class: 'lr-main' }, h('strong', { text: p.name }), email), h('div', { class: 'row tight' }, role, art),
         ui.btn('Remove', function () {
           if (p.role === 'owner' && owners <= 1) { ui.fail('There has to be at least one owner.'); return; }
           ui.confirm('Remove ' + p.name + '?', p.email + ' will no longer be able to sign in once this is live.', 'Remove', true).then(function (ok) { if (ok) { S.state.people = S.state.people.filter(function (x) { return x !== p; }); S.commit(); OA.rerender(); } });
@@ -86,7 +97,9 @@
      pauses itself and waits here for a tap to reactivate it. When an
      artist leaves, Deactivate is the revocation: no sign-in, no live
      session, and the tap here can undo it. Their appointments stay on
-     the calendar for the shop to reassign or cancel. */
+     the calendar for the shop to reassign or cancel. Reset password is
+     the forgotten-password path: the owner sets a new one, the old
+     sessions end, and the person signs back in with it. */
   function accountsBlock() {
     var API = 'https://api.instattoosionalized.net';
     var WROLE = { owner: 'Shop owner', manager: 'Front desk', artist: 'Artist' };
@@ -111,6 +124,39 @@
         note(out, 'That did not go through. Try again.', true);
       }, function () { note(out, 'Could not reach the server. Try again.', true); });
     }
+    /* Resetting a password is a decide call with its own errors worth
+       naming (too short, not active), so it does not ride decide():
+       the dialog stays open on a refusal and says what happened. A
+       reset signs the person out everywhere, including the owner
+       resetting their own: the toast says so and there is no reload
+       to attempt with the dead session. */
+    function resetPassword(u) {
+      var pw = ui.input('', { type: 'password', autocomplete: 'new-password', 'aria-label': 'New password for ' + u.username });
+      var pw2 = ui.input('', { type: 'password', autocomplete: 'new-password', 'aria-label': 'New password for ' + u.username + ', typed again' });
+      ui.dialog({
+        title: 'Reset password for ' + u.username,
+        body: h('div', { class: 'form-grid' },
+          ui.field('New password', pw, 'At least 10 characters. ' + u.username + ' is signed out everywhere and signs back in with this password.'),
+          ui.field('Type it again', pw2)),
+        actions: [
+          { label: 'Cancel', kind: 'quiet', value: null },
+          { label: 'Set password', kind: 'primary', run: function () {
+            if (pw.value !== pw2.value) return { error: 'The two passwords do not match.' };
+            return call('/portal-users-decide', { token: token(), username: u.username, decision: 'reset_password', password: pw.value }).then(function (res) {
+              if (res.status === 200 && res.data && res.data.ok) return 'reset';
+              var errs = { password_too_short: 'Passwords need at least 10 characters.', not_active: 'That account is not active, so its password cannot be reset.', no_such_user: 'That account is no longer there.', not_authorized: 'Only an owner can reset a password.' };
+              return { error: errs[res.data && res.data.error] || 'That did not go through. Try again.' };
+            }, function () { return { error: 'Could not reach the server. Try again.' }; });
+          } }
+        ]
+      }).then(function (v) {
+        if (v !== 'reset') return;
+        var me = window.OA_LOCK && OA_LOCK.user && OA_LOCK.user();
+        if (me && me.username === u.username) { ui.toast('Your password is changed. Sign back in with the new password.'); return; }
+        ui.toast(u.username + ' can sign in with the new password now.');
+        load();
+      });
+    }
     function paint(users) {
       OA.clear(reqList); OA.clear(list);
       var pending = users.filter(function (u) { return u.status === 'pending'; });
@@ -119,7 +165,7 @@
         var role = ui.select([['artist', WROLE.artist], ['manager', WROLE.manager], ['owner', WROLE.owner]], 'artist', { 'aria-label': u.username + ' role' });
         var art = ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), '', { 'aria-label': u.username + ' chair' });
         role.addEventListener('change', function () { art.disabled = role.value !== 'artist'; });
-        reqList.appendChild(h('div', { class: 'ledger-row person' },
+        reqList.appendChild(h('div', { class: 'ledger-row acct' },
           h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: 'Asked ' + (u.created_at ? OA.ago(Date.parse(u.created_at)) : '') })),
           h('div', { class: 'row tight' }, role, art,
             ui.btn('Approve', function () { decide({ username: u.username, decision: 'approve', role: role.value, artist: role.value === 'artist' ? art.value : '' }, u.username + ' can sign in now.'); }, 'small primary'),
@@ -130,13 +176,15 @@
       if (!users.length) list.appendChild(h('p', { class: 'note', text: 'No accounts yet.' }));
       users.forEach(function (u) {
         var last = u.last_login_at ? 'Last sign-in ' + OA.ago(Date.parse(u.last_login_at)) : 'Never signed in';
-        var row = h('div', { class: 'ledger-row person' },
+        var side = h('div', { class: 'row tight' }, h('span', { class: 'note', text: (WSTATUS[u.status] || u.status) + ' · ' + last }));
+        var row = h('div', { class: 'ledger-row acct' },
           h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: (WROLE[u.role] || u.role) + (u.artist ? ' · ' + OA.chairName(u.artist) : '') })),
-          h('span', { class: 'note', text: (WSTATUS[u.status] || u.status) + ' · ' + last }));
-        if (u.status === 'paused' || u.status === 'removed') row.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
-        if ((u.status === 'active' || u.status === 'paused') && u.role !== 'owner') row.appendChild(ui.btn('Deactivate', function () {
+          side);
+        if (u.status === 'paused' || u.status === 'removed') side.appendChild(ui.btn('Reactivate', function () { decide({ username: u.username, decision: 'reactivate' }, u.username + ' can sign in again.'); }, 'small'));
+        if ((u.status === 'active' || u.status === 'paused') && u.role !== 'owner') side.appendChild(ui.btn('Deactivate', function () {
           ui.confirm('Deactivate ' + u.username + '?', 'They cannot sign in, and a session they already have open stops working. Their appointments stay on the calendar for the shop to reassign or cancel. You can reactivate the account here.', 'Deactivate', true).then(function (ok) { if (ok) decide({ username: u.username, decision: 'deactivate' }, u.username + ' can no longer sign in.'); });
         }, 'small danger-quiet'));
+        if (u.status === 'active' || u.status === 'paused') side.appendChild(ui.btn('Reset password', function () { resetPassword(u); }, 'small'));
         list.appendChild(row);
       });
     }
