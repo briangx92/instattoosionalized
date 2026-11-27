@@ -15,8 +15,8 @@ Instattoosionalized Tattoos and Piercings is a tattoo and body piercing studio o
 ## Pages
 
 - [Home](https://instattoosionalized.net/): the shop, its artists, and the request form.
-- [Lex](https://instattoosionalized.net/view/pages/artist?artist=alexis): artist page with portfolio and request form.
-- [Liv](https://instattoosionalized.net/view/pages/artist?artist=olivia): artist page with portfolio and request form.
-- [Dawlface](https://instattoosionalized.net/view/pages/artist?artist=dawlface): artist page with portfolio and request form.
+- [Lex](https://instattoosionalized.net/artist1/): artist page with portfolio and request form.
+- [Liv](https://instattoosionalized.net/artist2/): artist page with portfolio and request form.
+- [Dawlface](https://instattoosionalized.net/artist3/): artist page with portfolio and request form.
 - [Gallery](https://instattoosionalized.net/view/pages/gallery): work from all three artists.
 - [Policies](https://instattoosionalized.net/view/pages/policies): deposit, age and ID rules, and aftercare.

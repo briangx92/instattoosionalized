@@ -214,7 +214,12 @@ function artistDisplayList(){
   list.forEach(a => { by[a.slug] = a; });
   return _artistOrder.map(x => by[x]);
 }
-function artistPageHref(a){ return "view/pages/artist.html?artist=" + (a.pageVar || a.slug); }
+function artistPageHref(a){
+  var slots = window.SLOT_URLS || {};
+  var slot = slots[a.slug] || slots[a.key];
+  if (slot) return slot;
+  return "view/pages/artist.html?artist=" + (a.pageVar || a.slug);
+}
 function igSvgEl(){
   const s = document.createElement("span");
   s.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.3" fill="currentColor"/></svg>';

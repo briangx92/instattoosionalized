@@ -5,7 +5,10 @@
    portfolio (same browser) overrides the photos, exactly as the separate pages behaved. */
 (function () {
   'use strict';
-  var ROOT = '../../';
+  /* A prerendered slot page (artistN/) carries a marker with its roster key and
+     its own depth; the shared query page has no marker and keeps the old depth. */
+  var SLOT = window.ARTIST_SLOT || null;
+  var ROOT = (SLOT && SLOT.root) || '../../';
   var ROSTER = {
  "lex": {
   "key": "lex",
@@ -548,6 +551,7 @@
     var SC = window.SiteContent;
     var varName = '';
     try { varName = new URLSearchParams(location.search).get('artist') || ''; } catch (e) { /* no variable: the roster */ }
+    if (!varName && SLOT && SLOT.key) varName = SLOT.key;
     /* Retired page variables keep working: an old link for a renamed artist
        lands on the current address instead of the roster. */
     if (varName === 'diana') {
