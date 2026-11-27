@@ -14,8 +14,9 @@
    into their view (OA_LOCK.user() / OA_LOCK.ready()). The sign-in
    also carries the same Cloudflare Turnstile human check the public
    form uses; the server verifies it before it looks at the password.
-   Bookings and request data stay behind their own sign-in as before;
-   this screen guards the portal itself. */
+   The account request carries the same check, verified before the
+   server records the request. Bookings and request data stay behind
+   their own sign-in as before; this screen guards the portal itself. */
 (function () {
   "use strict";
   var API = "https://api.instattoosionalized.net";
@@ -72,14 +73,15 @@
   }
 
   /* The human check (Cloudflare Turnstile): the same widget and site
-     key as the public form, rendered explicitly into the sign-in
-     card. Its token rides with the sign-in post and the server
-     verifies it before checking credentials. Tokens are single-use,
-     so every failed try resets the widget for the next one. The theme
-     follows the portal's own stored theme, resolved the way app.js
-     resolves it. */
+     key as the public form, rendered explicitly into a card. Its
+     token rides with that card's post and the server verifies it
+     before anything else. Tokens are single-use, so every failed try
+     resets the widget for the next one. The theme follows the
+     portal's own stored theme, resolved the way app.js resolves it.
+     Each card carries its own widget (makeTs): a token belongs to
+     the submit it was minted for, so the sign-in card and the
+     account-request card never share one. */
   var SITE_KEY = "0x4AAAAAAGUSsdQqWpUsmajE";
-  var tsWidget = null, tsRendered = false, tsToken = "";
 
   function tsTheme() {
     try {
@@ -89,33 +91,40 @@
     return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
-  function tsRender() {
-    if (tsRendered || !window.turnstile) return;
-    var box = el("lock-ts");
-    if (!box) return;
-    tsRendered = true;
-    tsWidget = window.turnstile.render(box, {
-      sitekey: SITE_KEY,
-      theme: tsTheme(),
-      callback: function (t) { tsToken = t; },
-      "expired-callback": function () { tsToken = ""; },
-      "error-callback": function () { tsToken = ""; },
-    });
-    box.hidden = false;
+  function makeTs(boxId) {
+    var widget = null, rendered = false, token = "";
+    function render() {
+      if (rendered || !window.turnstile) return;
+      var box = el(boxId);
+      if (!box) return;
+      rendered = true;
+      widget = window.turnstile.render(box, {
+        sitekey: SITE_KEY,
+        theme: tsTheme(),
+        callback: function (t) { token = t; },
+        "expired-callback": function () { token = ""; },
+        "error-callback": function () { token = ""; },
+      });
+      box.hidden = false;
+    }
+    return {
+      start: function () {
+        (function wait(n) {
+          if (window.turnstile) { render(); return; }
+          if (n > 60) return;
+          setTimeout(function () { wait(n + 1); }, 250);
+        })(0);
+      },
+      reset: function () {
+        token = "";
+        if (widget !== null && window.turnstile) { try { window.turnstile.reset(widget); } catch (e) {} }
+      },
+      token: function () { return token; },
+    };
   }
 
-  function tsStart() {
-    (function wait(n) {
-      if (window.turnstile) { tsRender(); return; }
-      if (n > 60) return;
-      setTimeout(function () { wait(n + 1); }, 250);
-    })(0);
-  }
-
-  function tsReset() {
-    tsToken = "";
-    if (tsWidget !== null && window.turnstile) { try { window.turnstile.reset(tsWidget); } catch (e) {} }
-  }
+  var tsSignin = makeTs("lock-ts");
+  var tsRequest = makeTs("lock-req-ts");
 
   function rememberChecked() {
     var box = el("lock-remember");
@@ -178,7 +187,7 @@
     pass.setAttribute("autocomplete", "off");
     if (sub) sub.textContent = "This portal is private. Type the shop passcode to open it.";
     function say(t) { if (note) note.textContent = t || ""; }
-    tsStart();
+    tsSignin.start();
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var code = pass.value.trim();
@@ -186,14 +195,14 @@
       var remember = rememberChecked();
       btn.disabled = true;
       say("Checking...");
-      post("/portal-unlock", { code: code, turnstile_token: tsToken, remember: remember }).then(function (res) {
+      post("/portal-unlock", { code: code, turnstile_token: tsSignin.token(), remember: remember }).then(function (res) {
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
           store(res.data.token, res.data.ttl, remember);
           finishOpen(null);
           return;
         }
-        tsReset();
+        tsSignin.reset();
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
         if (res.status === 503) { say("The lock is not set up yet. Ask Brian."); return; }
         if (res.data && res.data.error === "captcha_failed") { say("Please finish the human check and try again."); return; }
@@ -201,7 +210,7 @@
         pass.select();
       }).catch(function () {
         btn.disabled = false;
-        tsReset();
+        tsSignin.reset();
         say("Could not reach the server. Check your connection and try again.");
       });
     });
@@ -217,7 +226,7 @@
     var btn = el("lock-btn");
     var note = el("lock-note");
     function say(t) { if (note) note.textContent = t || ""; }
-    tsStart();
+    tsSignin.start();
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var username = user.value.trim();
@@ -226,14 +235,14 @@
       var remember = rememberChecked();
       btn.disabled = true;
       say("Checking...");
-      post("/portal-unlock", { username: username, password: password, turnstile_token: tsToken, remember: remember }).then(function (res) {
+      post("/portal-unlock", { username: username, password: password, turnstile_token: tsSignin.token(), remember: remember }).then(function (res) {
         btn.disabled = false;
         if (res.status === 200 && res.data && res.data.ok && res.data.token) {
           store(res.data.token, res.data.ttl, remember);
           finishOpen({ username: res.data.username || username, role: res.data.role || "", artist: res.data.artist || "" });
           return;
         }
-        tsReset();
+        tsSignin.reset();
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
         if (res.data && res.data.error === "captcha_failed") { say("Please finish the human check and try again."); return; }
         if (res.data && res.data.error === "pending_approval") { say("Your account is waiting for the shop owner to approve it."); return; }
@@ -243,7 +252,7 @@
         pass.select();
       }).catch(function () {
         btn.disabled = false;
-        tsReset();
+        tsSignin.reset();
         say("Could not reach the server. Check your connection and try again.");
       });
     });
@@ -253,7 +262,9 @@
 
   /* "Request an account" swaps the sign-in card for a request card.
      The request lands on the server as a pending account; the owner
-     approves it in Settings before it can sign in. */
+     approves it in Settings before it can sign in. The card carries
+     its own human-check widget (tsRequest), started when the card
+     opens; the server verifies the token before recording anything. */
   function wireRequest() {
     var toggle = el("lock-request-toggle");
     var form = el("lock-requestform");
@@ -269,6 +280,7 @@
     toggle.addEventListener("click", function () {
       login.hidden = true;
       form.hidden = false;
+      tsRequest.start();
       user.focus();
     });
     if (back) back.addEventListener("click", function () {
@@ -283,8 +295,11 @@
       if (a.value !== b.value) { say("The two passwords do not match."); return; }
       btn.disabled = true;
       say("Sending your request...");
-      post("/portal-register-request", { username: username, password: a.value }).then(function (res) {
+      post("/portal-register-request", { username: username, password: a.value, turnstile_token: tsRequest.token() }).then(function (res) {
         btn.disabled = false;
+        // The token is spent either way; the card stays on screen,
+        // so reset the widget for the next try.
+        tsRequest.reset();
         if (res.status === 200 && res.data && res.data.ok) {
           say("Request sent. The shop owner approves new accounts, so you will be able to sign in once yours is approved.");
           user.value = "";
@@ -293,12 +308,14 @@
           return;
         }
         if (res.status === 429) { say("Too many tries. Wait a bit and try again."); return; }
+        if (res.data && res.data.error === "captcha_failed") { say("Please finish the human check and try again."); return; }
         if (res.data && res.data.error === "username_taken") { say("That username is taken. Pick another one."); return; }
         if (res.data && res.data.error === "invalid_username") { say("Usernames use letters, numbers, dots, dashes or underscores, at least 3 characters."); return; }
         if (res.data && res.data.error === "password_too_short") { say("Use at least 10 characters for the password."); return; }
         say("That did not work. Try again.");
       }).catch(function () {
         btn.disabled = false;
+        tsRequest.reset();
         say("Could not reach the server. Check your connection and try again.");
       });
     });
