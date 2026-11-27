@@ -36,7 +36,7 @@
     document.title = 'Sign in | ' + shop.short + ' portal';
     OA.clear(document.body.querySelector('#app'));
     var chooser = h('div', { class: 'signin-roles' });
-    [['owner', '', 'Shop owner', 'Everything, including the site and settings'], ['frontdesk', '', 'Front desk', 'Requests, calendar, clients'], ['artist', 'lex', 'Lex', 'Her own chair, clients and portfolio'], ['artist', 'liv', 'Liv', 'Her own chair, clients and portfolio'], ['artist', 'diana', 'Diana', 'Her own chair, clients and portfolio']].forEach(function (r) {
+    [['owner', '', 'Shop owner', 'Everything, including the site and settings'], ['frontdesk', '', 'Front desk', 'Requests, calendar, clients'], ['artist', 'lex', 'Lex', 'Her own chair, clients and portfolio'], ['artist', 'liv', 'Liv', 'Her own chair, clients and portfolio'], ['artist', 'dawlface', 'Dawlface', 'Her own chair, clients and portfolio']].forEach(function (r) {
       chooser.appendChild(h('button', { type: 'button', class: 'role-btn', on: { click: function () { OA.setRole(r[0], r[1]); start(); } } }, h('strong', { text: r[2] }), h('span', { text: r[3] })));
     });
     document.querySelector('#app').appendChild(h('div', { class: 'signin' },

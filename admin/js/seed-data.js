@@ -323,13 +323,13 @@ window.OA_SEED_SITE = {
    ]
   },
   {
-   "slug": "diana",
-   "name": "Diana",
-   "first": "Diana",
+   "slug": "dawlface",
+   "name": "Dawlface",
+   "first": "Dawlface",
    "role": "Tattoo",
    "ig": "excommunicated_af",
    "socials": [{"p": "Instagram", "h": "excommunicated_af"}, {"p": "TikTok", "h": "excommunicated_pos"}],
-   "portrait": "portfolio/diana/images/diana-portrait.jpg",
+   "portrait": "portfolio/dawlface/images/dawlface-portrait.jpg",
    "about": [
     "I enjoy doing tattoos ranging from realism, characters of all sorts, dark gothic art, to detailed designs of all natures. I as well love to tattoo cover up tattoos"
    ],
@@ -342,168 +342,168 @@ window.OA_SEED_SITE = {
    ],
    "work": [
     {
-     "src": "portfolio/diana/images/diana-work-01.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-01.jpg",
      "cap": "French bulldog character piece",
      "alt": "French bulldog character tattoo with Jack the Ripper lettering",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-02.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-02.jpg",
      "cap": "Detailed hand piece",
      "alt": "Detailed tattoo covering a hand",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-03.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-03.jpg",
      "cap": "Dark hooded figure, black and grey",
      "alt": "Dark hooded figure tattoo, black and grey",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-04.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-04.jpg",
      "cap": "Monarch butterfly",
      "alt": "Monarch butterfly tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-05.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-05.jpg",
      "cap": "Stag beetle",
      "alt": "Stag beetle tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-06.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-06.jpg",
      "cap": "Blue fish with script",
      "alt": "Blue fish tattoo with script on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-07.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-07.jpg",
      "cap": "Color piece, forearm",
      "alt": "Color tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-08.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-08.jpg",
      "cap": "Phoenix, shoulder",
      "alt": "Phoenix tattoo on a shoulder",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-09.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-09.jpg",
      "cap": "Sleeve in progress",
      "alt": "Sleeve tattoo in progress on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-10.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-10.jpg",
      "cap": "Red and black design",
      "alt": "Red and black tattoo design on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-11.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-11.jpg",
      "cap": "Woman's face in an ornate frame",
      "alt": "Woman's face tattoo in an ornate frame on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-12.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-12.jpg",
      "cap": "Lizard",
      "alt": "Lizard tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-13.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-13.jpg",
      "cap": "Creature silhouette",
      "alt": "Creature silhouette tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-14.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-14.jpg",
      "cap": "Cartoon character with script",
      "alt": "Cartoon character tattoo with script on a leg",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-15.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-15.jpg",
      "cap": "Character in a dress",
      "alt": "Character in a dress tattoo on a side",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-16.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-16.jpg",
      "cap": "Orange florals",
      "alt": "Orange floral tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-17.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-17.jpg",
      "cap": "Hearts and florals",
      "alt": "Hearts and florals tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-18.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-18.jpg",
      "cap": "Small daisies",
      "alt": "Small daisy tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-19.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-19.jpg",
      "cap": "Cherries",
      "alt": "Cherry tattoo on a leg",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-20.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-20.jpg",
      "cap": "Balloon dog, ankle",
      "alt": "Balloon dog tattoo on an ankle",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-21.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-21.jpg",
      "cap": "Skull design, forearm",
      "alt": "Skull tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-22.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-22.jpg",
      "cap": "Fine line wrist piece",
      "alt": "Fine line tattoo on a wrist",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-23.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-23.jpg",
      "cap": "Ornamental script",
      "alt": "Ornamental script tattoo on a forearm",
      "date": "2026-11-21",
      "dateSource": "upload"
     },
     {
-     "src": "portfolio/diana/images/diana-work-24.jpg",
+     "src": "portfolio/dawlface/images/dawlface-work-24.jpg",
      "cap": "Small script with a bird",
      "alt": "Small script tattoo with a bird on a wrist",
      "date": "2026-11-21",

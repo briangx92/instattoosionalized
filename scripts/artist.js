@@ -194,12 +194,12 @@
   "noteFirst": "Send the shop request form with Liv picked, or message her on Instagram at @Inked.by_liv. Fully formed idea or just a bunch of screenshots, she is always excited to create something together.",
   "portrait": "portfolio/liv/images/liv-portrait.jpg"
  },
- "diana": {
-  "key": "diana",
-  "var": "diana",
-  "name": "Diana",
-  "titleName": "Diana",
-  "desc": "Diana is a tattoo artist at Instattoosionalized in Northampton, PA. Realism, characters, dark gothic work, detailed designs and cover-ups. See her work and send a request.",
+ "dawlface": {
+  "key": "dawlface",
+  "var": "dawlface",
+  "name": "Dawlface",
+  "titleName": "Dawlface",
+  "desc": "Dawlface is a tattoo artist at Instattoosionalized in Northampton, PA. Realism, characters, dark gothic work, detailed designs and cover-ups. See her work and send a request.",
   "socials": [
    {
     "p": "Instagram",
@@ -224,123 +224,123 @@
   ],
   "work": [
    {
-    "src": "portfolio/diana/images/diana-work-02.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-02.jpg",
     "alt": "Detailed tattoo covering a hand",
     "cap": "Detailed hand piece"
    },
    {
-    "src": "portfolio/diana/images/diana-work-03.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-03.jpg",
     "alt": "Dark hooded figure tattoo, black and grey",
     "cap": "Dark hooded figure, black and grey"
    },
    {
-    "src": "portfolio/diana/images/diana-work-04.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-04.jpg",
     "alt": "Monarch butterfly tattoo on a forearm",
     "cap": "Monarch butterfly"
    },
    {
-    "src": "portfolio/diana/images/diana-work-05.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-05.jpg",
     "alt": "Stag beetle tattoo on a forearm",
     "cap": "Stag beetle"
    },
    {
-    "src": "portfolio/diana/images/diana-work-06.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-06.jpg",
     "alt": "Blue fish tattoo with script on a forearm",
     "cap": "Blue fish with script"
    },
    {
-    "src": "portfolio/diana/images/diana-work-07.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-07.jpg",
     "alt": "Color tattoo on a forearm",
     "cap": "Color piece, forearm"
    },
    {
-    "src": "portfolio/diana/images/diana-work-08.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-08.jpg",
     "alt": "Phoenix tattoo on a shoulder",
     "cap": "Phoenix, shoulder"
    },
    {
-    "src": "portfolio/diana/images/diana-work-09.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-09.jpg",
     "alt": "Sleeve tattoo in progress on a forearm",
     "cap": "Sleeve in progress"
    },
    {
-    "src": "portfolio/diana/images/diana-work-10.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-10.jpg",
     "alt": "Red and black tattoo design on a forearm",
     "cap": "Red and black design"
    },
    {
-    "src": "portfolio/diana/images/diana-work-11.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-11.jpg",
     "alt": "Woman's face tattoo in an ornate frame on a forearm",
     "cap": "Woman's face in an ornate frame"
    },
    {
-    "src": "portfolio/diana/images/diana-work-12.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-12.jpg",
     "alt": "Lizard tattoo on a forearm",
     "cap": "Lizard"
    },
    {
-    "src": "portfolio/diana/images/diana-work-13.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-13.jpg",
     "alt": "Creature silhouette tattoo on a forearm",
     "cap": "Creature silhouette"
    },
    {
-    "src": "portfolio/diana/images/diana-work-14.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-14.jpg",
     "alt": "Cartoon character tattoo with script on a leg",
     "cap": "Cartoon character with script"
    },
    {
-    "src": "portfolio/diana/images/diana-work-15.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-15.jpg",
     "alt": "Character in a dress tattoo on a side",
     "cap": "Character in a dress"
    },
    {
-    "src": "portfolio/diana/images/diana-work-16.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-16.jpg",
     "alt": "Orange floral tattoo on a forearm",
     "cap": "Orange florals"
    },
    {
-    "src": "portfolio/diana/images/diana-work-17.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-17.jpg",
     "alt": "Hearts and florals tattoo on a forearm",
     "cap": "Hearts and florals"
    },
    {
-    "src": "portfolio/diana/images/diana-work-18.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-18.jpg",
     "alt": "Small daisy tattoo on a forearm",
     "cap": "Small daisies"
    },
    {
-    "src": "portfolio/diana/images/diana-work-19.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-19.jpg",
     "alt": "Cherry tattoo on a leg",
     "cap": "Cherries"
    },
    {
-    "src": "portfolio/diana/images/diana-work-20.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-20.jpg",
     "alt": "Balloon dog tattoo on an ankle",
     "cap": "Balloon dog, ankle"
    },
    {
-    "src": "portfolio/diana/images/diana-work-21.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-21.jpg",
     "alt": "Skull tattoo on a forearm",
     "cap": "Skull design, forearm"
    },
    {
-    "src": "portfolio/diana/images/diana-work-22.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-22.jpg",
     "alt": "Fine line tattoo on a wrist",
     "cap": "Fine line wrist piece"
    },
    {
-    "src": "portfolio/diana/images/diana-work-23.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-23.jpg",
     "alt": "Ornamental script tattoo on a forearm",
     "cap": "Ornamental script"
    },
    {
-    "src": "portfolio/diana/images/diana-work-24.jpg",
+    "src": "portfolio/dawlface/images/dawlface-work-24.jpg",
     "alt": "Small script tattoo with a bird on a wrist",
     "cap": "Small script with a bird"
    }
   ],
-  "noteFirst": "Send the shop request form with Diana picked, or message her on Instagram at @excommunicated_af. Tell her the idea, where it is going, and roughly how big.",
-  "portrait": "portfolio/diana/images/diana-portrait.jpg"
+  "noteFirst": "Send the shop request form with Dawlface picked, or message her on Instagram at @excommunicated_af. Tell her the idea, where it is going, and roughly how big.",
+  "portrait": "portfolio/dawlface/images/dawlface-portrait.jpg"
  }
 };
 
@@ -351,7 +351,7 @@
     return first;
   }
   /* Photo refs saved before the 2026-11-23 restructure point at the repo root
-     ("lex-work-02.jpg", "../diana-portrait.jpg"); the files now live under
+     ("lex-work-02.jpg", "../dawlface-portrait.jpg"); the files now live under
      portfolio/<artist>/images/. Rewrite the old form wherever it surfaces. */
   function fixImg(p) {
     if (typeof p !== 'string') return p;
@@ -548,6 +548,13 @@
     var SC = window.SiteContent;
     var varName = '';
     try { varName = new URLSearchParams(location.search).get('artist') || ''; } catch (e) { /* no variable: the roster */ }
+    /* Retired page variables keep working: an old link for a renamed artist
+       lands on the current address instead of the roster. */
+    if (varName === 'diana') {
+      try { var ru = new URL(location.href); ru.searchParams.set('artist', 'dawlface'); location.replace(ru.toString()); }
+      catch (e) { location.replace('artist.html?artist=dawlface' + location.hash); }
+      return;
+    }
     var by = SC ? SC.cleanArtists(SC.read()) : null;
     var rec = null;
     if (by && varName) {

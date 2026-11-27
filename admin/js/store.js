@@ -106,7 +106,7 @@
         { id: 'p2', name: 'Front desk', email: 'desk@example.com', role: 'frontdesk', artist: '' },
         { id: 'p3', name: 'Lex', email: 'lex@example.com', role: 'artist', artist: 'lex' },
         { id: 'p4', name: 'Liv', email: 'liv@example.com', role: 'artist', artist: 'liv' },
-        { id: 'p5', name: 'Diana', email: 'diana@example.com', role: 'artist', artist: 'diana' }
+        { id: 'p5', name: 'Dawlface', email: 'dawlface@example.com', role: 'artist', artist: 'dawlface' }
       ],
       activity: []
     };
