@@ -23,11 +23,150 @@
     return src.map(function (x, i) { return { id: x.id || 'so_' + a.slug + '_' + i, p: x.p, h: x.h }; });
   };
 
+  /* Artist renames: the standing mechanism.
+     When an artist is renamed, the public site and her photo files move to
+     the new name on the server, but a roster saved before the rename still
+     carries the old name and the old photo paths, and everything in the
+     portal (appointments, requests, time off, artist sign-ins) is filed
+     under her old roster key. Left alone, the next publish from such a
+     browser would put the old name back, point her photos at files that
+     moved, and publish her record under the old key, which the site's
+     built-in roster no longer matches. One row per rename in the table
+     below, and every browser's saved state converges the next time it
+     loads: first the name and the moved photo paths are repaired, then
+     the roster key itself and every record filed under it are re-keyed.
+
+     Rows are keyed by roster key on purpose, never by page address: the
+     address follows the artist's first name (OA.pageVar), so Lex's
+     address is "alexis" while his key stays "lex", and Liv's is "olivia"
+     while hers stays "liv". Deriving a re-key from names would break
+     both. A row fires only while the old key is still in use and the new
+     key is free; after that it is a no-op, so old rows are harmless.
+     Publish history (st.history) and request logs are NOT rewritten:
+     they keep the words they were written with, because they are the
+     record of what happened then, not lookups. */
+  var ARTIST_RENAMES = [
+    { from: 'diana', to: 'dawlface', wasName: 'Diana', nowName: 'Dawlface' }
+  ];
+
+  function renameRef(s, row) {
+    if (typeof s !== 'string') return s;
+    var oldRef = 'portfolio/' + row.from + '/images/' + row.from + '-', newRef = 'portfolio/' + row.to + '/images/' + row.to + '-';
+    var out = s.split(oldRef).join(newRef);
+    /* Any other file under the artist's old folder (a portrait kept at the
+       folder root, say) follows the folder even when its filename does not
+       carry the standard prefix. */
+    var oldDir = 'portfolio/' + row.from + '/', newDir = 'portfolio/' + row.to + '/';
+    if (out.indexOf(oldDir) !== -1) out = out.split(oldDir).join(newDir);
+    return out;
+  }
+
+  /* The name and photo repair for one rename row, on one site object.
+     Only a record still in its pre-rename shape is touched. A record
+     whose name was changed by hand keeps that name; its photo paths are
+     still repaired, because the files moved either way. */
+  function repairRenamedArtist(site, row) {
+    if (!site || !Array.isArray(site.artists)) return;
+    site.artists.forEach(function (a) {
+      if (!a || a.slug !== row.from) return;
+      /* The name and nick move only while they still read exactly as the
+         old name; a hand-set name is kept. The photo paths are repaired
+         either way, because the files moved either way. */
+      if (a.name === row.wasName) a.name = row.nowName;
+      if (a.nick === row.wasName) a.nick = row.nowName;
+      a.portrait = renameRef(a.portrait, row);
+      var work = ((site.portfolio || {})[a.slug] || []).slice();
+      if (Array.isArray(a.work)) work = work.concat(a.work);
+      work.forEach(function (w) {
+        if (!w) return;
+        w.src = renameRef(w.src, row);
+        if (w.pair) { w.pair.a = renameRef(w.pair.a, row); w.pair.b = renameRef(w.pair.b, row); }
+        /* Published copies carry the before/after pair as ba, not pair. */
+        if (w.ba) { w.ba.a = renameRef(w.ba.a, row); w.ba.b = renameRef(w.ba.b, row); }
+      });
+    });
+  }
+
+  /* Move one site object's roster key: the artist record, her portfolio
+     list, and the entry ids that were minted from the old key. If a
+     portfolio list already sits under the new key (it should not, when
+     no artist uses that key), the moved photos are merged in by src
+     rather than overwriting anything. */
+  function rekeySite(site, row) {
+    if (!site || !Array.isArray(site.artists)) return;
+    site.artists.forEach(function (a) {
+      if (!a || a.slug !== row.from) return;
+      a.slug = row.to;
+      (a.socials || []).forEach(function (x) {
+        if (x && typeof x.id === 'string' && x.id.indexOf('so_' + row.from + '_') === 0) x.id = 'so_' + row.to + '_' + x.id.slice(row.from.length + 4);
+      });
+    });
+    var pf = site.portfolio || {};
+    if (!Array.isArray(pf[row.from])) return;
+    var moved = pf[row.from];
+    delete pf[row.from];
+    moved.forEach(function (w) {
+      if (w && typeof w.id === 'string' && w.id.indexOf(row.from + '-') === 0) w.id = row.to + w.id.slice(row.from.length);
+    });
+    if (Array.isArray(pf[row.to])) {
+      var seen = {};
+      pf[row.to].forEach(function (w) { if (w) seen[w.src] = 1; });
+      moved.forEach(function (w) { if (w && !seen[w.src]) pf[row.to].push(w); });
+    } else pf[row.to] = moved;
+  }
+
+  /* One rename row against a whole saved state: repair, re-key both
+     site copies (the draft and the published snapshot, which is a clone
+     of the site, so its record and portfolio key follow), then re-file
+     every record that names the artist by the old key. Counts never
+     change; only the artist field on each record moves. */
+  function rekeyArtist(st, row) {
+    var site = st.site;
+    if (!site || !Array.isArray(site.artists)) return;
+    if (!site.artists.some(function (a) { return a && a.slug === row.from; })) return;
+    if (site.artists.some(function (a) { return a && a.slug === row.to; })) return;
+    var sites = [site, st.published && st.published.site];
+    sites.forEach(function (s) { repairRenamedArtist(s, row); });
+    sites.forEach(function (s) { rekeySite(s, row); });
+    ['appts', 'requests', 'timeoff'].forEach(function (k) {
+      if (!Array.isArray(st[k])) return;
+      st[k].forEach(function (r) { if (r && r.artist === row.from) r.artist = row.to; });
+    });
+    /* Artist sign-ins are bound to the roster key, so the binding follows;
+       a sign-in still labelled with the old name verbatim is relabelled,
+       under the same guard as the artist record itself. A label someone
+       set by hand is left alone. */
+    if (Array.isArray(st.people)) st.people.forEach(function (p) {
+      if (!p || p.artist !== row.from) return;
+      p.artist = row.to;
+      if (p.name === row.wasName) p.name = row.nowName;
+    });
+    /* Review quotes are prose, but a quote that names the artist by her
+       old name reads wrong the day she renames (Brian, 2026-11-27), so a
+       standalone old name in a quote's text follows the rename, in the
+       draft, the published site copy, and the published payload. The
+       attribution is never swept: it is a source line, and a person's
+       name sitting in one (a reviewer, or someone the review mentions)
+       must never be rewritten (Claude review, 2026-11-27). Quotes
+       naming anyone else are untouched. */
+    var sweepQuotes = function (quotes) {
+      if (!Array.isArray(quotes)) return;
+      var rx = new RegExp('\\b' + row.wasName + '\\b', 'g');
+      quotes.forEach(function (q) {
+        if (!q) return;
+        if (typeof q.text === 'string') q.text = q.text.replace(rx, row.nowName);
+      });
+    };
+    sites.forEach(function (s) { if (s) sweepQuotes(s.quotes); });
+    if (st.published) sweepQuotes(st.published.quotes);
+  }
+
   OA.migrate = function (st) {
     if (!st || !st.site) return st;
     [st.site, st.published && st.published.site].forEach(function (site) {
       if (site && Array.isArray(site.artists)) site.artists.forEach(function (a) { if (!Array.isArray(a.socials)) a.socials = OA.seedSocials(a); });
     });
+    ARTIST_RENAMES.forEach(function (row) { rekeyArtist(st, row); });
     if (!Array.isArray(st.site.announcements)) st.site.announcements = [];
     if (st.published && st.published.site && !Array.isArray(st.published.site.announcements)) st.published.site.announcements = [];
     return st;
