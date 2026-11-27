@@ -170,6 +170,24 @@ a.ledger-row:hover { background: var(--surface); }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0; margin: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .stats > div { padding: .8rem 1rem .8rem 0; } .stats dt { font-size: .82rem; color: var(--ink2); } .stats dd { margin: 0; font-size: 1.4rem; font-weight: 700; font-stretch: 108%; } .stats dd.note { font-size: .78rem; font-weight: 400; }
 
+/* ---------- analytics: daily chart + views by page ---------- */
+.chart { display: block; width: 100%; height: auto; }
+.ch-grid { stroke: var(--line2); stroke-width: 1; }
+.ch-axis { stroke: var(--line); stroke-width: 1; }
+.ch-lab { fill: var(--ink2); font-size: 12px; }
+.ch-bar { fill: var(--accent); }
+.ch-line { fill: none; stroke: var(--c1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ch-dot { fill: var(--surface); stroke: var(--c1); stroke-width: 1.6; }
+.ch-keys { margin-bottom: .2rem; }
+.ch-key { display: inline-flex; align-items: center; gap: .4rem; font-size: .86rem; color: var(--ink2); }
+.ch-sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; background: var(--accent); }
+.ch-sw.vt { border-radius: 50%; background: var(--c1); }
+.pgrow { display: grid; gap: .25rem; }
+.pg-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.pg-path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-track { height: 6px; border-radius: 3px; background: var(--line2); }
+.pg-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+
 /* ---------- requests detail, clients, logs ---------- */
 .next h2 { margin-bottom: .2rem; }
 .next hr { border: 0; border-top: 1px solid var(--line); width: 100%; margin: .4rem 0; }
@@ -232,6 +250,25 @@ a.ledger-row:hover { background: var(--surface); }
 .cal-off { font-size: .8rem; padding: .3rem .45rem; border-radius: 6px; background: repeating-linear-gradient(135deg, transparent 0 6px, var(--line2) 6px 7px); color: var(--ink2); }
 .cal-none { margin: 0; font-size: .82rem; color: var(--ink2); } .cal-add { border: 1px dashed var(--line); background: transparent; color: var(--ink2); border-radius: 6px; padding: .25rem; cursor: pointer; font-size: .84rem; } .cal-add:hover { border-color: var(--accent); color: var(--accent); }
 .legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .84rem; color: var(--ink2); } .lg i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .35rem; background: var(--c0); vertical-align: -1px; } .lg.c1 i { background: var(--c1); } .lg.c2 i { background: var(--c2); } .lg.c3 i { background: var(--c3); } .lg.c4 i { background: var(--c4); }
+.mhead { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .6rem; margin-bottom: .4rem; }
+.mhead span { font-size: .8rem; font-weight: 700; color: var(--ink2); padding: 0 .45rem; }
+.monthgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .6rem; }
+.mday { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .45rem; min-height: 7rem; display: grid; gap: .3rem; align-content: start; cursor: pointer; }
+.mday:hover { border-color: var(--accent-line); }
+.mday.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.mday.out { background: transparent; opacity: .55; }
+.mday.closed { background: transparent; border-style: dashed; opacity: .75; }
+.mday.out.closed { opacity: .45; }
+.md-link { display: flex; align-items: center; text-decoration: none; color: var(--ink); }
+.md-num { display: inline-grid; place-items: center; min-width: 1.55rem; height: 1.55rem; padding: 0 .2rem; border-radius: 999px; font-weight: 700; font-stretch: 108%; }
+.mday.today .md-num { background: var(--accent); color: var(--accent-ink); }
+.mentries, .moffs { display: grid; gap: .25rem; }
+.mday .cal-appt { padding: .25rem .4rem; gap: 0; }
+.mday .ca-time { font-size: .7rem; }
+.mday .ca-name { font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mday .ca-meta { display: none; }
+.cal-off.moff { font-size: .7rem; padding: .15rem .35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mmore { font-size: .78rem; color: var(--ink2); text-decoration: none; padding: 0 .4rem; }
 .daygrid { display: grid; grid-template-columns: 56px minmax(0, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
 .dg-head { height: 52px; display: flex; align-items: center; gap: .5rem; padding: 0 .7rem; border-bottom: 1px solid var(--line); border-left: 4px solid var(--c0); } .dg-head.c1 { border-left-color: var(--c1); } .dg-head.c2 { border-left-color: var(--c2); } .dg-head.c3 { border-left-color: var(--c3); } .dg-head.c4 { border-left-color: var(--c4); }
 .dg-gutter .dg-head { border-left: 0; } .dg-hours { position: relative; } .dg-h { position: absolute; right: .4rem; transform: translateY(-.55em); font-size: .74rem; color: var(--ink2); }
@@ -255,6 +292,14 @@ a.ledger-row:hover { background: var(--surface); }
   .two { grid-template-columns: 1fr; }
   .ledger-row { grid-template-columns: 36px minmax(0, 1fr) auto; } .ledger-row .lr-next { grid-column: 2 / 4; grid-row: 2; font-size: .86rem; color: var(--ink2); }
   .weekgrid { grid-template-columns: 1fr; overflow: visible; } .weekday { min-height: 0; } .weekday.closed { display: none; }
+  .mhead { gap: .25rem; } .mhead span { padding: 0 .3rem; font-size: .72rem; }
+  .monthgrid { gap: .25rem; }
+  .mday { min-height: 3.8rem; padding: .3rem; border-radius: 6px; }
+  .md-num { min-width: 1.3rem; height: 1.3rem; font-size: .88rem; }
+  .mday .cal-appt { padding: .12rem .2rem; border-left-width: 3px; }
+  .mday .ca-time { display: none; }
+  .mday .ca-name { font-size: .66rem; }
+  .cal-off.moff { font-size: .62rem; padding: .1rem .25rem; }
   .artist-card { grid-template-columns: 72px minmax(0, 1fr); } .artist-card .portrait { width: 72px; height: 72px; } .artist-card > .row { grid-column: 1 / -1; justify-content: flex-start; }
   .srow, .qrow { grid-template-columns: 1fr; } .log li, .log.wide li { grid-template-columns: 1fr; gap: 0; }
   .need { flex-direction: column; align-items: stretch; } .need .btn { width: 100%; }

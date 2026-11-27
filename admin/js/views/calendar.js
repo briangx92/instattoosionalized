@@ -1,22 +1,38 @@
-/* Calendar: a week to see the shape of things, a day to see each chair's hours. */
+/* Calendar: a month to see the shape of things, a week for the shape
+   of a week, a day to see each chair's hours. */
 (function () {
   'use strict';
   var OA = window.OA, h = OA.h, S = OA.store, ui = OA.ui, act = OA.act;
   var PPM = 1.15; /* pixels per minute in the day view */
+  var CELL_CAP = 3; /* compact cards per month cell before the +N more link */
+
+  var MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   function monday(iso) { var d = OA.dow(iso); return OA.addDays(iso, d === 0 ? -6 : 1 - d); }
+  /* Months are anchored on their first day, the way ?w= anchors a week on its Monday. */
+  function monthFirst(iso) { return String(iso).slice(0, 8) + '01'; }
+  function shiftMonth(iso, n) { var d = OA.parse(iso); d.setDate(1); d.setMonth(d.getMonth() + n); return OA.iso(d); }
+  function monthLabel(iso) { var d = OA.parse(iso); return MONTHS_FULL[d.getMonth()] + ' ' + d.getFullYear(); }
   function chairIndex(slug) { var i = OA.chairs().map(function (c) { return c.slug; }).indexOf(slug); return i < 0 ? 0 : i % 5; }
   function chairsShown(q) { var c = OA.chairs(); if (OA.role.kind === 'artist') c = c.filter(function (x) { return x.slug === OA.role.slug; }); else if (q && q.chair) c = c.filter(function (x) { return x.slug === q.chair; }); return c; }
 
   function toolbar(mode, anchor, q) {
     var chairs = OA.role.kind === 'artist' ? null : ui.select([['', 'All chairs']].concat(OA.chairs().map(function (c) { return [c.slug, c.name]; })), q.chair || '', { 'aria-label': 'Show chair' });
-    if (chairs) chairs.addEventListener('change', function () { OA.go('calendar' + (mode === 'day' ? '/' + anchor : '') + OA.query({ w: mode === 'week' ? anchor : '', chair: chairs.value })); });
-    var step = mode === 'week' ? 7 : 1, base = mode === 'week' ? 'calendar' : 'calendar/';
-    function link(n) { var t = OA.addDays(anchor, n * step); return mode === 'week' ? '#/calendar' + OA.query({ w: t, chair: q.chair }) : '#/calendar/' + t + OA.query({ chair: q.chair }); }
-    var label = mode === 'week' ? OA.fmtShort(anchor) + ' to ' + OA.fmtShort(OA.addDays(anchor, 6)) : OA.fmtLong(anchor);
+    if (chairs) chairs.addEventListener('change', function () {
+      var qq = { chair: chairs.value };
+      if (mode === 'week') qq.w = anchor; else if (mode === 'month') qq.m = anchor;
+      OA.go('calendar' + (mode === 'day' ? '/' + anchor : '') + OA.query(qq));
+    });
+    function link(n) {
+      if (mode === 'month') return '#/calendar' + OA.query({ m: shiftMonth(anchor, n), chair: q.chair });
+      var t = OA.addDays(anchor, n * (mode === 'week' ? 7 : 1));
+      return mode === 'week' ? '#/calendar' + OA.query({ w: t, chair: q.chair }) : '#/calendar/' + t + OA.query({ chair: q.chair });
+    }
+    var label = mode === 'week' ? OA.fmtShort(anchor) + ' to ' + OA.fmtShort(OA.addDays(anchor, 6)) : mode === 'month' ? monthLabel(anchor) : OA.fmtLong(anchor);
+    var todayLink = mode === 'week' ? '#/calendar' + OA.query({ chair: q.chair }) : mode === 'month' ? '#/calendar' + OA.query({ m: monthFirst(OA.todayISO()), chair: q.chair }) : '#/calendar/' + OA.todayISO() + OA.query({ chair: q.chair });
     return h('div', { class: 'toolbar cal-tools' },
-      h('div', { class: 'row tight' }, ui.link('Back', link(-1), 'btn small'), h('strong', { class: 'cal-label', text: label }), ui.link('Forward', link(1), 'btn small'), ui.link('Today', mode === 'week' ? '#/calendar' + OA.query({ chair: q.chair }) : '#/calendar/' + OA.todayISO() + OA.query({ chair: q.chair }), 'btn small quiet')),
-      h('div', { class: 'row tight' }, h('div', { class: 'seg', role: 'group', 'aria-label': 'View' }, ui.link('Week', '#/calendar' + OA.query({ w: monday(anchor), chair: q.chair }), 'seg-b' + (mode === 'week' ? ' on' : '')), ui.link('Day', '#/calendar/' + (mode === 'day' ? anchor : (OA.diffDays(OA.todayISO(), anchor) >= 0 && OA.diffDays(OA.todayISO(), anchor) < 7 ? OA.todayISO() : anchor)) + OA.query({ chair: q.chair }), 'seg-b' + (mode === 'day' ? ' on' : ''))), chairs));
+      h('div', { class: 'row tight' }, ui.link('Back', link(-1), 'btn small'), h('strong', { class: 'cal-label', text: label }), ui.link('Forward', link(1), 'btn small'), ui.link('Today', todayLink, 'btn small quiet')),
+      h('div', { class: 'row tight' }, h('div', { class: 'seg', role: 'group', 'aria-label': 'View' }, ui.link('Week', '#/calendar' + OA.query({ w: monday(anchor), chair: q.chair }), 'seg-b' + (mode === 'week' ? ' on' : '')), ui.link('Month', '#/calendar' + OA.query({ m: monthFirst(anchor), chair: q.chair }), 'seg-b' + (mode === 'month' ? ' on' : '')), ui.link('Day', '#/calendar/' + (mode === 'day' ? anchor : (OA.diffDays(OA.todayISO(), anchor) >= 0 && OA.diffDays(OA.todayISO(), anchor) < 7 ? OA.todayISO() : anchor)) + OA.query({ chair: q.chair }), 'seg-b' + (mode === 'day' ? ' on' : ''))), chairs));
   }
 
   function apptCard(a, compact) {
@@ -57,6 +73,53 @@
     }
     root.appendChild(grid);
     if (!any) root.appendChild(h('p', { class: 'note', text: 'Nothing is booked this week' + (q.chair ? ' for ' + OA.chairName(q.chair) : '') + '. Requests that reach the booking stage land here.' }));
+    var legend = h('div', { class: 'legend', 'aria-label': 'Chairs' }); OA.chairs().forEach(function (c) { legend.appendChild(h('span', { class: 'lg c' + chairIndex(c.slug) }, h('i'), c.name)); });
+    root.appendChild(legend);
+    return root;
+  }
+
+  /* One day in the month grid: the date, a compact time-off marker, and
+     up to CELL_CAP compact appointment cards. A tap anywhere that is not
+     a card or a link opens that date's day view. */
+  function monthCell(day, q, slugs, first, today) {
+    var open = OA.isOpenDay(day);
+    var list = OA.scopeAppts(S.state.appts).filter(function (a) { return a.date === day && a.status !== 'cancelled' && slugs.indexOf(a.artist) >= 0; }).sort(function (a, b) { return OA.mins(a.start) - OA.mins(b.start); });
+    var off = S.state.timeoff.filter(function (t) { return t.date === day && slugs.indexOf(t.artist) >= 0; });
+    var dayLink = '#/calendar/' + day + OA.query({ chair: q.chair });
+    var cell = h('div', { class: 'mday' + (day === today ? ' today' : '') + (OA.parse(day).getMonth() !== OA.parse(first).getMonth() ? ' out' : '') + (!open && !list.length ? ' closed' : ''), 'aria-label': OA.fmtLong(day) + (list.length ? ', ' + list.length + (list.length === 1 ? ' appointment' : ' appointments') : ''), on: { click: function (e) { if (e.target.closest('a,button')) return; OA.go('calendar/' + day + OA.query({ chair: q.chair })); } } },
+      h('a', { href: dayLink, class: 'md-link', 'aria-label': OA.fmtLong(day) }, h('span', { class: 'md-num', text: String(OA.parse(day).getDate()) })));
+    if (off.length) {
+      var offs = h('div', { class: 'moffs' });
+      off.forEach(function (t) { offs.appendChild(h('div', { class: 'cal-off moff', title: OA.chairName(t.artist) + ' off, ' + OA.fmtRange(t.start, t.end).replace(/:00/g, '') + (t.note ? ' (' + t.note + ')' : ''), text: OA.chairName(t.artist) + ' off' })); });
+      cell.appendChild(offs);
+    }
+    if (list.length) {
+      var entries = h('div', { class: 'mentries' });
+      list.slice(0, CELL_CAP).forEach(function (a) { entries.appendChild(apptCard(a, true)); });
+      if (list.length > CELL_CAP) entries.appendChild(h('a', { href: dayLink, class: 'mmore', text: '+' + (list.length - CELL_CAP) + ' more' }));
+      cell.appendChild(entries);
+    }
+    return { cell: cell, count: list.length };
+  }
+
+  function monthView(first, q) {
+    var root = h('div', { class: 'page wide' }), shown = chairsShown(q), slugs = shown.map(function (c) { return c.slug; });
+    var today = OA.todayISO();
+    root.appendChild(ui.pageHead('Calendar', null, [ui.btn('Send schedule', function () { OA.sendScheduleDialog(); }), ui.btn('Block time off', function () { OA.timeoffDialog({}).then(function (v) { if (v) OA.rerender(); }); }), ui.btn('New appointment', function () { OA.apptDialog(null, { date: monthFirst(today) === first ? today : first }).then(function (r) { if (r) OA.rerender(); }); }, 'primary')]));
+    root.appendChild(toolbar('month', first, q)); root.appendChild(gcalNote());
+    var head = h('div', { class: 'mhead', 'aria-hidden': 'true' });
+    [1, 2, 3, 4, 5, 6, 0].forEach(function (d) { head.appendChild(h('span', { text: OA.DAYS[d].slice(0, 3) })); });
+    root.appendChild(head);
+    var grid = h('div', { class: 'monthgrid' }), any = 0;
+    var lastDay = OA.addDays(shiftMonth(first, 1), -1);
+    var end = OA.addDays(lastDay, (7 - OA.dow(lastDay)) % 7);
+    for (var day = monday(first); OA.diffDays(day, end) <= 0; day = OA.addDays(day, 1)) {
+      var built = monthCell(day, q, slugs, first, today);
+      any += built.count;
+      grid.appendChild(built.cell);
+    }
+    root.appendChild(grid);
+    if (!any) root.appendChild(h('p', { class: 'note', text: 'Nothing is booked this month' + (q.chair ? ' for ' + OA.chairName(q.chair) : '') + '. Requests that reach the booking stage land here.' }));
     var legend = h('div', { class: 'legend', 'aria-label': 'Chairs' }); OA.chairs().forEach(function (c) { legend.appendChild(h('span', { class: 'lg c' + chairIndex(c.slug) }, h('i'), c.name)); });
     root.appendChild(legend);
     return root;
@@ -105,6 +168,7 @@
         if (!OA.validISO(parts[0])) return ui.empty('That date is not valid', 'Dates in the address look like 2026-11-24.', ui.link('Open the calendar', '#/calendar', 'btn primary'));
         return dayView(parts[0], q);
       }
+      if (OA.validISO(q.m)) return monthView(monthFirst(q.m), q);
       return weekView(OA.validISO(q.w) ? monday(q.w) : monday(OA.todayISO()), q);
     }
   };
