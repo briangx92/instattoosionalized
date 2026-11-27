@@ -221,7 +221,7 @@
       pending.forEach(function (u) {
         var role = ui.select([['artist', ROLE.artist], ['owner', ROLE.owner]], 'artist', { 'aria-label': u.username + ' role' });
         var art = ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), '', { 'aria-label': u.username + ' chair' });
-        role.addEventListener('change', function () { art.disabled = role.value !== 'artist'; });
+        role.addEventListener('change', function () { art.hidden = role.value !== 'artist'; });
         reqList.appendChild(h('div', { class: 'ledger-row acct' },
           h('div', { class: 'lr-main' }, h('strong', { text: u.username }), h('span', { text: 'Asked ' + (u.created_at ? OA.ago(Date.parse(u.created_at)) : '') })),
           h('div', { class: 'row tight' }, role, art,
@@ -236,7 +236,7 @@
         var last = u.last_login_at ? 'Last sign-in ' + OA.ago(Date.parse(u.last_login_at)) : 'Never signed in';
         var role = ui.select([['owner', ROLE.owner], ['artist', ROLE.artist]], u.role === 'artist' ? 'artist' : 'owner', { 'aria-label': u.username + ' role' });
         var art = ui.select([['', 'Pick a chair']].concat(OA.chairs().filter(function (c) { return c.slug !== 'piercing'; }).map(function (c) { return [c.slug, c.name]; })), u.artist || '', { 'aria-label': u.username + ' chair' });
-        art.disabled = role.value !== 'artist';
+        art.hidden = role.value !== 'artist';
         function sendRole() {
           var next = role.value;
           if (next === 'artist' && !art.value) { ui.fail('Pick their chair first. The role changes once a chair is chosen.'); return; }
@@ -247,7 +247,7 @@
           }
           decideRole(u, next, next === 'artist' ? art.value : '');
         }
-        role.addEventListener('change', function () { art.disabled = role.value !== 'artist'; if (role.value === 'artist' && !art.value) { ui.fail('Pick their chair. The role changes once a chair is chosen.'); return; } sendRole(); });
+        role.addEventListener('change', function () { art.hidden = role.value !== 'artist'; if (role.value === 'artist' && !art.value) { ui.fail('Pick their chair. The role changes once a chair is chosen.'); return; } sendRole(); });
         art.addEventListener('change', function () { if (role.value === 'artist') sendRole(); });
         var email = ui.input(u.email || '', { type: 'email', 'aria-label': u.username + ' email' });
         email.addEventListener('change', function () {
