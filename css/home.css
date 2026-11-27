@@ -228,8 +228,15 @@
   .s-proof__num{ font-family:var(--font-display); font-size:var(--text-mega); line-height:.85; }
   .s-proof__stars{ font-size:var(--text-h2); }
   .s-proof__count{ color:var(--ink-soft); font-weight:600; }
-  @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:auto 1fr auto; gap:var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } }
-  @media (min-width:1024px){ .s-prices .l-wrap, #work .l-wrap, .s-proof .l-wrap{ max-width:880px; } .s-visit .l-wrap, .s-ask .l-wrap{ max-width:1020px; } }
+  /* Review quotes are cards, never a bare stack: on phones they flow full
+     width, on desktop they get their own row under the score in three
+     columns (the old auto/1fr/auto row squeezed them into a ribbon once
+     real, full-length reviews replaced the short baked ones). */
+  #proof-quotes{ display:grid; gap:var(--sp-3); }
+  #proof-quotes blockquote{ margin:0; background:var(--surface); border:1px solid var(--line-2); border-radius:var(--radius); padding:var(--sp-3); line-height:1.55; }
+  #proof-quotes blockquote footer{ margin-top:var(--sp-2); color:var(--ink-soft); font-size:var(--text-small); font-weight:600; }
+  @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:1fr auto; grid-template-areas:"score link" "quotes quotes"; gap:var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } .s-proof__score{ grid-area:score; } #proof-link{ grid-area:link; } #proof-quotes{ grid-area:quotes; grid-template-columns:repeat(3,1fr); align-items:start; } }
+  @media (min-width:1024px){ .s-prices .l-wrap, #work .l-wrap{ max-width:880px; } .s-proof .l-wrap{ max-width:1120px; } .s-visit .l-wrap, .s-ask .l-wrap{ max-width:1020px; } }
   @media (min-width:1024px){ .s-artists .l-wrap{ max-width:1140px; } .s-rail.is-fit{ overflow-x:visible; scroll-snap-type:none; justify-content:center; padding-inline:var(--sp-2); } .s-rail.is-fit .s-rail__card{ flex-basis:320px; scroll-snap-align:none; } }
 
   .s-paper{ background-color:var(--paper); color:var(--paper-ink);
