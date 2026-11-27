@@ -1,0 +1,22 @@
+# Instattoosionalized Tattoos and Piercings
+
+> Tattoo studio and body piercing shop at 1852 Main St, Northampton, PA. Call (610) 440-2700.
+
+## About
+
+Instattoosionalized Tattoos and Piercings is a tattoo and body piercing studio on Main Street in Northampton, Pennsylvania. Three artists work at the shop: Lex, Liv, and Dawlface. Booking starts with a request sent through the website; the shop confirms each appointment itself. The shop's deposit is $40 and holds your spot.
+
+## Contact
+
+- Phone: (610) 440-2700
+- Address: 1852 Main St, Northampton, PA
+- Website: https://instattoosionalized.net/
+
+## Pages
+
+- [Home](https://instattoosionalized.net/): the shop, its artists, and the request form.
+- [Lex](https://instattoosionalized.net/view/pages/artist?artist=alexis): artist page with portfolio and request form.
+- [Liv](https://instattoosionalized.net/view/pages/artist?artist=olivia): artist page with portfolio and request form.
+- [Dawlface](https://instattoosionalized.net/view/pages/artist?artist=dawlface): artist page with portfolio and request form.
+- [Gallery](https://instattoosionalized.net/view/pages/gallery): work from all three artists.
+- [Policies](https://instattoosionalized.net/view/pages/policies): deposit, age and ID rules, and aftercare.
