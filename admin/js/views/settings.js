@@ -319,7 +319,7 @@
         }
         role.addEventListener('change', function () { art.hidden = role.value !== 'artist'; if (role.value === 'artist' && !art.value) { ui.fail('Pick their chair. The role changes once a chair is chosen.'); return; } sendRole(); });
         art.addEventListener('change', function () { if (role.value === 'artist') sendRole(); });
-        var email = ui.input(u.email || '', { type: 'email', 'aria-label': u.username + ' email' });
+        var email = ui.input(u.email || '', { type: 'email', placeholder: 'name@example.com', 'aria-label': u.username + ' email' });
         email.addEventListener('change', function () {
           var v = email.value.trim();
           if (v === (u.email || '')) return;
@@ -328,7 +328,7 @@
         });
         var nameNode;
         if (u.status === 'active' || u.status === 'paused') {
-          var nameField = ui.input(u.username, { 'aria-label': u.username + ' username' });
+          var nameField = ui.input(u.username, { placeholder: 'e.g. new.name', 'aria-label': u.username + ' username' });
           nameField.addEventListener('change', function () {
             var v = nameField.value.trim().toLowerCase();
             if (v === u.username) { nameField.value = u.username; return; }
