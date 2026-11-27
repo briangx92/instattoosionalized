@@ -6,14 +6,14 @@
   var OA = window.OA, h = OA.h;
 
   OA.NOTIFY_MODES = [
-    ['manager', 'Manager tells them'],
+    ['manager', 'Management'],
     ['feed', 'Calendar link on their phone'],
     ['google', 'Their Google Calendar'],
     ['digest', 'Automatic daily or weekly text or email']
   ];
   /* Only the manager route works without the server. The others are saved as a choice and say so. */
   OA.NOTIFY_LIVE = { manager: true, feed: false, google: false, digest: false };
-  OA.NOTIFY_WHY = 'Needs the server. Until then the manager uses Send schedule.';
+  OA.NOTIFY_WHY = 'Needs the server. Until then, management uses Send schedule.';
   OA.emailOk = function (s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim()); };
 
   /* Private to the shop: lives in settings, never in the site content that gets published. */

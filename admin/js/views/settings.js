@@ -240,24 +240,45 @@
     root.appendChild(card); return root;
   }
 
-  /* How each artist hears about their appointments. The manager's own route works today; the rest are saved choices that need the server. */
+  /* How each artist hears about their appointments. One list for the whole shop;
+     Edit opens that artist's full setting in place. The management route works
+     today; the rest are saved choices that need the server. */
   function delivery() {
     var saved = h('div', { class: 'saved', 'aria-live': 'polite' }), card = h('section', { class: 'card narrow' }, h('h2', { text: 'How each artist gets their schedule' }),
-      h('p', { class: 'note', text: 'The calendar in this portal is the schedule. Everyone on the team can see it. This is only how an artist hears about their own appointments. New artists start with Manager tells them, so nobody needs a calendar account. Phone numbers and emails here stay in the portal and never go on the website.' }));
+      h('p', { class: 'note', text: 'The calendar in this portal is the schedule. Everyone on the team can see it. This is only how an artist hears about their own appointments. New artists start with Management, so nobody needs a calendar account. Phone numbers and emails here stay in the portal and never go on the website.' }));
     var chairs = OA.chairs().filter(function (c) { return c.slug !== 'piercing'; });
     if (!chairs.length) card.appendChild(ui.empty('No artists yet', 'Add an artist and they show up here.'));
+    var openEditor = null, openBtn = null;
+    function modeLabel(value) { var m = OA.NOTIFY_MODES.filter(function (x) { return x[0] === value; })[0]; return m ? m[1] : value; }
     chairs.forEach(function (c) {
       var n = OA.notify(c.slug);
+      var label = h('span', { class: 'note', text: modeLabel(n.mode) });
+      var chip = ui.chip('', '');
+      function paintSummary() {
+        var cur = OA.notify(c.slug), live = !!OA.NOTIFY_LIVE[cur.mode];
+        label.textContent = modeLabel(cur.mode);
+        chip.textContent = live ? 'Works now' : 'Needs the server';
+        chip.className = 'chip ' + (live ? 'ok' : 'warn');
+      }
       var mode = ui.select(OA.NOTIFY_MODES, n.mode, { 'aria-label': c.name + ' schedule delivery' });
       var phone = ui.input(n.phone, { 'aria-label': c.name + ' phone', placeholder: '10 digits', inputmode: 'tel' });
       var email = ui.input(n.email, { 'aria-label': c.name + ' email', placeholder: 'name@example.com', type: 'email' });
       var why = h('p', { class: 'hint' });
       function paintWhy() { why.textContent = OA.NOTIFY_LIVE[mode.value] ? 'Works now: use Send schedule on the Calendar page.' : OA.NOTIFY_WHY; why.className = 'hint' + (OA.NOTIFY_LIVE[mode.value] ? '' : ' warn'); }
-      mode.addEventListener('change', function () { OA.setNotify(c.slug, { mode: mode.value }); paintWhy(); note(saved, 'Saved.'); });
+      mode.addEventListener('change', function () { OA.setNotify(c.slug, { mode: mode.value }); paintWhy(); paintSummary(); note(saved, 'Saved.'); });
       phone.addEventListener('change', function () { var v = phone.value.trim(); if (v && !OA.phoneOk(v)) { note(saved, OA.PHONE_MSG + ' Not saved.', true); return; } OA.setNotify(c.slug, { phone: v }); note(saved, 'Saved.'); });
       email.addEventListener('change', function () { var v = email.value.trim(); if (v && !OA.emailOk(v)) { note(saved, 'That does not look like an email address. Not saved.', true); return; } OA.setNotify(c.slug, { email: v }); note(saved, 'Saved.'); });
-      paintWhy();
-      card.appendChild(h('div', { class: 'deliv' }, h('h3', { text: c.name }), h('div', { class: 'form-grid' }, ui.field('How they hear', mode, null, 'span2'), ui.field('Phone for texts', phone), ui.field('Email', email), h('div', { class: 'span2' }, why))));
+      paintWhy(); paintSummary();
+      var editor = h('div', { class: 'form-grid', hidden: 'hidden' }, ui.field('How they hear', mode, null, 'span2'), ui.field('Phone for texts', phone), ui.field('Email', email), h('div', { class: 'span2' }, why));
+      var btn = ui.btn('Edit', function () {
+        var opening = !!editor.hidden;
+        if (openEditor && openEditor !== editor) { openEditor.hidden = true; if (openBtn) openBtn.textContent = 'Edit'; }
+        editor.hidden = !opening;
+        btn.textContent = opening ? 'Close' : 'Edit';
+        openEditor = opening ? editor : null; openBtn = opening ? btn : null;
+      }, 'small');
+      var head = h('div', { class: 'row' }, h('h3', { text: c.name, style: 'margin:0' }), label, chip, h('span', { style: 'margin-left:auto' }, btn));
+      card.appendChild(h('div', { class: 'deliv' }, head, editor));
     });
     card.appendChild(h('div', { class: 'row' }, ui.btn('Send a schedule', function () { OA.sendScheduleDialog(); }, 'primary')));
     card.appendChild(saved); return card;
