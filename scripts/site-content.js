@@ -300,18 +300,48 @@
     }
     function carousel(box, cards) {
       if (box._revAuto || cards.length < 2) return;
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       box._revAuto = true;
       var resumeAt = 0;
-      ['pointerdown', 'touchstart', 'wheel'].forEach(function (ev) { box.addEventListener(ev, function () { resumeAt = Date.now() + 8000; }, { passive: true }); });
+      function pause() { resumeAt = Date.now() + 8000; }
+      ['pointerdown', 'touchstart', 'wheel'].forEach(function (ev) { box.addEventListener(ev, pause, { passive: true }); });
+      function step() { return cards[1].offsetLeft - cards[0].offsetLeft; }
+      function current() { var s = step(); return s > 0 ? Math.round(box.scrollLeft / s) : 0; }
+      function go(idx) {
+        var maxLeft = box.scrollWidth - box.clientWidth;
+        if (idx >= cards.length) idx = 0;
+        if (idx < 0) idx = cards.length - 1;
+        var target = cards[idx].offsetLeft - cards[0].offsetLeft;
+        if (target > maxLeft) target = maxLeft;
+        box.scrollTo({ left: target, behavior: 'smooth' });
+      }
+      function forward() {
+        if (box.scrollLeft >= box.scrollWidth - box.clientWidth - 2) { go(0); return; }
+        go(current() + 1);
+      }
+      function back() {
+        if (box.scrollLeft <= 2) { go(cards.length - 1); return; }
+        go(current() - 1);
+      }
+      /* Prev/next arrows for the phone presentation (the stylesheet shows
+         them only at phone width). Tapping one moves the carousel one card
+         and pauses the auto-advance like any other interaction. */
+      var nav = document.createElement('div');
+      nav.className = 'rev-nav';
+      [['‹', 'Previous reviews', back], ['›', 'Next reviews', forward]].forEach(function (spec) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = spec[0];
+        b.setAttribute('aria-label', spec[1]);
+        b.addEventListener('click', function () { pause(); spec[2](); });
+        nav.appendChild(b);
+      });
+      box.after(nav);
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       setInterval(function () {
         if (document.hidden || Date.now() < resumeAt) return;
         if (!window.matchMedia('(max-width: 699px)').matches) return;
-        var step = cards[1].offsetLeft - cards[0].offsetLeft;
-        if (step <= 0) return;
-        var idx = Math.round(box.scrollLeft / step) + 1;
-        if (idx >= cards.length) idx = 0;
-        box.scrollTo({ left: cards[idx].offsetLeft - cards[0].offsetLeft, behavior: 'smooth' });
+        if (step() <= 0) return;
+        forward();
       }, 4200);
     }
     /* Long reviews must not stretch their cards: a text that overflows the
