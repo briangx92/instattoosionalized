@@ -252,7 +252,7 @@
 
   function cleanQuotes(c) {
     if (!c || !Array.isArray(c.quotes)) return null;
-    return c.quotes.map(function (q) { return { text: String((q && q.text) || '').trim().slice(0, 1600), who: String((q && q.who) || '').trim().slice(0, 40) }; }).filter(function (q) { return q.text; }).slice(0, 12);
+    return c.quotes.map(function (q) { return { text: String((q && q.text) || '').trim().slice(0, 1600), who: String((q && q.who) || '').trim().slice(0, 40) }; }).filter(function (q) { return q.text; }).slice(0, 50);
   }
 
   /* One review card, the same markup the baked renderer in home.js emits: gold stars,
@@ -314,10 +314,48 @@
         box.scrollTo({ left: cards[idx].offsetLeft - cards[0].offsetLeft, behavior: 'smooth' });
       }, 4200);
     }
+    /* Long reviews must not stretch their cards: a text that overflows the
+       clamp is cut off with an ellipsis, and the card toggles the full text
+       in place on click or tap (and back on a second one). Texts that fit
+       stay whole and get no toggle. Display only; the payload is untouched.
+       Both renderers funnel their cards through watch(), so the baked path
+       in home.js behaves the same as the published path here. */
+    function clamp(box, cards) {
+      cards.forEach(function (card) {
+        var text = card.querySelector('.rev-card__text');
+        if (!text || card._revClamp) return;
+        card._revClamp = true;
+        text.classList.add('rev-card__text--clamp');
+        if (text.scrollHeight <= text.clientHeight + 2) { text.classList.remove('rev-card__text--clamp'); return; }
+        card.classList.add('rev-card--more');
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-expanded', 'false');
+        var more = document.createElement('div');
+        more.className = 'rev-card__more';
+        more.setAttribute('aria-hidden', 'true');
+        more.textContent = '.....';
+        text.after(more);
+        var downX = 0, downY = 0;
+        card.addEventListener('pointerdown', function (e) { downX = e.clientX; downY = e.clientY; });
+        function toggle() {
+          var open = card.classList.toggle('rev-card--open');
+          card.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        card.addEventListener('click', function (e) {
+          if (Math.abs(e.clientX - downX) > 8 || Math.abs(e.clientY - downY) > 8) return;
+          toggle();
+        });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+      });
+    }
     function watch(box) {
       if (!box) return;
       var cards = Array.prototype.slice.call(box.querySelectorAll('.rev-card'));
       if (!cards.length) return;
+      clamp(box, cards);
       reveal(cards);
       carousel(box, cards);
     }
