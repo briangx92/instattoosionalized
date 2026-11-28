@@ -447,7 +447,9 @@
   .s-footer__info{ color:var(--ink-soft); }
   .s-footer nav{ display:flex; flex-wrap:wrap; gap:var(--sp-1) var(--sp-3); }
   .s-footer nav a{ min-height:44px; display:inline-flex; align-items:center; }
-  @media (min-width:1024px){ .s-footer .l-wrap{ grid-template-columns:1fr auto; align-items:center; } .s-footer nav{ grid-row:1 / span 2; grid-column:2; } }
+  .s-footer__credit{ color:var(--ink-soft); font-size:var(--text-small); }
+  .s-footer__credit a{ color:inherit; text-decoration:underline; text-underline-offset:2px; }
+  @media (min-width:1024px){ .s-footer .l-wrap{ grid-template-columns:1fr auto; align-items:center; } .s-footer nav{ grid-row:1 / span 2; grid-column:2; } .s-footer__credit{ grid-column:1 / -1; } }
   .s-band{ background:var(--ink); color:var(--bg); text-align:center; padding:var(--sp-2); }
   .s-band a{ font-weight:700; }
 
