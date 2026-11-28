@@ -228,6 +228,11 @@
   .s-proof__num{ font-family:var(--font-display); font-size:var(--text-mega); line-height:.85; }
   .s-proof__stars{ font-size:var(--text-h2); }
   .s-proof__count{ color:var(--ink-soft); font-weight:600; }
+  /* Section eyebrow over the score, ported from the On The Go reviews
+     header (Brian, 2026-11-27): small uppercase label, wide tracking,
+     accent color. Desktop only; below 1024px the section keeps its
+     existing stacked header, untouched. */
+  .s-proof__kicker{ display:none; font-family:var(--font-display); font-size:.72rem; letter-spacing:.22em; text-transform:uppercase; color:var(--accent-bright); }
   /* Review quotes are cards, never a bare stack: on phones they flow full
      width, on desktop they get their own row under the score in three
      columns (the old auto/1fr/auto row squeezed them into a ribbon once
@@ -253,15 +258,28 @@
      every card is the same height no matter how long its review is, so a
      rotation swap never resizes a card, its row, or the grid. Long text
      clamps inside the fixed card; expanded text scrolls inside it. */
+  /* Card anatomy ported from the On The Go reviews cards (Brian,
+     2026-11-27): element spacing rides on margins, not the flex gap
+     (text .55rem under the stars, the ..... marker .45rem under the
+     text, attribution pinned to the bottom), the star row is .9rem,
+     the attribution line is one semibold size for name and detail
+     with the OTGS dot separator, and the fixed card height matches
+     OTGS's 340px. Colors and tokens stay this site's own. */
   @media (min-width:700px){
-    .rev-card{ height:336px; overflow:hidden; }
+    .rev-card{ height:340px; overflow:hidden; gap:0; }
+    .rev-card__stars{ font-size:.9rem; }
+    .rev-card__text{ margin-top:.55rem; }
+    .rev-card__more{ margin-top:.45rem; }
+    .rev-card__who{ font-weight:600; }
+    .rev-card__who b{ font-size:.85rem; margin-right:0; }
+    .rev-card__who span::before{ content:"· "; }
     .rev-card--open .rev-card__text--clamp{ flex:1 1 auto; min-height:0; overflow-y:auto; }
   }
   @media (prefers-reduced-motion: reduce){ .rev-card{ opacity:1; transform:none; transition:none; } }
   @media (min-width:700px) and (max-width:1023px){ #proof-quotes{ grid-template-columns:repeat(2,1fr); align-items:start; } }
   @media (max-width:699px){ #proof-quotes{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:var(--sp-1); scrollbar-width:none; } #proof-quotes::-webkit-scrollbar{ display:none; } .rev-card{ flex:0 0 calc(50% - var(--sp-3) / 2); scroll-snap-align:start; } }
-  @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:1fr auto; grid-template-areas:"score link" "quotes quotes"; gap:var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } .s-proof__score{ grid-area:score; } #proof-link{ grid-area:link; } #proof-quotes{ grid-area:quotes; grid-template-columns:repeat(3,1fr); align-items:start; } }
-  @media (min-width:1024px){ .s-prices .l-wrap, #work .l-wrap{ max-width:880px; } .s-proof .l-wrap{ max-width:1120px; } .s-visit .l-wrap, .s-ask .l-wrap{ max-width:1020px; } }
+  @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:1fr auto; grid-template-areas:"score link" "quotes quotes"; gap:1.5rem var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } .s-proof__score{ grid-area:score; flex-wrap:wrap; } .s-proof__kicker{ display:block; flex:0 0 100%; margin-bottom:.45rem; } #proof-link{ grid-area:link; } #proof-quotes{ grid-area:quotes; grid-template-columns:repeat(3,1fr); align-items:start; gap:.7rem; } }
+  @media (min-width:1024px){ .s-prices .l-wrap, #work .l-wrap{ max-width:880px; } .s-proof .l-wrap{ max-width:1140px; } .s-visit .l-wrap, .s-ask .l-wrap{ max-width:1020px; } }
   @media (min-width:1024px){ .s-artists .l-wrap{ max-width:1140px; } .s-rail.is-fit{ overflow-x:visible; scroll-snap-type:none; justify-content:center; padding-inline:var(--sp-2); } .s-rail.is-fit .s-rail__card{ flex-basis:320px; scroll-snap-align:none; } }
 
   .s-paper{ background-color:var(--paper); color:var(--paper-ink);
@@ -292,7 +310,7 @@
   .s-book__photo::after{ bottom:calc(var(--sp-half) * -1); right:calc(var(--sp-half) * -1); clip-path:polygon(100% 0,100% 100%,0 100%); }
   .s-book__corner--tr{ top:calc(var(--sp-half) * -1); right:calc(var(--sp-half) * -1); clip-path:polygon(0 0,100% 0,100% 100%); }
   .s-book__corner--bl{ bottom:calc(var(--sp-half) * -1); left:calc(var(--sp-half) * -1); clip-path:polygon(0 0,0 100%,100% 100%); }
-  .s-book__nav{ display:flex; align-items:center; gap:var(--sp-2); }
+  .s-book__nav{ display:flex; align-items:center; justify-content:center; gap:var(--sp-2); }
   .s-book__count{ font-family:var(--font-display); letter-spacing:.1em; min-width:7ch; text-align:center; }
   .s-book__dots{ display:flex; gap:var(--sp-half); flex-wrap:wrap; justify-content:center; }
   .s-book__dot{ width:var(--sp-6); height:var(--sp-6); display:grid; place-items:center; }
