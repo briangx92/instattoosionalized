@@ -251,6 +251,14 @@
   @media (max-width:699px){ .rev-nav{ display:flex; justify-content:center; gap:var(--sp-3); margin-top:var(--sp-3); } .rev-nav button{ width:48px; height:48px; border-radius:50%; border:1px solid var(--line-2); background:var(--surface); color:var(--ink); font-size:1.6rem; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow); padding:0 0 .2em; } }
   .rev-card__who{ margin-top:auto; font-size:.85rem; color:var(--ink-soft); }
   .rev-card__who b{ color:var(--ink); font-size:.92rem; margin-right:.45em; }
+  /* Review spotlight (Brian, 2026-11-27, mirroring On The Go's feature
+     card): the set's lead review stands apart full-width above the grid,
+     rendered by the same card builders with a label on top and slightly
+     larger text. Fill and border tint are this site's own tokens. */
+  #proof-spotlight:empty{ display:none; }
+  .rev-spot{ background:linear-gradient(135deg, var(--mid), var(--surface)); border-color:rgba(255,82,82,.35); }
+  .rev-spot__k{ font-family:var(--font-display); font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--accent-bright); }
+  .rev-spot .rev-card__text{ font-size:1.08rem; }
   /* A rotation swap fades the outgoing card before the incoming one takes
      its slot (see RevCards.rotate in site-content.js). */
   .rev-card.rev-fade{ opacity:0; transform:translateY(10px); }
@@ -273,12 +281,15 @@
     .rev-card__who{ font-weight:600; }
     .rev-card__who b{ font-size:.85rem; margin-right:0; }
     .rev-card__who span::before{ content:"· "; }
+    .rev-card.rev-spot{ height:auto; }
+    .rev-spot__k{ margin-bottom:.55rem; }
+    .rev-spot .rev-card__who{ margin-top:.8rem; }
     .rev-card--open .rev-card__text--clamp{ flex:1 1 auto; min-height:0; overflow-y:auto; }
   }
   @media (prefers-reduced-motion: reduce){ .rev-card{ opacity:1; transform:none; transition:none; } }
   @media (min-width:700px) and (max-width:1023px){ #proof-quotes{ grid-template-columns:repeat(2,1fr); align-items:start; } }
   @media (max-width:699px){ #proof-quotes{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:var(--sp-1); scrollbar-width:none; } #proof-quotes::-webkit-scrollbar{ display:none; } .rev-card{ flex:0 0 calc(50% - var(--sp-3) / 2); scroll-snap-align:start; } }
-  @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:1fr auto; grid-template-areas:"score link" "quotes quotes"; gap:1.5rem var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } .s-proof__score{ grid-area:score; flex-wrap:wrap; } .s-proof__kicker{ display:block; flex:0 0 100%; margin-bottom:.45rem; } #proof-link{ grid-area:link; } #proof-quotes{ grid-area:quotes; grid-template-columns:repeat(3,1fr); align-items:start; gap:.7rem; } }
+  @media (min-width:1024px){ .s-proof .l-wrap{ grid-template-columns:1fr auto; grid-template-areas:"score link" "spot spot" "quotes quotes"; gap:1.5rem var(--sp-6); } .s-proof__num{ font-size:calc(var(--text-mega) * 1.25); } .s-proof__score{ grid-area:score; flex-wrap:wrap; } .s-proof__kicker{ display:block; flex:0 0 100%; margin-bottom:.45rem; } #proof-link{ grid-area:link; } #proof-spotlight{ grid-area:spot; } #proof-quotes{ grid-area:quotes; grid-template-columns:repeat(3,1fr); align-items:start; gap:.7rem; } }
   @media (min-width:1024px){ .s-prices .l-wrap, #work .l-wrap{ max-width:880px; } .s-proof .l-wrap{ max-width:1140px; } .s-visit .l-wrap, .s-ask .l-wrap{ max-width:1020px; } }
   @media (min-width:1024px){ .s-artists .l-wrap{ max-width:1140px; } .s-rail.is-fit{ overflow-x:visible; scroll-snap-type:none; justify-content:center; padding-inline:var(--sp-2); } .s-rail.is-fit .s-rail__card{ flex-basis:320px; scroll-snap-align:none; } }
 

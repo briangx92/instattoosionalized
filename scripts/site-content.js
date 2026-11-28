@@ -289,6 +289,18 @@
     return card;
   }
 
+  /* The spotlight card: the set's lead review in the feature treatment
+     (On The Go pattern), the same card anatomy with a label on top. */
+  function spotCard(q) {
+    var card = quoteCard(q, 0);
+    card.classList.add('rev-spot');
+    var k = document.createElement('div');
+    k.className = 'rev-spot__k';
+    k.textContent = 'Review spotlight, from Google reviews';
+    card.insertBefore(k, card.firstChild);
+    return card;
+  }
+
   /* Review card motion: cards fade in as they scroll into view; at phone width the row
      becomes a carousel that advances on its own and pauses while the visitor uses it. */
   var RevCards = (function () {
@@ -473,7 +485,18 @@
     var qs = cleanQuotes(c); if (!qs) return;
     box.dataset.pub = '1';
     while (box.firstChild) box.removeChild(box.firstChild);
-    qs.forEach(function (q, i) { box.appendChild(quoteCard(q, i)); });
+    /* Presentation split: the first quote stands apart as the spotlight
+       feature above the grid; the grid and carousel rotate the rest, so
+       the lead never appears twice on the page at once. */
+    var spot = document.getElementById('proof-spotlight');
+    var grid = qs;
+    if (spot && qs.length) {
+      while (spot.firstChild) spot.removeChild(spot.firstChild);
+      spot.appendChild(spotCard(qs[0]));
+      RevCards.watch(spot);
+      grid = qs.slice(1);
+    }
+    grid.forEach(function (q, i) { box.appendChild(quoteCard(q, i)); });
     RevCards.watch(box);
   }
 

@@ -346,7 +346,17 @@ const MODULES = {
         if (name) card.append(T.el("div", { class: "rev-card__who" }, [T.el("b", { text: name }), detail ? T.el("span", { text: detail }) : null]));
         return card;
       };
-      SITE.reviews.forEach((rv, i) => box.append(revCard(rv.text, rv.name, i)));
+      const spot = document.getElementById("proof-spotlight");
+      const list = SITE.reviews.slice();
+      if (spot && list.length) {
+        const sc = revCard(list[0].text, list[0].name, 0);
+        sc.classList.add("rev-spot");
+        sc.prepend(T.el("div", { class: "rev-spot__k", text: "Review spotlight, from Google reviews" }));
+        spot.append(sc);
+        if (window.RevCards) RevCards.watch(spot);
+        list.shift();
+      }
+      list.forEach((rv, i) => box.append(revCard(rv.text, rv.name, i)));
       if (window.RevCards) RevCards.watch(box);
     }
   },
