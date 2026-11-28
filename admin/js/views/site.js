@@ -184,16 +184,16 @@
 
     /* Quotes: hand-picked, word for word, and now actually published to the site's proof section. */
     var root = h('section', { class: 'card narrow' }, h('h2', { text: 'Review quotes' })), saved = h('div', { class: 'saved', 'aria-live': 'polite' });
-    root.appendChild(h('p', { class: 'note', text: 'These show on the website under the rating, up to 6. Only add reviews real people wrote, word for word, with their permission or from a public review. First name or initial only.' }));
+    root.appendChild(h('p', { class: 'note', text: 'These show on the website under the rating, up to 50. Only add reviews real people wrote, word for word, with their permission or from a public review. First name or initial only.' }));
     function save() { S.commit(); draftNote(saved, SAVED); OA.updateChrome(); }
     site.quotes.forEach(function (qt, i) {
-      var t = ui.area(qt.text, { rows: 2, maxlength: 280, 'aria-label': 'Review text' }), who = ui.input(qt.who, { maxlength: 40, 'aria-label': 'Who wrote it', placeholder: 'First name and initial' });
+      var t = ui.area(qt.text, { rows: 2, maxlength: 1600, 'aria-label': 'Review text' }), who = ui.input(qt.who, { maxlength: 40, 'aria-label': 'Who wrote it', placeholder: 'First name and initial' });
       function upd() { if (!t.value.trim()) { draftNote(saved, 'A review quote cannot be empty. Not saved.', true); return; } qt.text = t.value.trim(); qt.who = who.value.trim(); save(); }
       t.addEventListener('change', upd); who.addEventListener('change', upd);
       root.appendChild(h('div', { class: 'qrow' }, t, who, ui.btn('Remove', function () { site.quotes.splice(i, 1); save(); OA.rerender(); }, 'small quiet')));
     });
     if (!site.quotes.length) root.appendChild(ui.empty('No review quotes yet', 'Add a few from the shop’s Google or Facebook reviews. They appear on the website once published.'));
-    if (site.quotes.length < 6) root.appendChild(ui.btn('Add a review quote', function () { site.quotes.push({ id: OA.uid('q'), text: 'New review', who: '' }); save(); OA.rerender(); }, 'small'));
+    if (site.quotes.length < 50) root.appendChild(ui.btn('Add a review quote', function () { site.quotes.push({ id: OA.uid('q'), text: 'New review', who: '' }); save(); OA.rerender(); }, 'small'));
     root.appendChild(saved);
     page.appendChild(root);
 
